@@ -106,7 +106,6 @@
     var self = this;
     point[0] = point[0] * self._currentZoom;
     point[1] = point[1] * self._currentZoom;
-
     
   };
 
