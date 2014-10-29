@@ -1,0 +1,27 @@
+{{#extend "page"}}
+{{#content "content"}}
+<div class="grid">
+  <div class="col-1-2">
+    <fieldset>
+      <legend>Cropper</legend>
+      <div id="container">
+
+      </div>
+    </fieldset>
+  </div>
+  <div class="col-1-2">
+    <fieldset>
+      <legend>Output</legend>
+      <div id="result"></div>
+    </fieldset>
+  </div>
+</div>
+
+{{/content}}
+
+{{#content "scripts"}}
+<script>
+  Demo.init();
+</script>
+{{/content}}
+{{/extend}}

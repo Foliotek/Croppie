@@ -1,4 +1,53 @@
-.page-container {
-	width: 1000px;
-	margin: 0 auto;
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  color: #222;
+}
+
+h1 {
+  font-weight: 300;
+  font-size: 42px;
+
+  .small {
+    font-size: 16px;
+    color: #777;
+    font-weight: 600;
+  }
+}
+
+header {
+  border-bottom: 1px solid #ccc;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 0;
+  }
+}
+
+nav {
+
+  ul {
+    overflow: auto;
+    padding: 0px 20px;
+  }
+
+  li {
+    float: left;
+    margin-right: 15px;
+    text-transform: uppercase;
+  }
+}
+
+header, nav, .page-container {
+  padding-left: 25px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 15px;
+  min-width: 500px;
 }

@@ -88,27 +88,6 @@
     });
   };
 
-  $.imageCropper.prototype._getCenterProps = function () {
-    var self = this,
-        data = self.get(),
-        x = (data.coords[0] + data.coords[2]) / 2,
-        y = (data.coords[1] + data.coords[3]) / 2;
-
-    return {
-      x: x,
-      y: y,
-      width: data.imgWidth,
-      height: data.imgHeight
-    };
-  };
-
-  $.imageCropper.prototype._centerOnPoint = function (point) {
-    var self = this;
-    point[0] = point[0] * self._currentZoom;
-    point[1] = point[1] * self._currentZoom;
-    
-  };
-
   $.imageCropper.prototype._onZoom = function (ui) {
     var self = this;
     var prevWidth = self.$img.width(),
@@ -116,48 +95,18 @@
         newWidth = num(self._originalImageWidth * ui.value),
         newHeight = num(self._originalImageHeight * ui.value);
 
-    var center = self._getCenterProps();
+    // TODO ... we may need to cache the center point here.  Not exactly sure.
+
     self.$img.css({
       width: newWidth,
       height: newHeight
     });
+
     self._currentZoom = ui.value;
     self._updateContainment();
+    self._triggerUpdate();
 
-    var imgPos = self.$img.position(),
-        leftAdj = Math.abs(prevWidth - newWidth) / 2,
-        topAdj = Math.abs(prevHeight - newHeight) / 2,
-        newLeft = imgPos.left + leftAdj,
-        newTop = imgPos.top + topAdj,
-        minLeft = (self.$boundary.width() - self.$viewport.width()) / 2,
-        minTop = (self.$boundary.height() - self.$viewport.height()) / 2,
-        maxLeft = minLeft + self.$viewport.width() - newWidth,
-        maxTop = minTop + self.$viewport.height() - newHeight;
-
-    if (prevWidth < newWidth) {
-      leftAdj = -1 * leftAdj;
-    }
-    if (prevHeight < newHeight) {
-      topAdj = -1 * topAdj;
-    }
-
-    var centerXPerc = center.x / center.width;
-    var centerYPerc = center.y / center.height;
-    var newCenterX = -1 * (newWidth * centerXPerc);
-    var newCenterY = -1 * (newHeight * centerYPerc);
-
-
-    log('center', center, newCenterX, newCenterY);
-    log('left', newLeft, maxLeft, minLeft);
-    log('top', newTop, maxTop, minTop);
-
-    var tarLeft = Math.min(Math.max(newCenterX, minLeft), maxLeft),
-        tarTop = Math.min(Math.max(newCenterY, minTop), maxTop);
-    log(tarLeft, tarTop);
-    self.$img.css({
-      left: tarLeft,
-      top: tarTop
-    });
+    // TODO update top and left of image to keep it centered on the point it was before adjusting the width and height
   };
 
   $.imageCropper.prototype._initializeJQUI = function () {
@@ -167,10 +116,15 @@
         self.$img.css(ui.position);
       },
       stop: function (e, ui) {
-        self.options.update.apply(self.$container, self);
+        self._triggerUpdate();
       }
     });
   };
+
+  $.imageCropper.prototype._triggerUpdate = function () {
+    var self = this;
+    self.options.update.apply(self.$container, self);
+  }
 
   $.imageCropper.prototype._updateContainment = function () {
     var self = this;
@@ -215,6 +169,7 @@
     prom.done(function () {
       self.$img.attr("src", src);
       self._updatePropertiesFromImage();
+      self._triggerUpdate();
       if (cb) {
         cb();
       }

@@ -1,24 +1,29 @@
----
-title: 'Image Cropper'
----
 {{#extend "page"}}
 {{#content "content"}}
-	<div class="grid">
-		<div class="col-1-2">
-		  <div id="container">
-
-		  </div>
-		</div>
-		<div class="col-1-2">
-			<div id="result"></div>
-		</div>
-</div>
+  <section>
+    <h3>What is it?</h3>
+    <p>
+      Image Cropper is a plugin, built on top of jQuery and jQuery UI, that provides a different kind of cropping experience than other similar tools out there.
+    </p>
+  </section>
+  <section>
+    <h3>Options</h3>
+    <pre class="language-javascript"><code class="language-javascript">
+      $("#item").imageCropper({
+        viewportWidth: Integer,
+        viewportHeight: Integer,
+        boundaryWidth: Integer,
+        boundaryHeight: Integer,
+        customClass: String,
+        showZoom: Boolean,
+        update: Function (cropper) { }
+      });
+    </code></pre>
+  </section>
 
 {{/content}}
 
 {{#content "scripts"}}
-<script>
-	
-</script>
+
 {{/content}}
 {{/extend}}

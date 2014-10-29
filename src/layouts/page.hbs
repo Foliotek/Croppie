@@ -2,10 +2,19 @@
 
 {{#content "body"}}
 <header>
-	<h1>The title is {{title}}</h1>
+  <div class="container">
+    <h1><a href="/">Image Cropper</a> <span class="small">Foliotek Developers</span></h1>
+  </div>
 </header>
+<nav>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/demo.html">Demo</a></li>
+    <li><a href="/canvas.html">Canvas Demo (experimental)</a></li>
+  </ul>
+</nav>
 
-<div class="page-container">
+<div class="page-container container">
 	{{#block "content"}}
 	{{/block}}
 </div>

@@ -75,10 +75,14 @@ module.exports = function (grunt) {
 				files: ['src/assets/**/*'],
 				tasks: ['concat', 'uglify', 'less']
 			},
-			assets_dev: {
-				files: ['src/assets/**/*'],
-				tasks: ['concat', 'less']
+			dev: {
+				files: ['src/assets/**/*', 'src/layouts/**/*', 'src/pages/**/*'],
+				tasks: ['concat', 'less', 'assemble']
 			},
+			// assets_dev: {
+			// 	files: ['src/assets/**/*'],
+			// 	tasks: ['concat', 'less']
+			// },
 			src: {
 				files: ['src/layouts/**/*', 'src/pages/**/*'],
 				tasks: ['assemble']
@@ -97,6 +101,6 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-newer');
 
 	/* grunt tasks */
-	grunt.registerTask('development', ['clean', 'copy', 'concat', 'less', 'assemble', 'connect', 'watch:assets_dev']);
+	grunt.registerTask('development', ['clean', 'copy', 'concat', 'less', 'assemble', 'connect', 'watch:dev']);
 	grunt.registerTask('default', ['clean', 'copy', 'concat', 'uglify', 'less', 'assemble', 'connect', 'watch']);
 };
