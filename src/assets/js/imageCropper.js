@@ -88,6 +88,22 @@
     });
   };
 
+  $.imageCropper.prototype._keepWithinBoundaries = function () {
+    var self = this,
+        imgWidth = self.$img.width(),
+        imgHeight = self.$img.height(),
+        curPos = self.$img.position(),
+        minLeft = (self.$boundary.width() - self.$viewport.width()) / 2,
+        minTop = (self.$boundary.height() - self.$viewport.height()) / 2,
+        maxLeft = minLeft + self.$viewport.width() - imgWidth,
+        maxTop = minTop + self.$viewport.height() - imgHeight;
+
+    self.$img.css({
+      left: Math.max(Math.min(minLeft, curPos.left), maxLeft),
+      top: Math.max(Math.min(minTop, curPos.top), maxTop)
+    })
+  };
+
   $.imageCropper.prototype._onZoom = function (ui) {
     var self = this;
     var prevWidth = self.$img.width(),
@@ -97,16 +113,25 @@
 
     // TODO ... we may need to cache the center point here.  Not exactly sure.
 
+    // my attempt at centering
+    // var curPos = self.$img.position(),
+    //     newLeft = num(curPos.left + ((prevWidth - newWidth) / 4)),
+    //     newTop = num(curPos.top + ((prevHeight - newHeight) / 4));
+
     self.$img.css({
       width: newWidth,
-      height: newHeight
+      height: newHeight,
+      // left: newLeft,
+      // top: newTop
     });
 
     self._currentZoom = ui.value;
     self._updateContainment();
-    self._triggerUpdate();
+    self._keepWithinBoundaries();
 
     // TODO update top and left of image to keep it centered on the point it was before adjusting the width and height
+
+    self._triggerUpdate();
   };
 
   $.imageCropper.prototype._initializeJQUI = function () {
