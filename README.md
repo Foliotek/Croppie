@@ -1,7 +1,8 @@
 A Image Cropper built on top of jQuery
+===
 
 To Get Set Up With Github
-==========================
+---
 Download a github shell from here: http://msysgit.github.io/
 
 Follow these steps starting with Step 3: https://help.github.com/articles/set-up-git/
@@ -9,12 +10,12 @@ Follow these steps starting with Step 3: https://help.github.com/articles/set-up
 
 
 To Get Setup with NodeJS
-=========================
+---
 Download nodejs for windows from here: http://nodejs.org/ ... install it.
 
 
 Basic Git Commands
-=========================
+---
 If using ssh keys
 ```
 git clone git@github.com:Foliotek/ImageCropper.git
@@ -29,7 +30,7 @@ git clone https://github.com/Foliotek/ImageCropper.git
 
 
 Other Commands to know
-====
+---
 ```
 git pull  //similar to svn update
 git commit -am '[Commit Message Here]' // similar to svn commit, but it doesn't push the code to the repo.
@@ -40,7 +41,7 @@ git push origin [branch] // If you're in a branch, this is what you'll want to d
 ```
 
 Knowledge specific to this project type
-====
+---
 Before anything, run: `npm install`
 
 Npm is similar to nuget, as it is a package manager.  The packages are listed in the packages.json.  It will download any packages you need.
@@ -52,3 +53,9 @@ This comand does several things, and can be customized in the Gruntfile.js.  Wha
 You'll only be editing files in the `src/` directory.  The dist directory is for rendering to the browser/server.
 
 After you run grunt development, load http://localhost:8000 ... you should see the image cropper page.  The grunt command also watches for files to change and builds for you, so you don't have to worry about rebuilding your code.
+
+
+
+Last Notes
+---
+To Publish to gh-pages `git subtree push --prefix dist origin gh-pages`
