@@ -111,25 +111,54 @@
         newWidth = num(self._originalImageWidth * ui.value),
         newHeight = num(self._originalImageHeight * ui.value);
 
-    // TODO ... we may need to cache the center point here.  Not exactly sure.
 
-    // my attempt at centering
-    // var curPos = self.$img.position(),
-    //     newLeft = num(curPos.left + ((prevWidth - newWidth) / 4)),
-    //     newTop = num(curPos.top + ((prevHeight - newHeight) / 4));
+    var imgPos = self.$img.position();
+    var boundPos = self.$boundary.offset();
+    var boundWidth = self.$boundary.width();
+    var boundHeight = self.$boundary.height();
+
+    var centerX = ((boundWidth / 2) - imgPos.left);// * self._currentZoom;
+    var centerY = ((boundHeight / 2) - imgPos.top);// * self._currentZoom;
+
+    var newCenterX = centerX - (centerX * (self._currentZoom - ui.value));
+    var newCenterY = centerY - (centerY * (self._currentZoom - ui.value));
+
+    var newLeft = (boundWidth / 2) - newCenterX;
+    var newTop = (boundHeight / 2) - newCenterY;
+
+    if (this.options.debug) {
+      var dot = $("#dot");
+      dot.css({
+        top: newCenterY - (dot.height() / 2),
+        left: newCenterX - (dot.width() / 2)
+      });
+
+      var debug = {
+        cz: self._currentZoom,
+        z: ui.value,
+        centerX: centerX,
+        centerY: centerY,
+        newCenterX: newCenterX,
+        newCenterY: newCenterY,
+        newLeft: newLeft,
+        newTop: newTop
+      };
+      console.table(debug);
+    }
 
     self.$img.css({
       width: newWidth,
-      height: newHeight,
-      // left: newLeft,
-      // top: newTop
+      height: newHeight
     });
 
     self._currentZoom = ui.value;
     self._updateContainment();
     self._keepWithinBoundaries();
 
-    // TODO update top and left of image to keep it centered on the point it was before adjusting the width and height
+    self.$img.css({
+      left: newLeft,
+      top: newTop
+    });
 
     self._triggerUpdate();
   };

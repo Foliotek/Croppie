@@ -10,12 +10,26 @@ var Demo = {
 	},
 
 	init: function () {
+		var dbgr = $("#dbgr");
+		var debug = false;
+		dbgr.toggle(debug);
 		var cont = $("#container").imageCropper({
 			viewportWidth: 150,
 			viewportHeight: 200,
+			debug: debug,
 			update: function (cropper) {
 				var data = $(this).imageCropper("get");
 				Demo.output($.imageCropper.generateImage(data));
+
+				if (debug) {
+					var i = $(this).find(".ic-image");
+					dbgr.css({
+						top: i.offset().top,
+						left: i.offset().left,
+						width: i.width(),
+						height: i.height()
+					});
+				}
 			}
 		});
 		cont.imageCropper("bind", "cat.jpg");
