@@ -137,6 +137,11 @@
     var self = this,
         data = self.$img[0].getBoundingClientRect(),
         vpData = self.$viewport[0].getBoundingClientRect(),
+        // previousCenter = self.$img.css('transform-origin').split(' '),
+        // previous = {
+        //   left: parseFloat(previousCenter[0]),
+        //   top: parseFloat(previousCenter[1])
+        // },
         parsed = parseMatrix(self.$img.css('transform')),
         top = (vpData.top - data.top) + (vpData.height / 2),
         left = (vpData.left - data.left) + (vpData.width / 2),
@@ -144,11 +149,9 @@
 
     center.top = top / self._currentZoom;
     center.left = left / self._currentZoom;
-    console.log(vpData, data);
-    console.log(center, self._currentZoom);
     self.$img.css({
       transformOrigin: center.left + 'px ' + center.top + 'px', 
-      transform: getTransformString(parsed.scale, parsed.x, parsed.y)
+      // transform: getTransformString(parsed.scale, previous.left - parsed.x, previous.top - parsed.y)
     });
   };
   
@@ -163,12 +166,14 @@
         contain;
 
     function mouseDown(ev) {
+      log(parseTransform(self.$img.css('transform')));
       if (isDragging) return;
       self._updateContainment();
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      cssStart = self._getImageRect();
+      cssStart = parseTransform(self.$img.css('transform'));
+      // cssStart = self._getImageRect();
       // cssStart = self.$img[0].getBoundingClientRect();
       contain = self._dragContainment;
       body.on('mousemove.cropper', mouseMove);
@@ -179,8 +184,8 @@
     function mouseMove (ev) {
       var x = ev.pageX - originalX,
           y = ev.pageY - originalY,
-          top = cssStart.top + y,
-          left = cssStart.left + x;
+          top = cssStart.y + y,
+          left = cssStart.x + x;
       
       if (top <= contain.bottom && top >= contain.top) {
         cssChange.top = top;
@@ -195,6 +200,7 @@
 
     function mouseUp (ev) {
       isDragging = false;
+      // self._updateCenterPoint()
       $('body').off('mousemove.cropper');
       body.css('-webkit-user-select', '');
       self._triggerUpdate();
@@ -343,6 +349,22 @@
       scale: parseFloat(vals[0]),
       x: parseInt(vals[4], 10),
       y: parseInt(vals[5], 10)
+    };
+  }
+
+  function parseTransform (v) {
+    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
+      return parseMatrix(v);
+    }
+
+    var values = v.split(') '),
+        translate = values[0].substring(10).split(','),
+        scale = values[1].substring(6);
+
+    return {
+      scale: parseFloat(scale),
+      x: parseFloat(translate[0]),
+      y: parseFloat(translate[1])
     };
   }
 
