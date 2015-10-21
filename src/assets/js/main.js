@@ -11,7 +11,7 @@ var Demo = {
 
 	init: function () {
 		var dbgr = $("#dbgr");
-		var debug = false;
+		var debug = true;
 		dbgr.toggle(debug);
 		var cont = $("#container").imageCropper({
 			viewportWidth: 150,
