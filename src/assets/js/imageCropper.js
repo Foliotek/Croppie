@@ -124,13 +124,14 @@
   };
 
   $.imageCropper.prototype._getImageRect = function () {
-    var imgRect = this.$img[0].getBoundingClientRect(),
-        boundRect = this.$boundary[0].getBoundingClientRect();
+    var imgRect = this.$img[0].getBoundingClientRect();
+        // boundRect = this.$boundary[0].getBoundingClientRect();
 
-    return $.extend({}, imgRect, {
-      top: imgRect.top - boundRect.top,
-      left: imgRect.left - boundRect.left
-    });
+    return imgRect; 
+    // return $.extend({}, imgRect, {
+    //   top: imgRect.top - boundRect.top,
+    //   left: imgRect.left - boundRect.left
+    // });
   };
 
   $.imageCropper.prototype._updateCenterPoint = function () {
@@ -177,10 +178,10 @@
         cssStart,
         originalX,
         originalY,
-        contain;
+        contain,
+        vpRect;
 
     function mouseDown(ev) {
-      log(parseTransform(self.$img.css('transform')));
       if (isDragging) return;
       self._updateContainment();
       isDragging = true;
@@ -193,23 +194,34 @@
       $win.on('mousemove.cropper', mouseMove);
       $win.on('mouseup.cropper', mouseUp);
       $body.css('-webkit-user-select', 'none');
+      vpRect = self.$viewport[0].getBoundingClientRect();
     };
 
     function mouseMove (ev) {
       var x = ev.pageX - originalX,
           y = ev.pageY - originalY,
           top = cssStart.y + y,
-          left = cssStart.x + x;
-      
-      if (top <= contain.bottom && top >= contain.top) {
+          left = cssStart.x + x,
+          imgRect = self._getImageRect();
+
+      if (vpRect.top >= imgRect.top && vpRect.bottom <= imgRect.bottom) {
         cssChange.top = top;
       }
-      if (left <= contain.right && left >= contain.left) {
+
+      if (vpRect.left >= imgRect.left && vpRect.right <= imgRect.right) {
         cssChange.left = left;
       }
+
+      // if (top <= contain.bottom && top >= contain.top) {
+      //   cssChange.top = top;
+      // }
+      // if (left <= contain.right && left >= contain.left) {
+      //   cssChange.left = left;
+      // }
       
       var m = getTransformString(self._currentZoom, cssChange.left, cssChange.top);
       self.$img.css('transform', m);
+      self._updateContainment();
     };
 
     function mouseUp (ev) {
@@ -225,19 +237,19 @@
 
   $.imageCropper.prototype._updateContainment = function () {
     var self = this,
-        boundRect = self.$boundary[0].getBoundingClientRect(),
+        boundRect = this.$boundary[0].getBoundingClientRect(),
         vpPos = self.$viewport[0].getBoundingClientRect(),
         imgData = self._getImageRect(),
-        top = vpPos.bottom - imgData.height - boundRect.top,
-        bottom = vpPos.top - boundRect.top,
-        right = vpPos.left - boundRect.left,
-        left = vpPos.right - imgData.width - boundRect.left;
+        top = vpPos.bottom - imgData.height,
+        bottom = vpPos.top,
+        right = vpPos.left,
+        left = vpPos.right - imgData.width;
 
     self.$overlay.css({
       width: imgData.width,
       height: imgData.height,
-      // top: imgData.top,
-      // left: imgData.left
+      top: imgData.top - boundRect.top,
+      left: imgData.left - boundRect.left
     });
 
     self._dragContainment = {
