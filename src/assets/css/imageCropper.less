@@ -5,6 +5,9 @@
 	.ic-image {
 		z-index: -1;
 		position: absolute;
+		top: 0;
+		left: 0;
+		transform-origin: 0 0;
 	}
 
 	.ic-boundary {
@@ -23,6 +26,27 @@
 		left: 0;
 		box-shadow:0 0 0 1000px rgba(0, 0, 0, 0.5);
 		z-index: 0;
+
+		&.debug {
+			&:after,
+			&:before {
+			    background: white;
+			    width: 1px;
+			    height: 1px;
+			    content: '';
+			    position: absolute;
+			}
+			&:before {
+			    top: 0;
+			    height: 100%;
+			    left: 50%;
+			}
+			&:after {
+				top: 50%;
+				left: 0;
+				width: 100%;
+			}
+		}
 	}
 
 	.ic-overlay {
