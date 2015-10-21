@@ -69,7 +69,6 @@
       height: self.options.viewportHeight
     })
     self.$overlay = $("<div class='ic-overlay' />").appendTo(self.$boundary);
-    // self._initializeJQUI();
     self._initDraggable();
 
     if (self.options.showZoom) {
@@ -83,26 +82,33 @@
 
   $.imageCropper.prototype._initializeZoom = function () {
     var self = this;
-    self.$zoomer = $("<div class='ic-slider' />").appendTo(self.$container);
-    self.$zoomer.slider({
-      start: function () {
-        self._updateCenterPoint();
-      },
-      stop: function () {
-        var m = parseMatrix(self.$img.css('transform')),
-            pos = self._getImageRect();
+    var wrap = $('<div class="ic-slider-wrap" />').appendTo(self.$container);
+    self.$zoomer = $('<input type="range" class="ic-slider" step="0.01" />').appendTo(wrap);
 
-        self.$img.css({
-          transformOrigin: '',
-          transform: matrix(m.scale, pos.left, pos.top)
-        });
-      },
-      animate: true,
-      step: 0.01
-    });
-    self.$zoomer.on('slide', function (e, ui) {
-      self._onZoom(ui);
-    });
+    function start () {
+      self._updateCenterPoint();
+    }
+
+    function change () {
+      self._onZoom({
+        value: parseFloat(self.$zoomer.val())
+      });
+    }
+
+    function stop () {
+      var m = parseMatrix(self.$img.css('transform')),
+          pos = self._getImageRect();
+
+      self.$img.css({
+        // transformOrigin: '',
+        // transform: matrix(m.scale, pos.left, pos.top)
+      });
+    }
+
+    self.$zoomer.on('mousedown', start);
+    self.$zoomer.on('input', change);
+    self.$zoomer.on('change mouseup', stop);
+    
     self._currentZoom = 1;
   };
 
@@ -111,7 +117,7 @@
         curMatrix = parseMatrix(self.$img.css('transform'));
 
     self._currentZoom = ui.value;
-    self.$img.css('transform', matrix(ui.value, curMatrix.x, curMatrix.y));
+    self.$img.css('transform', getTransformString(ui.value, curMatrix.x, curMatrix.y));
     self._updateContainment();
     
     self._triggerUpdate();
@@ -131,17 +137,18 @@
     var self = this,
         data = self.$img[0].getBoundingClientRect(),
         vpData = self.$viewport[0].getBoundingClientRect(),
-        // curMatrix = parseMatrix(self.$img.css('transform')),
-        center = {},
+        parsed = parseMatrix(self.$img.css('transform')),
         top = (vpData.top - data.top) + (vpData.height / 2),
-        left = (vpData.left - data.left) + (vpData.width / 2);
+        left = (vpData.left - data.left) + (vpData.width / 2),
+        center = {};
 
-
-    center.top = top * self._currentZoom;
-    center.left = left * self._currentZoom;
+    center.top = top / self._currentZoom;
+    center.left = left / self._currentZoom;
+    console.log(vpData, data);
+    console.log(center, self._currentZoom);
     self.$img.css({
-      transformOrigin: center.top + 'px ' + center.left + 'px',
-      // transform: matrix(curMatrix.scale, center.left + curMatrix.x, center.top + curMatrix.y)
+      transformOrigin: center.left + 'px ' + center.top + 'px', 
+      transform: getTransformString(parsed.scale, parsed.x, parsed.y)
     });
   };
   
@@ -162,6 +169,7 @@
       originalX = ev.pageX;
       originalY = ev.pageY;
       cssStart = self._getImageRect();
+      // cssStart = self.$img[0].getBoundingClientRect();
       contain = self._dragContainment;
       body.on('mousemove.cropper', mouseMove);
       body.on('mouseup.cropper', mouseUp);
@@ -181,7 +189,7 @@
         cssChange.left = left;
       }
       
-      var m = matrix(self._currentZoom, cssChange.left, cssChange.top);
+      var m = getTransformString(self._currentZoom, cssChange.left, cssChange.top);
       self.$img.css('transform', m);
     };
 
@@ -234,9 +242,9 @@
     if (self.options.showZoom) {
       var minZoom = self.$boundary.width() / imgData.width;
       var maxZoom = 1.5;
-      self.$zoomer.slider("option", "min", minZoom);
-      self.$zoomer.slider("option", "max", maxZoom);
-      self.$zoomer.slider("value", 1);
+      self.$zoomer.attr('min', minZoom);
+      self.$zoomer.attr('max', maxZoom);
+      self.$zoomer.val(1);
     }
 
     self._updateContainment();
@@ -336,6 +344,10 @@
       x: parseInt(vals[4], 10),
       y: parseInt(vals[5], 10)
     };
+  }
+
+  function getTransformString(scale, x, y) {
+    return 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ')';
   }
 
   function matrix(scale, x, y) {

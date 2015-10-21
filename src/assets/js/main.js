@@ -21,17 +21,19 @@ var Demo = {
 				var data = $(this).imageCropper("get");
 				Demo.output($.imageCropper.generateImage(data));
 
-				if (debug) {
-					var i = $(this).find(".ic-image");
-					dbgr.css({
-						top: i.offset().top,
-						left: i.offset().left,
-						width: i.width(),
-						height: i.height()
-					});
-				}
+				// if (debug) {
+				// 	var i = $(this).find(".ic-image");
+				// 	dbgr.css({
+				// 		top: i.offset().top,
+				// 		left: i.offset().left,
+				// 		width: i.width(),
+				// 		height: i.height(),
+				// 		zIndex: -1
+				// 	});
+				// }
 			}
 		});
 		cont.imageCropper("bind", "cat.jpg");
+		window.cropper = cont;
 	}
 };
