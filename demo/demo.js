@@ -10,31 +10,30 @@ var Demo = (function() {
 		}
 	}
 
-	function init() {
-		var dbgr = $("#dbgr");
-		var debug = true;
-		dbgr.toggle(debug);
-		var cont = $("#container").imageCropper({
+	function mainCropper () {
+		var mc = $('#cropper-1');
+		mc.imageCropper({
+			viewportWidth: 100,
+			viewportHeight: 100
+		});
+		mc.imageCropper('bind', 'demo/demo-1.jpg');
+	}
+
+	function demoBasic() {
+		var cont = $("#demo-basic").imageCropper({
 			viewportWidth: 150,
 			viewportHeight: 200,
-			debug: debug,
 			update: function (cropper) {
 				var data = $(this).imageCropper("get");
 				output($.imageCropper.generateImage(data));
-
-				// if (debug) {
-				// 	var i = $(this).find(".ic-image");
-				// 	dbgr.css({
-				// 		top: i.offset().top,
-				// 		left: i.offset().left,
-				// 		width: i.width(),
-				// 		height: i.height(),
-				// 		zIndex: -1
-				// 	});
-				// }
 			}
 		});
 		cont.imageCropper("bind", "demo/cat.jpg");
+	}
+
+	function init() {
+		mainCropper();
+		demoBasic();		
 	}
 
 	return {

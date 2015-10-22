@@ -49,6 +49,10 @@ section.hero {
   font-size: 16px;
 }
 
+.hero .grid {
+  padding-top: 50px;
+}
+
 .section-header {
   background: #4B5654;  
   padding: 5px 0;
