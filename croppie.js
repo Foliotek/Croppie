@@ -116,15 +116,18 @@
   $.imageCropper.prototype._initializeZoom = function () {
     var self = this;
     var wrap = $('<div class="ic-slider-wrap" />').appendTo(self.$container);
+    var vpRect;
     self.$zoomer = $('<input type="range" class="ic-slider" step="0.01" />').appendTo(wrap);
 
     function start () {
       self._updateCenterPoint();
+      vpRect = self.$viewport[0].getBoundingClientRect();
     }
 
     function change () {
       self._onZoom({
-        value: parseFloat(self.$zoomer.val())
+        value: parseFloat(self.$zoomer.val()),
+        vpRect: vpRect
       });
     }
 
@@ -147,10 +150,41 @@
 
   $.imageCropper.prototype._onZoom = function (ui) {
     var self = this,
-        curMatrix = parseMatrix(self.$img.css('transform'));
+        curMatrix = parseMatrix(self.$img.css('transform')),
+        vpRect = ui.vpRect,
+        imgRect = self._getImageRect(),
+        adjY = 0, adjX = 0;
 
     self._currentZoom = ui.value;
-    self.$img.css('transform', getTransformString(ui.value, curMatrix.x, curMatrix.y));
+
+    var origin = self.$img.css('transform-origin').split(' '),
+        originX = parseFloat(origin[0]),
+        originY = parseFloat(origin[1]),
+        oldZoom = (self._currentZoom || 1) * 1,
+        difZoom = (oldZoom - ui.value),
+        projected = {
+          bottom: (originY - imgRect.height) * difZoom + imgRect.bottom,
+          left: originX * difZoom + imgRect.left,
+          right: (originX - imgRect.width) * difZoom + imgRect.right,
+          top: originY * difZoom + imgRect.top
+        };
+        
+    if (vpRect.top < projected.top) {
+      adjY = projected.top - vpRect.top;
+    } 
+    else if (vpRect.bottom > projected.bottom) {
+      adjY = projected.bottom - vpRect.bottom;
+    }
+
+    if (vpRect.left < projected.left) {
+      adjX = (projected.left - vpRect.left);
+    }
+    else if (vpRect.right > projected.right) {
+      adjX = projected.right - vpRect.right;
+    }
+
+    self.$img.css('transform', getTransformString(ui.value, curMatrix.x - adjX, curMatrix.y - adjY));
+
     self._updateOverlay();
     self._triggerUpdate();
   };
