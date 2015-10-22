@@ -1,6 +1,34 @@
 (function ($) {
 
-  
+  function drawImage (img, top, left, width, height, scale, circle) {
+      if (scale !== 1) {
+        var scaleCanvas = document.createElement('canvas'),
+            scaleCtx = scaleCanvas.getContext('2d'),
+            scaleW = img.width * scale,
+            scaleH = img.height * scale;
+
+        scaleCanvas.width = scaleW;
+        scaleCanvas.height = scaleH;
+        scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
+        img = scaleCanvas; //draw image takes in canvas as well as image
+      }
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
+
+      if (circle) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+      }
+
+      ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
+
+      return canvas.toDataURL();
+  }
 
   var pre = "imagecropper-";
   $.imageCropper = function (container, opts ) {
@@ -42,18 +70,16 @@
   };
 
   $.imageCropper.canvasImage = function (opts) {
-    var def = $.Deferred();
-    var coords = opts.coords;
-    var prom = loadImage(opts.src);
-    prom.done(function (img) {
-      var canvas = document.createElement("canvas");
-      var tarWidth = coords[2] - coords[0];
-      var tarHeight = coords[3] - coords[1];
-      canvas.width = tarWidth;
-      canvas.height = tarHeight;
-      var context = canvas.getContext('2d');
-      context.drawImage(img, coords[0], coords[1], tarWidth, tarHeight);
-      def.resolve("<img src='" + canvas.toDataURL() +"' />");
+    var def = $.Deferred(),
+        coords = opts.coords;
+        width = coords[2] - coords[0],
+        height = coords[3] - coords[1],
+        imgLoad = loadImage(opts.src);
+
+    log(opts);
+    imgLoad.done(function (img) {
+      var dataUrl = drawImage(img, coords[0], coords[1], width, height, opts.zoom, opts.circle);
+      def.resolve(dataUrl);
     });
 
     return def.promise();
@@ -287,7 +313,8 @@
       imgWidth: imgData.width,
       imgHeight: imgData.height,
       coords: [x1, y1, x2, y2],
-      zoom: self._currentZoom
+      zoom: self._currentZoom,
+      circle: self.options.viewport.type === 'circle'
     };
   };
   /* End Prototype Extensions */
@@ -330,6 +357,7 @@
   function loadImage (src) {
     var img = new Image();
     var def = $.Deferred();
+
     img.onload = function () {
       def.resolve(img);
     };
