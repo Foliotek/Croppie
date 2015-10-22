@@ -12,6 +12,7 @@
         scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
         img = scaleCanvas; //draw image takes in canvas as well as image
       }
+      
       var canvas = document.createElement("canvas");
       var ctx = canvas.getContext('2d');
       canvas.width = width;
@@ -44,11 +45,13 @@
       height: 100,
       type: 'square'
     },
-    boundaryWidth: 300,
-    boundaryHeight: 300,
+    boundary: {
+      width: 300,
+      height: 300
+    },
     customClass: '',
-    update: $.noop,
-    showZoom: true
+    showZoom: true,
+    update: $.noop
   };
 
   $.imageCropper.generateImage = function (opts) {
@@ -76,7 +79,6 @@
         height = coords[3] - coords[1],
         imgLoad = loadImage(opts.src);
 
-    log(opts);
     imgLoad.done(function (img) {
       var dataUrl = drawImage(img, coords[0], coords[1], width, height, opts.zoom, opts.circle);
       def.resolve(dataUrl);
@@ -92,8 +94,8 @@
     var contClass = $.trim("imagecropper-container " + self.options.customClass);
     self.$container.addClass(contClass);
     self.$boundary = $("<div class='ic-boundary' />").appendTo(self.$container).css({
-      width: self.options.boundaryWidth,
-      height: self.options.boundaryHeight
+      width: self.options.boundary.width,
+      height: self.options.boundary.height
     });
     self.$img = $("<img class='ic-image' />").appendTo(self.$boundary);
     self.$viewport = $("<div class='ic-viewport' />").appendTo(self.$boundary).css({

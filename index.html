@@ -43,20 +43,29 @@
           </section>
           <section>
             <a name="options"></a>
-            <div class="section-header">
-              <h3>Options</h3>
-            </div>
+            <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
               <pre class="language-javascript"><code class="language-javascript">
-                $("#item").imageCropper({
-                  viewportWidth: Integer,
-                  viewportHeight: Integer,
-                  boundaryWidth: Integer,
-                  boundaryHeight: Integer,
-                  customClass: String,
-                  showZoom: Boolean,
-                  update: Function (cropper) { }
-                });
+$("#item").imageCropper({
+    viewport: {
+        width: px,
+        height: px,
+        type: 'square|circle' //default 'square'
+    },
+    boundary: {
+        width: px,
+        height: px
+    },
+    customClass: '',
+    showZoom: true|false, //default true
+    update: function (cropper) { }
+});
+
+// Bind an image to the cropper
+$('#item').imageCropper('bind', 'path/to/image.png');
+
+// Get the crop data from a cropper
+var cropData = $('#item').imageCropper('get');
               </code></pre>
             </div>
           </section>
@@ -64,7 +73,7 @@
           <section>
             <a name="demos"></a>
             <div class="section-header">
-              <h3>Demos</h3>
+              <h2>Demos</h2>
             </div>
             <div class="container">
               <div class="grid">
@@ -86,16 +95,23 @@
             </div>
           </section>
 
-          <section>
+          <section class="who">
             <a name="who"></a>
             <div class="section-header">
-              <h3>Who?</h3>
+              <h2>Who?</h2>
             </div>
-            <div class="container" style="min-height: 250px">
-              
+            <div class="container">
+              <p>
+                Croppie was built by <a href="http://www.foliotek.com">Foliotek</a> for use in Foliotek Presentation.
+              </p>
+              <p>
+                Check out some of our other open source tools: <a href="//foliotek.github.io/AjaxQ">AjaxQ</a> | <a href="//foliotek.github.io/LTI-Tester">LTI Tester</a>
+              </p>
             </div>
           </section>
-
+        <footer>
+            Copyright &copy; 2015 | Foliotek
+        </footer>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
         <script src="demo/prism.js"></script>

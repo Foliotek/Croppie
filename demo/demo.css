@@ -43,13 +43,31 @@ nav a {
     padding: 0 10px;
 }
 
+footer {
+    text-align: center;
+    color: #555;
+    font-size: 12px;
+    padding: 5px;
+}
+
+section {
+    margin-bottom: 20px;
+}
+
 section.hero {
     height: 50vh;
     background: #20C1C7;
     color: white;
     text-shadow: 0 1px 1px rgba(20,20,20,0.6);
+    margin-bottom: 0;
 }
 
+section.who {
+    margin-bottom: 30px;
+}
+section.who p {
+    text-align: center;
+}
 .section-header {
     background: #204648;  
     padding: 5px 0;
@@ -67,8 +85,13 @@ button:focus {
     outline: 0;
 }
 
+pre[class*="language"] {
+    margin: 0;
+    padding-top: 0;
+}
+
 .container,
-.section-header h3 {
+.section-header h2 {
     position: relative;
     max-width: 1000px;
     margin: 0 auto;
@@ -84,7 +107,7 @@ button:focus {
 }
 
 
-h3 {
+h2 {
     color: white;
     font-size: 23px;
     font-weight: 300;
