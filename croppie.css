@@ -1,0 +1,65 @@
+.imagecropper-container {
+	padding: 30px;
+}
+.imagecropper-container .ic-image {
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: 0 0;
+}
+
+.imagecropper-container .ic-boundary {
+	position: relative;
+	overflow: hidden;
+	margin: 0 auto;
+}
+
+.imagecropper-container .ic-viewport {
+	position: absolute;
+	border: 2px solid #fff;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	box-shadow:0 0 0 1000px rgba(0, 0, 0, 0.5);
+	z-index: 0;
+}
+.imagecropper-container .ic-overlay {
+	z-index: 1;
+	position: absolute;
+	cursor: move;
+}
+.imagecropper-container .ic-slider {
+	width: 300px;
+	margin: 0 auto;
+	margin-top: 25px;
+}
+.imagecropper-result {
+	position: relative; 
+	overflow: hidden;
+	
+	img {
+		position: absolute;
+	}
+}
+/* Just cross hairs for debugging - can be removed upon release */
+.imagecropper-container .ic-viewport.debug:before,
+.imagecropper-container .ic-viewport.debug:after {
+    background: white;
+    width: 1px;
+    height: 1px;
+    content: '';
+    position: absolute;
+}
+.imagecropper-container .ic-viewport.debug:before {
+	top: 0;
+    height: 100%;
+    left: 50%;
+}
+.imagecropper-container .ic-viewport.debug:after {
+	top: 50%;
+	left: 0;
+	width: 100%;
+}

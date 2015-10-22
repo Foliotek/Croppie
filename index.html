@@ -1,0 +1,109 @@
+<!DOCTYPE html> 
+<html lang ="en">
+    <head>
+        <meta charset ="UTF-8" >
+        <title>Croppie - an image cropper - Foliotek</title>
+
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+        <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
+        <link rel="Stylesheet" type="text/css" href="croppie.css" />
+        <link rel="Stylesheet" type="text/css" href="demo/demo.css" />
+        <link rel="icon" href="//foliotek.github.io/favicon.ico" />
+    </head>
+    <body>
+        <section class="hero">
+            <a name="home"></a>
+            <div class="container grid">
+                <nav>
+                    <ul>
+                        <a href="#home">Home</a>
+                        <a href="#options">Options</a>
+                        <a href="#demos">Demos</a>
+                        <a href="#who">Who</a>
+                    </ul>
+                </nav>
+                <div class="col-1-2">
+                    <h1>Croppie</h1>
+                    <p>
+                      Croppie is a fast, easy to use image cropping plugin with tons of configuration options!
+                    </p>
+                </div>
+                <div class="col-1-2">
+                    <div class="demo-cropper">
+
+                    </div>
+                </div>
+            </div>
+          </section>
+          <section>
+            <a name="options"></a>
+            <div class="section-header">
+              <h3>Options</h3>
+            </div>
+            <div class="container">
+              <pre class="language-javascript"><code class="language-javascript">
+                $("#item").imageCropper({
+                  viewportWidth: Integer,
+                  viewportHeight: Integer,
+                  boundaryWidth: Integer,
+                  boundaryHeight: Integer,
+                  customClass: String,
+                  showZoom: Boolean,
+                  update: Function (cropper) { }
+                });
+              </code></pre>
+            </div>
+          </section>
+
+          <section>
+            <a name="demos"></a>
+            <div class="section-header">
+              <h3>Demos</h3>
+            </div>
+            <div class="container" style="min-height: 250px">
+              <div class="grid">
+                <div class="col-1-2">
+                  <fieldset>
+                    <legend>Cropper</legend>
+                    <div id="container">
+
+                    </div>
+                  </fieldset>
+                </div>
+                <div class="col-1-2">
+                  <fieldset>
+                    <legend>Output</legend>
+                    <div id="result"></div>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <a name="who"></a>
+            <div class="section-header">
+              <h3>Who?</h3>
+            </div>
+            <div class="container" style="min-height: 250px">
+              
+            </div>
+          </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="bower_components/jquery.min.js"><\/script>')</script>
+        <script src="croppie.js"></script>
+        <script src="demo/demo.js"></script>
+        <script>
+            Demo.init();
+        </script>
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>
