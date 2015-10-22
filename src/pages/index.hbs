@@ -1,26 +1,68 @@
-{{#extend "page"}}
-{{#content "content"}}
-  <section>
-    <h3>What is it?</h3>
-    <p>
-      Image Cropper is a plugin, built on top of jQuery, that provides a different kind of cropping experience than other similar tools out there.
-    </p>
+{{#extend "base"}}
+{{#content "body"}}
+  <section class="hero">
+    <a name="home"></a>
+    <div class="container grid">
+    <nav>
+      <ul>
+        <a href="#home">Home</a>
+        <a href="#options">Options</a>
+        <a href="#demos">Demos</a>
+        <a href="#who">Who</a>
+      </ul>
+    </nav>
+      <div class="col-1-2">
+        <h1>Croppie</h1>
+        <p>
+          Croppie is an fast, easy to use image cropping plugin.  It's easy to use, and has tons of configuration options!
+        </p>
+      </div>
+      <div class="col-1-2">
+        <div class="demo-cropper">
+
+        </div>
+      </div>
+    </div>
   </section>
   <section>
-    <h3>Options</h3>
-    <pre class="language-javascript"><code class="language-javascript">
-      $("#item").imageCropper({
-        viewportWidth: Integer,
-        viewportHeight: Integer,
-        boundaryWidth: Integer,
-        boundaryHeight: Integer,
-        customClass: String,
-        showZoom: Boolean,
-        update: Function (cropper) { }
-      });
-    </code></pre>
+    <a name="options"></a>
+    <div class="section-header">
+      <h3>Options</h3>
+    </div>
+    <div class="container">
+      <pre class="language-javascript"><code class="language-javascript">
+        $("#item").imageCropper({
+          viewportWidth: Integer,
+          viewportHeight: Integer,
+          boundaryWidth: Integer,
+          boundaryHeight: Integer,
+          customClass: String,
+          showZoom: Boolean,
+          update: Function (cropper) { }
+        });
+      </code></pre>
+    </div>
   </section>
 
+  <section>
+    <a name="demos"></a>
+    <div class="section-header">
+      <h3>Demos</h3>
+    </div>
+    <div class="container" style="min-height: 250px">
+      
+    </div>
+  </section>
+
+  <section>
+    <a name="who"></a>
+    <div class="section-header">
+      <h3>Who?</h3>
+    </div>
+    <div class="container" style="min-height: 250px">
+      
+    </div>
+  </section>
 {{/content}}
 
 {{#content "scripts"}}
