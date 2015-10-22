@@ -170,6 +170,7 @@
         curMatrix = parseMatrix(self.$img.css('transform')),
         vpRect = ui.vpRect,
         imgRect = self._getImageRect(),
+        oldZoom = (self._currentZoom || 1) * 1,
         adjY = 0, adjX = 0;
 
     self._currentZoom = ui.value;
@@ -177,7 +178,6 @@
     var origin = self.$img.css('transform-origin').split(' '),
         originX = parseFloat(origin[0]),
         originY = parseFloat(origin[1]),
-        oldZoom = (self._currentZoom || 1) * 1,
         difZoom = (oldZoom - ui.value),
         projected = {
           bottom: (originY - imgRect.height) * difZoom + imgRect.bottom,
@@ -185,7 +185,7 @@
           right: (originX - imgRect.width) * difZoom + imgRect.right,
           top: originY * difZoom + imgRect.top
         };
-        
+    
     if (vpRect.top < projected.top) {
       adjY = projected.top - vpRect.top;
     } 
@@ -194,7 +194,7 @@
     }
 
     if (vpRect.left < projected.left) {
-      adjX = (projected.left - vpRect.left);
+      adjX = projected.left - vpRect.left;
     }
     else if (vpRect.right > projected.right) {
       adjX = projected.right - vpRect.right;
