@@ -45,8 +45,3 @@ Knowledge specific to Croppie
 `bower install`
 However you like to run static sites on your machine, go for it.  Personally, I use `npm install -g node-static`.
 Then I can run `static` on the command line and it starts a static web server for me.
-
-
-Last Notes
----
-To Publish to gh-pages `git subtree push --prefix dist origin gh-pages`
