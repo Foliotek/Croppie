@@ -43,7 +43,20 @@ var Demo = (function() {
 		cont.croppie('bind', 'demo/cat.jpg');
 	}
 
+	function bindNavigation () {
+		var $body = $('body');
+		$('nav a').on('click', function (ev) {
+			var lnk = $(ev.currentTarget),
+				href = lnk.attr('href'),
+				targetTop = $('a[name=' + href.substring(1) + ']').offset().top;
+
+			$body.animate({ scrollTop: targetTop });
+			ev.preventDefault();
+		});
+	}
+
 	function init() {
+		bindNavigation();
 		mainCropper();
 		demoBasic();		
 	}

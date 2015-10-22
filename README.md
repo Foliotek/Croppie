@@ -1,4 +1,4 @@
-A Image Cropper built on top of jQuery
+Croppie - A Javascript Image Cropper
 ===
 
 To Get Set Up With Github
