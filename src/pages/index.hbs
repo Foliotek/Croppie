@@ -14,7 +14,7 @@
       <div class="col-1-2">
         <h1>Croppie</h1>
         <p>
-          Croppie is an fast, easy to use image cropping plugin.  It's easy to use, and has tons of configuration options!
+          Croppie is a fast, easy to use image cropping plugin with tons of configuration options!
         </p>
       </div>
       <div class="col-1-2">
@@ -50,7 +50,22 @@
       <h3>Demos</h3>
     </div>
     <div class="container" style="min-height: 250px">
-      
+      <div class="grid">
+        <div class="col-1-2">
+          <fieldset>
+            <legend>Cropper</legend>
+            <div id="container">
+
+            </div>
+          </fieldset>
+        </div>
+        <div class="col-1-2">
+          <fieldset>
+            <legend>Output</legend>
+            <div id="result"></div>
+          </fieldset>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -66,6 +81,10 @@
 {{/content}}
 
 {{#content "scripts"}}
+
+<script>
+  Demo.init();
+</script>
 
 {{/content}}
 {{/extend}}

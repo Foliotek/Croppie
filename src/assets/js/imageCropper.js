@@ -23,7 +23,7 @@
       width: coords[2] - coords[0],
       height: coords[3] - coords[1]
     });
-    return div.wrapAll("<div></div>").parent().clone();
+    return div;
   };
 
   $.imageCropper.canvasImage = function (opts) {
@@ -178,7 +178,6 @@
       originalY = ev.pageY;
       cssPos = parseTransform(self.$img.css('transform'));
       $win.on('mousemove.cropper', mouseMove);
-      $win.on('mouseup.cropper', mouseUp);
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
     };
@@ -213,6 +212,7 @@
     }
 
     self.$overlay.on('mousedown.cropper', mouseDown);
+    $win.on('mouseup.cropper', mouseUp);
   };
 
   $.imageCropper.prototype._updateOverlay = function () {
