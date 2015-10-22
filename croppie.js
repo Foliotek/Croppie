@@ -102,7 +102,7 @@
       });
     }
 
-    function stop () {
+    /*function stop () {
       var m = parseMatrix(self.$img.css('transform')),
           pos = self._getImageRect();
 
@@ -110,11 +110,11 @@
         // transformOrigin: '',
         // transform: matrix(m.scale, pos.left, pos.top)
       });
-    }
+    }*/
 
     self.$zoomer.on('mousedown', start);
-    self.$zoomer.on('input', change);
-    self.$zoomer.on('change mouseup', stop);
+    self.$zoomer.on('input change', change);
+    // self.$zoomer.on('mouseup', stop);
     
     self._currentZoom = 1;
   };
