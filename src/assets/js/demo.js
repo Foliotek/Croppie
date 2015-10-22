@@ -1,5 +1,6 @@
-var Demo = {
-	output: function (html) {
+var Demo = (function() {
+
+	function output(html) {
 		var existing = $("#result .imagecropper-result");
 		if (existing.length > 0) {
 			existing.replaceWith(html);
@@ -7,9 +8,9 @@ var Demo = {
 		else {
 			$("#result").append(html);
 		}
-	},
+	}
 
-	init: function () {
+	function init() {
 		var dbgr = $("#dbgr");
 		var debug = true;
 		dbgr.toggle(debug);
@@ -19,7 +20,7 @@ var Demo = {
 			debug: debug,
 			update: function (cropper) {
 				var data = $(this).imageCropper("get");
-				Demo.output($.imageCropper.generateImage(data));
+				output($.imageCropper.generateImage(data));
 
 				// if (debug) {
 				// 	var i = $(this).find(".ic-image");
@@ -34,6 +35,9 @@ var Demo = {
 			}
 		});
 		cont.imageCropper("bind", "cat.jpg");
-		window.cropper = cont;
 	}
-};
+
+	return {
+		init: init
+	};
+})();
