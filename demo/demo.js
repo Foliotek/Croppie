@@ -17,7 +17,8 @@ var Demo = (function() {
 				width: 150,
 				height: 150,
 				type: 'circle'
-			}
+			},
+			// mouseWheelZoom: false
 		});
 		mc.imageCropper('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev){

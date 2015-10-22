@@ -51,6 +51,7 @@
     },
     customClass: '',
     showZoom: true,
+    mouseWheelZoom: true,
     update: $.noop
   };
 
@@ -133,6 +134,16 @@
       });
     }
 
+    function scroll (ev) { 
+      var delta = ev.originalEvent.deltaY / -1000,
+          targetZoom = self._currentZoom + delta;
+
+      ev.preventDefault();
+      start();
+      self.$zoomer.val(targetZoom);
+      change()      
+    }
+
     /*function stop () {
       var m = parseMatrix(self.$img.css('transform')),
           pos = self._getImageRect();
@@ -146,6 +157,10 @@
     self.$zoomer.on('mousedown', start);
     self.$zoomer.on('input change', change);
     // self.$zoomer.on('mouseup', stop);
+
+    if (self.options.mouseWheelZoom) {
+      self.$boundary.on('mousewheel', scroll);
+    }
     
     self._currentZoom = 1;
   };
