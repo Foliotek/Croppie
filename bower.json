@@ -1,0 +1,25 @@
+{
+  "name": "Croppie",
+  "homepage": "https://github.com/Foliotek/ImageCropper",
+  "authors": [
+    "Dustin Smith <thedustinsmith@gmail.com>",
+    "Ethan Calvert <calvert1591@gmail.com>"
+  ],
+  "description": "An image cropper built on top of jquery",
+  "main": "croppie.js",
+  "moduleType": [],
+  "keywords": [
+    "image",
+    "cropper",
+    "croppie"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "index.html"
+  ]
+}
