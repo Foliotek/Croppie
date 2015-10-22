@@ -31,15 +31,14 @@
       return canvas.toDataURL();
   }
 
-  var pre = "imagecropper-";
-  $.imageCropper = function (container, opts ) {
+  $.croppie = function (container, opts ) {
     this.$container = $(container);
-    this.options = $.extend(true, {}, $.imageCropper.defaults, opts);
+    this.options = $.extend(true, {}, $.croppie.defaults, opts);
 
     this._create();
   };
 
-  $.imageCropper.defaults = {
+  $.croppie.defaults = {
     viewport: {
       width: 100,
       height: 100,
@@ -55,9 +54,9 @@
     update: $.noop
   };
 
-  $.imageCropper.generateImage = function (opts) {
+  $.croppie.generateImage = function (opts) {
     var coords = opts.coords;
-    var div = $("<div class='imagecropper-result' />");
+    var div = $("<div class='croppie-result' />");
     var img = $("<img />").appendTo(div);
     img.css({
       left: (-1 * coords[0]),
@@ -73,7 +72,7 @@
     return div;
   };
 
-  $.imageCropper.canvasImage = function (opts) {
+  $.croppie.canvasImage = function (opts) {
     var def = $.Deferred(),
         coords = opts.coords;
         width = coords[2] - coords[0],
@@ -90,21 +89,21 @@
 
   
   /* Prototype Extensions */
-  $.imageCropper.prototype._create = function () {
+  $.croppie.prototype._create = function () {
     var self = this;
-    var contClass = $.trim("imagecropper-container " + self.options.customClass);
+    var contClass = $.trim("croppie-container " + self.options.customClass);
     self.$container.addClass(contClass);
-    self.$boundary = $("<div class='ic-boundary' />").appendTo(self.$container).css({
+    self.$boundary = $("<div class='cr-boundary' />").appendTo(self.$container).css({
       width: self.options.boundary.width,
       height: self.options.boundary.height
     });
-    self.$img = $("<img class='ic-image' />").appendTo(self.$boundary);
-    self.$viewport = $("<div class='ic-viewport' />").appendTo(self.$boundary).css({
+    self.$img = $("<img class='cr-image' />").appendTo(self.$boundary);
+    self.$viewport = $("<div class='cr-viewport' />").appendTo(self.$boundary).css({
       width: self.options.viewport.width,
       height: self.options.viewport.height
     });
-    self.$viewport.addClass('imagecropper-vp-' + self.options.viewport.type);
-    self.$overlay = $("<div class='ic-overlay' />").appendTo(self.$boundary);
+    self.$viewport.addClass('croppie-vp-' + self.options.viewport.type);
+    self.$overlay = $("<div class='cr-overlay' />").appendTo(self.$boundary);
     self._initDraggable();
 
     if (self.options.showZoom) {
@@ -116,11 +115,11 @@
     }
   };
 
-  $.imageCropper.prototype._initializeZoom = function () {
+  $.croppie.prototype._initializeZoom = function () {
     var self = this;
-    var wrap = $('<div class="ic-slider-wrap" />').appendTo(self.$container);
+    var wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container);
     var vpRect;
-    self.$zoomer = $('<input type="range" class="ic-slider" step="0.01" />').appendTo(wrap);
+    self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
 
     function start () {
       self._updateCenterPoint();
@@ -154,18 +153,18 @@
       });
     }*/
 
-    self.$zoomer.on('mousedown', start);
-    self.$zoomer.on('input change', change);
+    self.$zoomer.on('mousedown.croppie', start);
+    self.$zoomer.on('input.croppie change.croppie', change);
     // self.$zoomer.on('mouseup', stop);
 
     if (self.options.mouseWheelZoom) {
-      self.$boundary.on('mousewheel', scroll);
+      self.$boundary.on('mousewheel.croppie', scroll);
     }
     
     self._currentZoom = 1;
   };
 
-  $.imageCropper.prototype._onZoom = function (ui) {
+  $.croppie.prototype._onZoom = function (ui) {
     var self = this,
         curMatrix = parseMatrix(self.$img.css('transform')),
         vpRect = ui.vpRect,
@@ -206,7 +205,7 @@
     self._triggerUpdate();
   };
 
-  $.imageCropper.prototype._getImageRect = function () {
+  $.croppie.prototype._getImageRect = function () {
     var imgRect = this.$img[0].getBoundingClientRect();
         // boundRect = this.$boundary[0].getBoundingClientRect();
 
@@ -217,7 +216,7 @@
     // });
   };
 
-  $.imageCropper.prototype._updateCenterPoint = function () {
+  $.croppie.prototype._updateCenterPoint = function () {
     var self = this,
         scale = self._currentZoom,
         data = self.$img[0].getBoundingClientRect(),
@@ -245,7 +244,7 @@
     });
   };
   
-  $.imageCropper.prototype._initDraggable = function () {
+  $.croppie.prototype._initDraggable = function () {
     var self = this,
         $win = $(window),
         $body = $('body'),
@@ -261,7 +260,7 @@
       originalX = ev.pageX;
       originalY = ev.pageY;
       cssPos = parseTransform(self.$img.css('transform'));
-      $win.on('mousemove.cropper', mouseMove);
+      $win.on('mousemove.croppie', mouseMove);
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
     };
@@ -290,16 +289,16 @@
 
     function mouseUp (ev) {
       isDragging = false;
-      $win.off('mousemove.cropper');
+      $win.off('mousemove.croppie');
       $body.css('-webkit-user-select', '');
       self._triggerUpdate();
     }
 
-    self.$overlay.on('mousedown.cropper', mouseDown);
-    $win.on('mouseup.cropper', mouseUp);
+    self.$overlay.on('mousedown.croppie', mouseDown);
+    $win.on('mouseup.croppie', mouseUp);
   };
 
-  $.imageCropper.prototype._updateOverlay = function () {
+  $.croppie.prototype._updateOverlay = function () {
     var self = this,
         boundRect = this.$boundary[0].getBoundingClientRect(),
         imgData = self.$img[0].getBoundingClientRect();
@@ -312,12 +311,12 @@
     });
   };
 
-  $.imageCropper.prototype._triggerUpdate = function () {
+  $.croppie.prototype._triggerUpdate = function () {
     var self = this;
     self.options.update.apply(self.$container, self);
   }
 
-  $.imageCropper.prototype._updatePropertiesFromImage = function () {
+  $.croppie.prototype._updatePropertiesFromImage = function () {
     var self = this;
     var imgData = self._getImageRect();
     self._originalImageWidth = imgData.width;
@@ -334,7 +333,7 @@
     self._updateOverlay();
   };
 
-  $.imageCropper.prototype.bind = function (src, cb) {
+  $.croppie.prototype.bind = function (src, cb) {
     var self = this;
     var prom = loadImage(src);
     prom.done(function () {
@@ -347,7 +346,7 @@
     });
   };
 
-  $.imageCropper.prototype.get = function () {
+  $.croppie.prototype.get = function () {
     var self = this;
     var imgSrc = self.$img.attr('src');
     var imgData = self._getImageRect();
@@ -371,19 +370,19 @@
   /* End Prototype Extensions */
 
 
-  $.fn.imageCropper = function (opts) {
+  $.fn.croppie = function (opts) {
     var ot = typeof opts;
 
     if (ot === 'string') {
       var args = Array.prototype.slice.call(arguments, 1);
 
       if (opts === 'get') {
-        var i = $(this).data('imageCropper');
+        var i = $(this).data('croppie');
         return i.get();
       }
 
       return this.each(function () {
-        var i = $(this).data('imageCropper');
+        var i = $(this).data('croppie');
         if (!i) return;
 
         var method = i[opts];
@@ -391,14 +390,14 @@
           method.apply(i, args);
         }
         else {
-          throw 'Image Cropper ' + options + ' method not found';
+          throw 'Croppie ' + options + ' method not found';
         }
       });
     }
     else {
       return this.each(function () {
-        var i = new $.imageCropper(this, opts);
-        $(this).data('imageCropper', i);
+        var i = new $.croppie(this, opts);
+        $(this).data('croppie', i);
       });
     }
   };
