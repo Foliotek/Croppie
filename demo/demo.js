@@ -1,34 +1,39 @@
 var Demo = (function() {
 
 	function output(html) {
-		var existing = $("#result .imagecropper-result");
+		var existing = $('#result .imagecropper-result');
 		if (existing.length > 0) {
 			existing.replaceWith(html);
 		}
 		else {
-			$("#result").append(html);
+			$('#result').append(html);
 		}
 	}
 
 	function mainCropper () {
 		var mc = $('#cropper-1');
 		mc.imageCropper({
-			viewportWidth: 100,
-			viewportHeight: 100
+			viewport: {
+				width: 150,
+				height: 150,
+				type: 'circle'
+			}
 		});
 		mc.imageCropper('bind', 'demo/demo-1.jpg');
 	}
 
 	function demoBasic() {
-		var cont = $("#demo-basic").imageCropper({
-			viewportWidth: 150,
-			viewportHeight: 200,
+		var cont = $('#demo-basic').imageCropper({
+			viewport: {
+				width: 150,
+				height: 200
+			},
 			update: function (cropper) {
-				var data = $(this).imageCropper("get");
+				var data = $(this).imageCropper('get');
 				output($.imageCropper.generateImage(data));
 			}
 		});
-		cont.imageCropper("bind", "demo/cat.jpg");
+		cont.imageCropper('bind', 'demo/cat.jpg');
 	}
 
 	function init() {
