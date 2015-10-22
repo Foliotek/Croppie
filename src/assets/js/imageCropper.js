@@ -118,8 +118,7 @@
 
     self._currentZoom = ui.value;
     self.$img.css('transform', getTransformString(ui.value, curMatrix.x, curMatrix.y));
-    self._updateContainment();
-    
+    self._updateOverlay();
     self._triggerUpdate();
   };
 
@@ -155,14 +154,7 @@
 
     adj.top = (center.top - pc.top) * (1 - scale);
     adj.left = (center.left - pc.left) * (1 - scale);
-    log('===========');
-    log("center", center);
-    log("pc", pc);
-    log("parsed", parsed);
-    log("adj", adj);
-    log("scale", scale);
-    log(getTransformString(parsed.scale, parsed.x - adj.left, parsed.y - adj.top));
-    log('===========');
+
     self.$img.css({
       transformOrigin: center.left + 'px ' + center.top + 'px', 
       transform: getTransformString(parsed.scale, parsed.x - adj.left, parsed.y - adj.top)
@@ -174,23 +166,17 @@
         $win = $(window),
         $body = $('body'),
         isDragging = false,
-        cssChange = {},
-        cssStart,
+        cssPos = {},
         originalX,
         originalY,
-        contain,
         vpRect;
 
     function mouseDown(ev) {
       if (isDragging) return;
-      self._updateContainment();
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      cssStart = parseTransform(self.$img.css('transform'));
-      // cssStart = self._getImageRect();
-      // cssStart = self.$img[0].getBoundingClientRect();
-      contain = self._dragContainment;
+      cssPos = parseTransform(self.$img.css('transform'));
       $win.on('mousemove.cropper', mouseMove);
       $win.on('mouseup.cropper', mouseUp);
       $body.css('-webkit-user-select', 'none');
@@ -198,35 +184,29 @@
     };
 
     function mouseMove (ev) {
-      var x = ev.pageX - originalX,
-          y = ev.pageY - originalY,
-          top = cssStart.y + y,
-          left = cssStart.x + x,
-          imgRect = self._getImageRect();
+      var deltaX = ev.pageX - originalX,
+          deltaY = ev.pageY - originalY,
+          imgRect = self._getImageRect(),
+          top = cssPos.y + deltaY,
+          left = cssPos.x + deltaX;
 
-      if (vpRect.top >= imgRect.top && vpRect.bottom <= imgRect.bottom) {
-        cssChange.top = top;
+      if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+        cssPos.y = top;
       }
 
-      if (vpRect.left >= imgRect.left && vpRect.right <= imgRect.right) {
-        cssChange.left = left;
+      if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+        cssPos.x = left;
       }
 
-      // if (top <= contain.bottom && top >= contain.top) {
-      //   cssChange.top = top;
-      // }
-      // if (left <= contain.right && left >= contain.left) {
-      //   cssChange.left = left;
-      // }
-      
-      var m = getTransformString(self._currentZoom, cssChange.left, cssChange.top);
+      var m = getTransformString(self._currentZoom, cssPos.x, cssPos.y);
       self.$img.css('transform', m);
-      self._updateContainment();
+      self._updateOverlay();
+      originalY = ev.pageY;
+      originalX = ev.pageX;
     };
 
     function mouseUp (ev) {
       isDragging = false;
-      // self._updateCenterPoint()
       $win.off('mousemove.cropper');
       $body.css('-webkit-user-select', '');
       self._triggerUpdate();
@@ -235,15 +215,10 @@
     self.$overlay.on('mousedown.cropper', mouseDown);
   };
 
-  $.imageCropper.prototype._updateContainment = function () {
+  $.imageCropper.prototype._updateOverlay = function () {
     var self = this,
         boundRect = this.$boundary[0].getBoundingClientRect(),
-        vpPos = self.$viewport[0].getBoundingClientRect(),
-        imgData = self._getImageRect(),
-        top = vpPos.bottom - imgData.height,
-        bottom = vpPos.top,
-        right = vpPos.left,
-        left = vpPos.right - imgData.width;
+        imgData = self.$img[0].getBoundingClientRect();
 
     self.$overlay.css({
       width: imgData.width,
@@ -251,13 +226,6 @@
       top: imgData.top - boundRect.top,
       left: imgData.left - boundRect.left
     });
-
-    self._dragContainment = {
-      top: top,
-      left: left,
-      bottom: bottom,
-      right: right
-    };
   };
 
   $.imageCropper.prototype._triggerUpdate = function () {
@@ -279,7 +247,7 @@
       self.$zoomer.val(1);
     }
 
-    self._updateContainment();
+    self._updateOverlay();
   };
 
   $.imageCropper.prototype.bind = function (src, cb) {
