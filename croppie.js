@@ -1,11 +1,26 @@
 (function ($) {
 
+  
+
   var pre = "imagecropper-";
   $.imageCropper = function (container, opts ) {
     this.$container = $(container);
-    this.options = $.extend({}, $.imageCropper.defaults, opts);
+    this.options = $.extend(true, {}, $.imageCropper.defaults, opts);
 
     this._create();
+  };
+
+  $.imageCropper.defaults = {
+    viewport: {
+      width: 100,
+      height: 100,
+      type: 'square'
+    },
+    boundaryWidth: 300,
+    boundaryHeight: 300,
+    customClass: '',
+    update: $.noop,
+    showZoom: true
   };
 
   $.imageCropper.generateImage = function (opts) {
@@ -44,15 +59,6 @@
     return def.promise();
   };
 
-  $.imageCropper.defaults = {
-    viewportWidth: 100,
-    viewportHeight: 100,
-    boundaryWidth: 300,
-    boundaryHeight: 300,
-    customClass: '',
-    update: $.noop,
-    showZoom: true
-  };
   
   /* Prototype Extensions */
   $.imageCropper.prototype._create = function () {
@@ -65,9 +71,10 @@
     });
     self.$img = $("<img class='ic-image' />").appendTo(self.$boundary);
     self.$viewport = $("<div class='ic-viewport' />").appendTo(self.$boundary).css({
-      width: self.options.viewportWidth,
-      height: self.options.viewportHeight
-    })
+      width: self.options.viewport.width,
+      height: self.options.viewport.height
+    });
+    self.$viewport.addClass('imagecropper-vp-' + self.options.viewport.type);
     self.$overlay = $("<div class='ic-overlay' />").appendTo(self.$boundary);
     self._initDraggable();
 

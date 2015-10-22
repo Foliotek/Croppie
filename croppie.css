@@ -13,6 +13,7 @@
 	position: relative;
 	overflow: hidden;
 	margin: 0 auto;
+	z-index: 1;
 }
 
 .imagecropper-container .ic-viewport {
@@ -25,6 +26,9 @@
 	left: 0;
 	box-shadow:0 0 0 1000px rgba(0, 0, 0, 0.5);
 	z-index: 0;
+}
+.imagecropper-container .imagecropper-vp-circle {
+	border-radius: 50%;
 }
 .imagecropper-container .ic-overlay {
 	z-index: 1;
