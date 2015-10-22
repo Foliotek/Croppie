@@ -11,6 +11,13 @@ body {
   color: #222;
 }
 
+h1 {
+    font-size: 42px;
+    font-weight: 300;
+    padding-top: 30px;
+    margin: 15px 0;
+}
+
 nav {
   position: absolute;
   top: 0;
@@ -22,6 +29,7 @@ nav a {
   text-decoration: none;
   padding: 0 10px;
 }
+
 .container,
 .section-header h3 {
   position: relative;
@@ -36,10 +44,16 @@ section.hero {
   color: white;
   text-shadow: 0 1px 1px rgba(20,20,20,0.6);
 }
+
+.hero p {
+  font-size: 16px;
+}
+
 .section-header {
   background: #4B5654;  
   padding: 5px 0;
 }
+
 h3 {
   color: white;
   font-size: 23px;
