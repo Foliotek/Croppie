@@ -39,10 +39,9 @@
 .imagecropper-result {
 	position: relative; 
 	overflow: hidden;
-	
-	img {
-		position: absolute;
-	}
+}
+.imagecropper-result img {
+	position: absolute;
 }
 /* Just cross hairs for debugging - can be removed upon release */
 .imagecropper-container .ic-viewport.debug:before,
