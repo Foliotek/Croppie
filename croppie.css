@@ -35,10 +35,11 @@
 	position: absolute;
 	cursor: move;
 }
-.imagecropper-container .ic-slider {
-	width: 300px;
+.imagecropper-container .ic-slider-wrap {
+	width: 75%;
 	margin: 0 auto;
 	margin-top: 25px;
+	text-align: center;
 }
 .imagecropper-result {
 	position: relative; 
