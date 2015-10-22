@@ -46,7 +46,7 @@
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
               <pre class="language-javascript"><code class="language-javascript">
-$("#item").imageCropper({
+$("#item").croppie({
     viewport: {
         width: px,
         height: px,
@@ -62,10 +62,16 @@ $("#item").imageCropper({
 });
 
 // Bind an image to the cropper
-$('#item').imageCropper('bind', 'path/to/image.png');
+$('#item').croppie('bind', 'path/to/image.png');
 
 // Get the crop data from a cropper
-var cropData = $('#item').imageCropper('get');
+var cropData = $('#item').croppie('get');
+
+// Get dataUrl of Cropped Image
+var dataUrl = $.croppie.canvasImage(cropData);
+
+// Get html of cropped image
+var html = $.croppie.generateImage(cropData);
               </code></pre>
             </div>
           </section>

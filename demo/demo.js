@@ -1,7 +1,7 @@
 var Demo = (function() {
 
 	function output(html) {
-		var existing = $('#result .imagecropper-result');
+		var existing = $('#result .croppie-result');
 		if (existing.length > 0) {
 			existing.replaceWith(html);
 		}
@@ -12,7 +12,7 @@ var Demo = (function() {
 
 	function mainCropper () {
 		var mc = $('#cropper-1');
-		mc.imageCropper({
+		mc.croppie({
 			viewport: {
 				width: 150,
 				height: 150,
@@ -20,27 +20,27 @@ var Demo = (function() {
 			},
 			// mouseWheelZoom: false
 		});
-		mc.imageCropper('bind', 'demo/demo-1.jpg');
+		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev){
-			var data = mc.imageCropper('get');
-			$.imageCropper.canvasImage(data).done(function (resp){
+			var data = mc.croppie('get');
+			$.croppie.canvasImage(data).done(function (resp){
 				window.open(resp);
 			});
 		});
 	}
 
 	function demoBasic() {
-		var cont = $('#demo-basic').imageCropper({
+		var cont = $('#demo-basic').croppie({
 			viewport: {
 				width: 150,
 				height: 200
 			},
 			update: function (cropper) {
-				var data = $(this).imageCropper('get');
-				output($.imageCropper.generateImage(data));
+				var data = $(this).croppie('get');
+				output($.croppie.generateImage(data));
 			}
 		});
-		cont.imageCropper('bind', 'demo/cat.jpg');
+		cont.croppie('bind', 'demo/cat.jpg');
 	}
 
 	function init() {
