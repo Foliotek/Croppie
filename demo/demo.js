@@ -20,6 +20,12 @@ var Demo = (function() {
 			}
 		});
 		mc.imageCropper('bind', 'demo/demo-1.jpg');
+		$('.js-main-image').on('click', function (ev){
+			var data = mc.imageCropper('get');
+			$.imageCropper.canvasImage(data).done(function (resp){
+				window.open(resp);
+			});
+		});
 	}
 
 	function demoBasic() {
