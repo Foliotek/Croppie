@@ -40,20 +40,11 @@ git checkout [Existing Branch Name] // check out from an existing branch
 git push origin [branch] // If you're in a branch, this is what you'll want to do.
 ```
 
-Knowledge specific to this project type
+Knowledge specific to Croppie
 ---
-Before anything, run: `npm install`
-
-Npm is similar to nuget, as it is a package manager.  The packages are listed in the packages.json.  It will download any packages you need.
-
-Next run: `grunt development`
-
-This comand does several things, and can be customized in the Gruntfile.js.  What you need for the purpose of this image cropper is that it compiles everything in the `src/` directory and copies it to the dist/ directory.
-
-You'll only be editing files in the `src/` directory.  The dist directory is for rendering to the browser/server.
-
-After you run grunt development, load http://localhost:8000 ... you should see the image cropper page.  The grunt command also watches for files to change and builds for you, so you don't have to worry about rebuilding your code.
-
+`bower install`
+However you like to run static sites on your machine, go for it.  Personally, I use `npm install -g node-static`.
+Then I can run `static` on the command line and it starts a static web server for me.
 
 
 Last Notes
