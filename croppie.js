@@ -189,7 +189,7 @@
     var minX = maxX - ((curImgWidth * (1 / scale)) - (vpWidth * (1 / scale)));
 
     var maxY = ((halfHeight / scale) - centerFromBoundaryY) * -1;
-    var minY = maxY - ((curImgWidth * (1 / scale)) - (vpHeight * (1 / scale)));
+    var minY = maxY - ((curImgHeight * (1 / scale)) - (vpHeight * (1 / scale)));
 
     var originMinX = (1 / scale) * halfWidth;
     var originMaxX = (curImgWidth * (1 / scale)) - originMinX;
@@ -289,10 +289,24 @@
         return horizScroll;
       });
 
-      scrollers.on('scroll.croppie', onScroll).each(function() {
+      scrollers.each(function() {
         var $el = $(this);
+        $el.data('croppieScrollTopStart', $el.scrollTop());
+        $el.data('croppieScrollLeftStart', $el.scrollLeft());
+      });
 
-        $el.data('croppieScrollStart', $el.scrollTop());
+      scrollers.on('scroll.croppie', function(ev) {
+        var $el = $(ev.currentTarget);
+        $el.scrollTop($el.data('croppieScrollTopStart'));
+        $el.scrollLeft($el.data('croppieScrollLeftStart'));
+      })
+
+      
+      var docScrollTopStart = $(document).scrollTop();
+      var docScrollLeftStart = $(document).scrollLeft();
+      $(document).on('scroll.croppie', function() {
+        $(document).scrollTop(docScrollTopStart);
+        $(document).scrollLeft(docScrollLeftStart);
       });
 
       return scrollers;
@@ -320,15 +334,11 @@
       originalX = ev.pageX;
     };
 
-    function onScroll (ev) {
-      var $el = $(ev.currentTarget);
-      $el.scrollTop($el.data('croppieScrollStart'));
-    }
-
     function mouseUp (ev) {
       isDragging = false;
       $win.off('mousemove.croppie mouseup.croppie');
       scrollers.off('scroll.croppie');
+      $(document).off('scroll.croppie');
       $body.css('-webkit-user-select', '');
       self._updateCenterPoint();
       self._triggerUpdate();
