@@ -18,6 +18,7 @@
     "**/.*",
     "node_modules",
     "bower_components",
+    "demo",
     "test",
     "tests",
     "index.html"
