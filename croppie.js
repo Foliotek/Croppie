@@ -87,7 +87,7 @@
   $.croppie.prototype._initializeZoom = function () {
     var self = this;
     var wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container);
-    var origin, vpRect;
+    var origin, viewportRect;
     self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
 
     function start () {
@@ -98,14 +98,14 @@
         y: parseFloat(oArray[1])
       };
 
-      vpRect = self.$viewport[0].getBoundingClientRect();
+      viewportRect = self.$viewport[0].getBoundingClientRect();
     }
 
     function change () {
       self._onZoom({
         value: parseFloat(self.$zoomer.val()),
         origin: origin,
-        vpRect: vpRect
+        viewportRect: viewportRect
       });
     }
 
@@ -119,19 +119,8 @@
       change()      
     }
 
-    /*function stop () {
-      var m = parseMatrix(self.$img.css('transform')),
-          pos = self._getImageRect();
-
-      self.$img.css({
-        // transformOrigin: '',
-        // transform: matrix(m.scale, pos.left, pos.top)
-      });
-    }*/
-
     self.$zoomer.on('mousedown.croppie', start);
     self.$zoomer.on('input.croppie change.croppie', change);
-    // self.$zoomer.on('mouseup', stop);
 
     if (self.options.mouseWheelZoom) {
       self.$boundary.on('mousewheel.croppie', scroll);
@@ -143,7 +132,7 @@
   $.croppie.prototype._onZoom = function (ui) {
     var self = this,
         curMatrix = parseMatrix(self.$img.css('transform')),
-        vpRect = ui.vpRect,
+        vpRect = ui.viewportRect,
         origin = ui.origin;
 
     self._currentZoom = ui.value;
@@ -225,14 +214,7 @@
   };
 
   $.croppie.prototype._getImageRect = function () {
-    var imgRect = this.$img[0].getBoundingClientRect();
-        // boundRect = this.$boundary[0].getBoundingClientRect();
-
-    return imgRect; 
-    // return $.extend({}, imgRect, {
-    //   top: imgRect.top - boundRect.top,
-    //   left: imgRect.left - boundRect.left
-    // });
+    return this.$img[0].getBoundingClientRect();
   };
 
   $.croppie.prototype._updateCenterPoint = function () {
@@ -271,6 +253,7 @@
         cssPos = {},
         originalX,
         originalY,
+        scrollers,
         vpRect;
 
     function mouseDown(ev) {
@@ -283,7 +266,37 @@
       $win.on('mouseup.croppie', mouseUp);
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
+      scrollers = disableScrollableParents();
     };
+
+    function disableScrollableParents() {
+      var scrollers = self.$container.parents().filter(function() {
+        var el = this,
+            $el = $(this),
+            testRx = /scroll|auto/i,
+            vertScroll, horizScroll;
+
+        if (($el.css('overflow') + $el.css('overflowX') + $el.css('overflowY')).indexOf('scroll') >= 0) 
+          return true;
+
+        vertScroll = (el.clientHeight < el.scrollHeight) && ($el.css('overflowY') + $el.css('overflow')).match(testRx);
+
+        if (vertScroll) 
+          return true;
+
+        horizScroll = (el.clientWidth < el.scrollWidth) && ($el.css('overflowY') + $el.css('overflow')).match(testRx);
+        
+        return horizScroll;
+      });
+
+      scrollers.on('scroll.croppie', onScroll).each(function() {
+        var $el = $(this);
+
+        $el.data('croppieScrollStart', $el.scrollTop());
+      });
+
+      return scrollers;
+    }
 
     function mouseMove (ev) {
       var deltaX = ev.pageX - originalX,
@@ -307,10 +320,15 @@
       originalX = ev.pageX;
     };
 
+    function onScroll (ev) {
+      var $el = $(ev.currentTarget);
+      $el.scrollTop($el.data('croppieScrollStart'));
+    }
+
     function mouseUp (ev) {
       isDragging = false;
-      $win.off('mousemove.croppie');
-      $win.off('mouseup.croppie');
+      $win.off('mousemove.croppie mouseup.croppie');
+      scrollers.off('scroll.croppie');
       $body.css('-webkit-user-select', '');
       self._updateCenterPoint();
       self._triggerUpdate();
