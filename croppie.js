@@ -1,36 +1,5 @@
 (function ($) {
 
-  function drawImage (img, top, left, width, height, scale, circle) {
-      if (scale !== 1) {
-        var scaleCanvas = document.createElement('canvas'),
-            scaleCtx = scaleCanvas.getContext('2d'),
-            scaleW = img.width * scale,
-            scaleH = img.height * scale;
-
-        scaleCanvas.width = scaleW;
-        scaleCanvas.height = scaleH;
-        scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
-        img = scaleCanvas; //draw image takes in canvas as well as image
-      }
-      
-      var canvas = document.createElement("canvas");
-      var ctx = canvas.getContext('2d');
-      canvas.width = width;
-      canvas.height = height;
-
-      if (circle) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.clip();
-      }
-
-      ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
-
-      return canvas.toDataURL();
-  }
-
   $.croppie = function (container, opts ) {
     this.$container = $(container);
     this.options = $.extend(true, {}, $.croppie.defaults, opts);
@@ -413,6 +382,37 @@
     };
     img.src = src;
     return def.promise();
+  }
+
+  function drawImage (img, top, left, width, height, scale, circle) {
+      if (scale !== 1) {
+        var scaleCanvas = document.createElement('canvas'),
+            scaleCtx = scaleCanvas.getContext('2d'),
+            scaleW = img.width * scale,
+            scaleH = img.height * scale;
+
+        scaleCanvas.width = scaleW;
+        scaleCanvas.height = scaleH;
+        scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
+        img = scaleCanvas; //draw image takes in canvas as well as image
+      }
+      
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
+
+      if (circle) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+      }
+
+      ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
+
+      return canvas.toDataURL();
   }
 
   function num (v) {
