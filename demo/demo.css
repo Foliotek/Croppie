@@ -16,6 +16,8 @@ body {
 body {
     font-size: 14px;
     color: #222;
+    min-height: 100%;
+    height: auto;
 }
 
 body,
