@@ -87,17 +87,24 @@
   $.croppie.prototype._initializeZoom = function () {
     var self = this;
     var wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container);
-    var vpRect;
+    var origin, vpRect;
     self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
 
     function start () {
       self._updateCenterPoint();
+      var oArray = self.$img.css('transform-origin').split(' ');
+      origin = {
+        x: parseFloat(oArray[0]),
+        y: parseFloat(oArray[1])
+      };
+
       vpRect = self.$viewport[0].getBoundingClientRect();
     }
 
     function change () {
       self._onZoom({
         value: parseFloat(self.$zoomer.val()),
+        origin: origin,
         vpRect: vpRect
       });
     }
@@ -137,41 +144,84 @@
     var self = this,
         curMatrix = parseMatrix(self.$img.css('transform')),
         vpRect = ui.vpRect,
-        imgRect = self._getImageRect(),
-        oldZoom = (self._currentZoom || 1) * 1,
-        adjY = 0, adjX = 0;
+        origin = ui.origin;
 
     self._currentZoom = ui.value;
 
-    var origin = self.$img.css('transform-origin').split(' '),
-        originX = parseFloat(origin[0]),
-        originY = parseFloat(origin[1]),
-        difZoom = (oldZoom - ui.value),
-        projected = {
-          bottom: (originY - imgRect.height) * difZoom + imgRect.bottom,
-          left: originX * difZoom + imgRect.left,
-          right: (originX - imgRect.width) * difZoom + imgRect.right,
-          top: originY * difZoom + imgRect.top
-        };
+    var boundaries = self._getVirtualBoundaries(vpRect),
+        transBoundaries = boundaries.translate,
+        oBoundaries = boundaries.origin;
+
+    if (curMatrix.x >= transBoundaries.maxX) {
+      origin.x = oBoundaries.minX;
+      curMatrix.x = transBoundaries.maxX;
+    }
+
+    if (curMatrix.x <= transBoundaries.minX) {
+      origin.x = oBoundaries.maxX;
+      curMatrix.x = transBoundaries.minX;
+    }
+
+    if (curMatrix.y >= transBoundaries.maxY) {
+      origin.y = oBoundaries.minY;
+      curMatrix.y = transBoundaries.maxY;
+    }
+
+    if (curMatrix.y <= transBoundaries.minY) {
+      origin.y = oBoundaries.maxY;
+      curMatrix.y = transBoundaries.minY;
+    }
+
+    self.$img.css({
+      transformOrigin: origin.x + 'px ' + origin.y + 'px',
+      transform:  getTransformString(ui.value, curMatrix.x, curMatrix.y)
+    });
     
-    if (vpRect.top < projected.top) {
-      adjY = projected.top - vpRect.top;
-    } 
-    else if (vpRect.bottom > projected.bottom) {
-      adjY = projected.bottom - vpRect.bottom;
-    }
-
-    if (vpRect.left < projected.left) {
-      adjX = projected.left - vpRect.left;
-    }
-    else if (vpRect.right > projected.right) {
-      adjX = projected.right - vpRect.right;
-    }
-
-    self.$img.css('transform', getTransformString(ui.value, curMatrix.x - adjX, curMatrix.y - adjY));
-
     self._updateOverlay();
     self._triggerUpdate();
+  };
+
+  $.croppie.prototype._getVirtualBoundaries = function (vpRect) {
+    var self = this,
+        scale = self._currentZoom,
+        vpWidth = vpRect.width,
+        vpHeight = vpRect.height,
+        centerFromBoundaryX = self.options.boundary.width / 2,
+        centerFromBoundaryY = self.options.boundary.height / 2,
+        originalImgWidth = self._originalImageWidth,
+        originalImgHeight = self._originalImageHeight,
+        curImgWidth = originalImgWidth * scale,
+        curImgHeight = originalImgHeight * scale,
+        halfWidth = vpWidth / 2,
+        halfHeight = vpHeight / 2;
+
+
+    var maxX = ((halfWidth / scale) - centerFromBoundaryX) * -1;
+    var minX = maxX - ((curImgWidth * (1 / scale)) - (vpWidth * (1 / scale)));
+
+    var maxY = ((halfHeight / scale) - centerFromBoundaryY) * -1;
+    var minY = maxY - ((curImgWidth * (1 / scale)) - (vpHeight * (1 / scale)));
+
+    var originMinX = (1 / scale) * halfWidth;
+    var originMaxX = (curImgWidth * (1 / scale)) - originMinX;
+
+    var originMinY = (1 / scale) * halfHeight;
+    var originMaxY = (curImgHeight * (1 / scale)) - originMinY;
+
+    return {
+      translate: {
+        maxX: maxX,
+        minX: minX,
+        maxY: maxY,
+        minY: minY
+      },
+      origin: {
+        maxX: originMaxX,
+        minX: originMinX,
+        maxY: originMaxY,
+        minY: originMinY
+      }
+    };
   };
 
   $.croppie.prototype._getImageRect = function () {
@@ -230,6 +280,7 @@
       originalY = ev.pageY;
       cssPos = parseTransform(self.$img.css('transform'));
       $win.on('mousemove.croppie', mouseMove);
+      $win.on('mouseup.croppie', mouseUp);
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
     };
@@ -259,12 +310,13 @@
     function mouseUp (ev) {
       isDragging = false;
       $win.off('mousemove.croppie');
+      $win.off('mouseup.croppie');
       $body.css('-webkit-user-select', '');
+      self._updateCenterPoint();
       self._triggerUpdate();
     }
 
     self.$overlay.on('mousedown.croppie', mouseDown);
-    $win.on('mouseup.croppie', mouseUp);
   };
 
   $.croppie.prototype._updateOverlay = function () {
