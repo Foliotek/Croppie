@@ -130,39 +130,40 @@
 
   $.croppie.prototype._onZoom = function (ui) {
     var self = this,
-        curMatrix = parseMatrix(self.$img.css('transform')),
+        transform = Transform.parse(self.$img.css('transform')),
         vpRect = ui.viewportRect,
         origin = ui.origin;
 
     self._currentZoom = ui.value;
+    transform.scale = self._currentZoom;
 
     var boundaries = self._getVirtualBoundaries(vpRect),
         transBoundaries = boundaries.translate,
         oBoundaries = boundaries.origin;
 
-    if (curMatrix.x >= transBoundaries.maxX) {
+    if (transform.x >= transBoundaries.maxX) {
       origin.x = oBoundaries.minX;
-      curMatrix.x = transBoundaries.maxX;
+      transform.x = transBoundaries.maxX;
     }
 
-    if (curMatrix.x <= transBoundaries.minX) {
+    if (transform.x <= transBoundaries.minX) {
       origin.x = oBoundaries.maxX;
-      curMatrix.x = transBoundaries.minX;
+      transform.x = transBoundaries.minX;
     }
 
-    if (curMatrix.y >= transBoundaries.maxY) {
+    if (transform.y >= transBoundaries.maxY) {
       origin.y = oBoundaries.minY;
-      curMatrix.y = transBoundaries.maxY;
+      transform.y = transBoundaries.maxY;
     }
 
-    if (curMatrix.y <= transBoundaries.minY) {
+    if (transform.y <= transBoundaries.minY) {
       origin.y = oBoundaries.maxY;
-      curMatrix.y = transBoundaries.minY;
+      transform.y = transBoundaries.minY;
     }
 
     self.$img.css({
       transformOrigin: origin.x + 'px ' + origin.y + 'px',
-      transform:  getTransformString(ui.value, curMatrix.x, curMatrix.y)
+      transform:  transform.toString()
     });
     
     self._updateOverlay();
@@ -221,7 +222,7 @@
         scale = self._currentZoom,
         data = self.$img[0].getBoundingClientRect(),
         vpData = self.$viewport[0].getBoundingClientRect(),
-        parsed = parseMatrix(self.$img.css('transform')),
+        transform = Transform.parse(self.$img.css('transform')),
         previousOrigin = self.$img.css('transform-origin').split(' '),
         pc = {
           left: parseFloat(previousOrigin[0]),
@@ -238,9 +239,11 @@
     adj.top = (center.top - pc.top) * (1 - scale);
     adj.left = (center.left - pc.left) * (1 - scale);
 
+    transform.x -= adj.left;
+    transform.y -= adj.top;
     self.$img.css({
       transformOrigin: center.left + 'px ' + center.top + 'px', 
-      transform: getTransformString(parsed.scale, parsed.x - adj.left, parsed.y - adj.top)
+      transform: transform.toString()
     });
   };
   
@@ -260,7 +263,7 @@
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      cssPos = parseTransform(self.$img.css('transform'));
+      transform = Transform.parse(self.$img.css('transform'));
       $win.on('mousemove.croppie', mouseMove);
       $win.on('mouseup.croppie', mouseUp);
       $body.css('-webkit-user-select', 'none');
@@ -315,19 +318,18 @@
       var deltaX = ev.pageX - originalX,
           deltaY = ev.pageY - originalY,
           imgRect = self._getImageRect(),
-          top = cssPos.y + deltaY,
-          left = cssPos.x + deltaX;
+          top = transform.y + deltaY,
+          left = transform.x + deltaX;
 
       if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-        cssPos.y = top;
+        transform.y = top;
       }
 
       if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-        cssPos.x = left;
+        transform.x = left;
       }
 
-      var m = getTransformString(self._currentZoom, cssPos.x, cssPos.y);
-      self.$img.css('transform', m);
+      self.$img.css('transform', transform.toString());
       self._updateOverlay();
       originalY = ev.pageY;
       originalX = ev.pageX;
@@ -498,40 +500,40 @@
     return parseInt(v, 10);
   }
 
-  function parseMatrix (v) {
+  var Transform = function (x, y, scale) {
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
+  };
+
+  Transform.parse = function (v) {
+    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
+      return Transform.fromMatrix(v);
+    }
+    else {
+      return Transform.fromString(v);
+    }
+  };
+
+  Transform.fromMatrix = function (v) {
     var vals = v.substring(7).split(',');
     if (!vals.length || v === 'none') {
       vals = [1, 0, 0, 1, 0, 0];
     }
-    return {
-      scale: parseFloat(vals[0]),
-      x: parseInt(vals[4], 10),
-      y: parseInt(vals[5], 10)
-    };
-  }
 
-  function parseTransform (v) {
-    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
-      return parseMatrix(v);
-    }
+    return new Transform(parseInt(vals[4], 10), parseInt(vals[5], 10), parseFloat(vals[0]));
+  };
 
+  Transform.fromString = function (v) {
     var values = v.split(') '),
         translate = values[0].substring(10).split(','),
         scale = values[1].substring(6);
 
-    return {
-      scale: parseFloat(scale),
-      x: parseFloat(translate[0]),
-      y: parseFloat(translate[1])
-    };
+    return new Transform(translate[0], translate[1], parseFloat(scale));
   }
 
-  function getTransformString(scale, x, y) {
-    return 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ')';
-  }
-
-  function matrix(scale, x, y) {
-    return 'matrix(' + scale + ', 0, 0, ' + scale + ', ' + x + ', ' + y + ')';
-  }
+  Transform.prototype.toString = function () {
+    return 'translate(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
+  };
 
 })($);
