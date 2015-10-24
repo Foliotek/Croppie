@@ -55,7 +55,6 @@
 
     return def.promise();
   };
-
   
   /* Prototype Extensions */
   $.croppie.prototype._create = function () {
@@ -464,7 +463,7 @@
     return def.promise();
   }
 
-  function drawImage (img, top, left, width, height, scale, circle) {
+  function drawImage (img, left, top, width, height, scale, circle) {
       if (scale !== 1) {
         var scaleCanvas = document.createElement('canvas'),
             scaleCtx = scaleCanvas.getContext('2d'),
@@ -476,7 +475,7 @@
         scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
         img = scaleCanvas; //draw image takes in canvas as well as image
       }
-      
+
       var canvas = document.createElement("canvas");
       var ctx = canvas.getContext('2d');
       canvas.width = width;
