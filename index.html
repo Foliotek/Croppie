@@ -59,6 +59,7 @@ $('#item'"').croppie({
     },
     customClass: '',
     showZoom: true|false, //default true
+    mouseWheelZoom: true|false, //default true
     update: function (cropper) { }
 });
 
@@ -68,11 +69,13 @@ $('#item').croppie('bind', 'path/to/image.png');
 // Get the crop data from a cropper
 var cropData = $('#item').croppie('get');
 
-// Get dataUrl of Cropped Image
-var dataUrl = $.croppie.canvasImage(cropData);
-
-// Get html of cropped image
-var html = $.croppie.generateImage(cropData);
+// Get the result of cropped image
+// returns Promise
+var result = $('item').croppie('result', 'html|canvas'); // default html
+result.done(function (img) {
+    //img is html positioning & sizing the image correctly if resultType is 'html'
+    //img is base64 url of cropped image if resultType is 'canvas' 
+});
               </code></pre>
             </div>
           </section>

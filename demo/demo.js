@@ -22,8 +22,7 @@ var Demo = (function() {
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev){
-			var data = mc.croppie('get');
-			$.croppie.canvasImage(data).done(function (resp){
+            mc.croppie('result', 'canvas').done(function (resp) {
 				window.open(resp);
 			});
 		});
@@ -36,8 +35,9 @@ var Demo = (function() {
 				height: 200
 			},
 			update: function (cropper) {
-				var data = $(this).croppie('get');
-				output($.croppie.generateImage(data));
+                $(this).croppie('result').done(function(resp) {
+                    output(resp);
+                });
 			}
 		});
 		cont.croppie('bind', 'demo/cat.jpg');

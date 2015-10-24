@@ -23,38 +23,28 @@
     update: $.noop
   };
 
-  $.croppie.generateImage = function (opts) {
-    var coords = opts.coords;
-    var div = $("<div class='croppie-result' />");
-    var img = $("<img />").appendTo(div);
-    img.css({
-      left: (-1 * coords[0]),
-      top: (-1 * coords[1]),
-      width: opts.imgWidth,
-      height: opts.imgHeight
-    }).attr("src", opts.src);
+  // $.croppie.generateImage = function (opts) {
+  //   var coords = opts.coords;
+  //   var div = $("<div class='croppie-result' />");
+  //   var img = $("<img />").appendTo(div);
+  //   img.css({
+  //     left: (-1 * coords[0]),
+  //     top: (-1 * coords[1]),
+  //     width: opts.imgWidth,
+  //     height: opts.imgHeight
+  //   }).attr("src", opts.src);
 
-    div.css({
-      width: coords[2] - coords[0],
-      height: coords[3] - coords[1]
-    });
-    return div;
-  };
+  //   div.css({
+  //     width: coords[2] - coords[0],
+  //     height: coords[3] - coords[1]
+  //   });
+  //   return div;
+  // };
 
-  $.croppie.canvasImage = function (opts) {
-    var def = $.Deferred(),
-        coords = opts.coords;
-        width = coords[2] - coords[0],
-        height = coords[3] - coords[1],
-        imgLoad = loadImage(opts.src);
-
-    imgLoad.done(function (img) {
-      var dataUrl = drawImage(img, coords[0], coords[1], width, height, opts.zoom, opts.circle);
-      def.resolve(dataUrl);
-    });
-
-    return def.promise();
-  };
+  // $.croppie.canvasImage = function (opts) {
+    
+  //   return def.promise();
+  // };
   
   /* Prototype Extensions */
   $.croppie.prototype._create = function () {
@@ -417,18 +407,37 @@
       circle: self.options.viewport.type === 'circle'
     };
   };
-  /* End Prototype Extensions */
 
+  $.croppie.prototype.result = function (type) {
+    type = type || 'html';
+    var data = this.get(),
+        def = $.Deferred();
+
+    if (type === 'canvas') {
+      log(data);
+      loadImage(data.src).done(function (img) {
+        def.resolve(getCanvasImage(img, data));
+      });
+    }
+    else {
+      def.resolve(getHtmlImage(data));
+    }
+    return def.promise();
+  }
+  /* End Prototype Extensions */
 
   $.fn.croppie = function (opts) {
     var ot = typeof opts;
 
     if (ot === 'string') {
       var args = Array.prototype.slice.call(arguments, 1);
+      var singleInst = $(this).data('croppie');
 
       if (opts === 'get') {
-        var i = $(this).data('croppie');
-        return i.get();
+        return singleInst.get();
+      }
+      else if (opts === 'result') {
+        return singleInst.result.apply(singleInst, args);
       }
 
       return this.each(function () {
@@ -452,20 +461,34 @@
     }
   };
 
-
   /* Utilities */
-  function loadImage (src) {
-    var img = new Image();
-    var def = $.Deferred();
+  function getHtmlImage(data) {
+      var coords = data.coords;
+      var div = $("<div class='croppie-result' />");
+      var img = $("<img />").appendTo(div);
+      img.css({
+        left: (-1 * coords[0]),
+        top: (-1 * coords[1]),
+        width: data.imgWidth,
+        height: data.imgHeight
+      }).attr("src", data.src);
 
-    img.onload = function () {
-      def.resolve(img);
-    };
-    img.src = src;
-    return def.promise();
+      div.css({
+        width: coords[2] - coords[0],
+        height: coords[3] - coords[1]
+      });
+      return div;
   }
 
-  function drawImage (img, left, top, width, height, scale, circle) {
+  function getCanvasImage(img, data) {
+      var coords = data.coords,
+          left = coords[0],
+          top = coords[1],
+          width = coords[2] - coords[0],
+          height = coords[3] - coords[1],
+          scale = data.zoom,
+          circle = data.circle;
+
       if (scale !== 1) {
         var scaleCanvas = document.createElement('canvas'),
             scaleCtx = scaleCanvas.getContext('2d'),
@@ -494,6 +517,17 @@
       ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
 
       return canvas.toDataURL();
+  }
+
+  function loadImage (src) {
+    var img = new Image();
+    var def = $.Deferred();
+
+    img.onload = function () {
+      def.resolve(img);
+    };
+    img.src = src;
+    return def.promise();
   }
 
   function num (v) {
