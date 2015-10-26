@@ -22,5 +22,8 @@
     "test",
     "tests",
     "index.html"
-  ]
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
 }

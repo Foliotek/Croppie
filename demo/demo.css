@@ -58,6 +58,7 @@ section {
 
 section.hero {
     background: #20C1C7;
+    background: linear-gradient(#189094, #20C1C7);
     color: white;
     text-shadow: 0 1px 1px rgba(20,20,20,0.6);
     margin-bottom: 0;

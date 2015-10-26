@@ -23,45 +23,22 @@
     update: $.noop
   };
 
-  // $.croppie.generateImage = function (opts) {
-  //   var coords = opts.coords;
-  //   var div = $("<div class='croppie-result' />");
-  //   var img = $("<img />").appendTo(div);
-  //   img.css({
-  //     left: (-1 * coords[0]),
-  //     top: (-1 * coords[1]),
-  //     width: opts.imgWidth,
-  //     height: opts.imgHeight
-  //   }).attr("src", opts.src);
-
-  //   div.css({
-  //     width: coords[2] - coords[0],
-  //     height: coords[3] - coords[1]
-  //   });
-  //   return div;
-  // };
-
-  // $.croppie.canvasImage = function (opts) {
-    
-  //   return def.promise();
-  // };
-  
   /* Prototype Extensions */
   $.croppie.prototype._create = function () {
     var self = this;
-    var contClass = $.trim("croppie-container " + self.options.customClass);
+    var contClass = $.trim('croppie-container ' + self.options.customClass);
     self.$container.addClass(contClass);
-    self.$boundary = $("<div class='cr-boundary' />").appendTo(self.$container).css({
+    self.$boundary = $('<div class="cr-boundary" />').appendTo(self.$container).css({
       width: self.options.boundary.width,
       height: self.options.boundary.height
     });
-    self.$img = $("<img class='cr-image' />").appendTo(self.$boundary);
-    self.$viewport = $("<div class='cr-viewport' />").appendTo(self.$boundary).css({
+    self.$img = $('<img class="cr-image" />').appendTo(self.$boundary);
+    self.$viewport = $('<div class="cr-viewport" />').appendTo(self.$boundary).css({
       width: self.options.viewport.width,
       height: self.options.viewport.height
     });
     self.$viewport.addClass('croppie-vp-' + self.options.viewport.type);
-    self.$overlay = $("<div class='cr-overlay' />").appendTo(self.$boundary);
+    self.$overlay = $('<div class="cr-overlay" />').appendTo(self.$boundary);
     self._initDraggable();
 
     if (self.options.showZoom) {
@@ -110,6 +87,11 @@
 
     self.$zoomer.on('mousedown.croppie', start);
     self.$zoomer.on('input.croppie change.croppie', change);
+    self.$zoomer.on('manualchange.croppie', function () {
+      log('here');
+      start();
+      change();
+    });
 
     if (self.options.mouseWheelZoom) {
       self.$boundary.on('mousewheel.croppie', scroll);
@@ -373,12 +355,43 @@
     self._updateOverlay();
   };
 
-  $.croppie.prototype.bind = function (src, cb) {
-    var self = this;
+  $.croppie.prototype._bindPoints = function (points) {
+    if (points.length != 4) {
+      throw "Croppie - Invalid number of points supplied";
+    }
+    var self = this,
+        pointsWidth = points[2] - points[0],
+        pointsHeight = points[3] - points[1],
+        vpW = self.options.viewport.width,
+        vpH = self.options.viewport.height,
+        scale = pointsWidth/ vpW;
+
+    self.$zoomer.val(scale).trigger('manualchange.croppie');
+    self.$img.css('transform-origin', '0px 0px');
+    self.$img.css('transform', new Transform(-1 * points[0], -1 * points[1], scale).toString());
+  };
+
+  $.croppie.prototype.bind = function (options, cb) {
+    var self = this,
+        src,
+        points = [];
+
+    if (typeof(options) === 'string') {
+      src = options;
+      options = {};
+    }
+    else {
+      src = options.src;
+      points = options.points;
+    }
+
     var prom = loadImage(src);
     prom.done(function () {
-      self.$img.attr("src", src);
+      self.$img.attr('src', src);
       self._updatePropertiesFromImage();
+      if (points.length) {
+        self._bindPoints(points);
+      }
       self._triggerUpdate();
       if (cb) {
         cb();
@@ -387,23 +400,27 @@
   };
 
   $.croppie.prototype.get = function () {
-    var self = this;
-    var imgSrc = self.$img.attr('src');
-    var imgData = self._getImageRect();
-    var vpOff = self.$viewport.offset();
-    var imgOff = self.$img.offset();
-    var x1 = vpOff.left - imgOff.left;
-    var y1 = vpOff.top - imgOff.top;
-    var x2 = x1 + self.$viewport.width();
-    var y2 = y1 + self.$viewport.height();
+    var self = this,
+        imgSrc = self.$img.attr('src'),
+        imgData = self._getImageRect(),
+        vpOff = self.$viewport[0].getBoundingClientRect(),
+        x1 = vpOff.left - imgData.left,
+        y1 = vpOff.top - imgData.top,
+        x2 = x1 + self.$viewport.width(),
+        y2 = y1 + self.$viewport.height(),
+        scale = self._currentZoom;
 
+    x1 *= scale;
+    x2 *= scale;
+    y1 *= scale;
+    y2 *= scale;
 
     return {
       src: imgSrc,
       imgWidth: imgData.width,
       imgHeight: imgData.height,
       coords: [x1, y1, x2, y2],
-      zoom: self._currentZoom,
+      zoom: scale,
       circle: self.options.viewport.type === 'circle'
     };
   };
@@ -414,7 +431,6 @@
         def = $.Deferred();
 
     if (type === 'canvas') {
-      log(data);
       loadImage(data.src).done(function (img) {
         def.resolve(getCanvasImage(img, data));
       });
@@ -463,30 +479,34 @@
 
   /* Utilities */
   function getHtmlImage(data) {
-      var coords = data.coords;
-      var div = $("<div class='croppie-result' />");
-      var img = $("<img />").appendTo(div);
+      var coords = data.coords,
+          div = $('<div class="croppie-result" />'),
+          img = $('<img />').appendTo(div),
+          width = coords[2] - coords[0],
+          height = coords[3] - coords[1],
+          scale = data.zoom;
+
       img.css({
-        left: (-1 * coords[0]),
-        top: (-1 * coords[1]),
+        left: (-1 * coords[0]) / scale,
+        top: (-1 * coords[1]) / scale,
         width: data.imgWidth,
         height: data.imgHeight
-      }).attr("src", data.src);
+      }).attr('src', data.src);
 
       div.css({
-        width: coords[2] - coords[0],
-        height: coords[3] - coords[1]
+        width: width / scale,
+        height: height / scale
       });
       return div;
   }
 
   function getCanvasImage(img, data) {
       var coords = data.coords,
-          left = coords[0],
-          top = coords[1],
-          width = coords[2] - coords[0],
-          height = coords[3] - coords[1],
           scale = data.zoom,
+          left = coords[0] / scale,
+          top = coords[1] / scale,
+          width = (coords[2] - coords[0]) / scale,
+          height = (coords[3] - coords[1]) / scale,
           circle = data.circle;
 
       if (scale !== 1) {
@@ -498,10 +518,10 @@
         scaleCanvas.width = scaleW;
         scaleCanvas.height = scaleH;
         scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
-        img = scaleCanvas; //draw image takes in canvas as well as image
+        img = scaleCanvas; // drawImage() takes in canvas as well as image
       }
 
-      var canvas = document.createElement("canvas");
+      var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       canvas.width = width;
       canvas.height = height;

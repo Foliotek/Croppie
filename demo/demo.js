@@ -40,7 +40,10 @@ var Demo = (function() {
                 });
 			}
 		});
-		cont.croppie('bind', 'demo/cat.jpg');
+		cont.croppie('bind', {
+			src: 'demo/cat.jpg',
+			points: [84.06999206542969,146.56879760742189,181.8899920654297,277.8887976074219]
+		});
 	}
 
 	function bindNavigation () {
