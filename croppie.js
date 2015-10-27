@@ -1,5 +1,17 @@
-(function ($) {
-  var cssPrefixes = ['Webkit', 'Moz', 'ms'],
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['exports', 'b'], factory);
+    } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+        // CommonJS
+        factory(exports, require('b'));
+    } else {
+        // Browser globals
+        factory((root.commonJsStrict = {}), root.b);
+    }
+}(this, function (exports, b) {
+  var $ = this.jQuery,
+      cssPrefixes = ['Webkit', 'Moz', 'ms'],
       emptyStyles = document.createElement('div').style,
       CSS_TRANS_ORG,
       CSS_TRANSFORM,
@@ -24,6 +36,130 @@
   CSS_TRANSFORM = vendorPrefix('transform');
   CSS_TRANS_ORG = vendorPrefix('transformOrigin');
   CSS_USERSELECT = vendorPrefix('userSelect');
+
+
+   function deepExtend (out) {
+    out = out || {};
+
+    for (var i = 1; i < arguments.length; i++) {
+      var obj = arguments[i];
+
+      if (!obj)
+        continue;
+
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (typeof obj[key] === 'object')
+            out[key] = deepExtend({}, obj[key]);
+          else
+            out[key] = obj[key];
+        }
+      }
+    }
+    return out;
+  };
+
+  /* Image Drawing Functions */
+  function getHtmlImage(data) {
+      var coords = data.coords,
+          div = $('<div class="croppie-result" />'),
+          img = $('<img />').appendTo(div),
+          width = coords[2] - coords[0],
+          height = coords[3] - coords[1],
+          scale = data.zoom;
+
+      img.css({
+        left: (-1 * coords[0]),
+        top: (-1 * coords[1]),
+        // transform: 'scale(' + scale + ')'
+      }).attr('src', data.imgSrc);
+
+      div.css({
+        width: width,
+        height: height
+      });
+      return div;
+  }
+
+  function getCanvasImage(img, data) {
+      var coords = data.coords,
+          scale = data.zoom,
+          left = coords[0],
+          top = coords[1],
+          width = (coords[2] - coords[0]),
+          height = (coords[3] - coords[1]),
+          circle = data.circle,
+          canvas = document.createElement('canvas'),
+          ctx = canvas.getContext('2d');
+
+      canvas.width = width;
+      canvas.height = height;
+
+      if (circle) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+      }
+
+      ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
+
+      return canvas.toDataURL();
+  }
+
+  /* Utilities */
+  function loadImage (src) {
+    var img = new Image(),
+        def = $.Deferred();
+
+    img.onload = function () {
+      def.resolve(img);
+    };
+    img.src = src;
+    return def.promise();
+  }
+
+  function num (v) {
+    return parseInt(v, 10);
+  }
+
+  /* CSS Transform Prototype */
+  var Transform = function (x, y, scale) {
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
+  };
+
+  Transform.parse = function (v) {
+    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
+      return Transform.fromMatrix(v);
+    }
+    else {
+      return Transform.fromString(v);
+    }
+  };
+
+  Transform.fromMatrix = function (v) {
+    var vals = v.substring(7).split(',');
+    if (!vals.length || v === 'none') {
+      vals = [1, 0, 0, 1, 0, 0];
+    }
+
+    return new Transform(parseInt(vals[4], 10), parseInt(vals[5], 10), parseFloat(vals[0]));
+  };
+
+  Transform.fromString = function (v) {
+    var values = v.split(') '),
+        translate = values[0].substring(10).split(','),
+        scale = values[1].substring(6);
+
+    return new Transform(translate[0], translate[1], parseFloat(scale));
+  }
+
+  Transform.prototype.toString = function () {
+    return 'translate(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
+  };
 
   /* Private Methods */
   function _create() {
@@ -475,15 +611,53 @@
     }
     return def.promise();
   }
+  
+  /* Public Methods */
+  if ($) {
+    $.fn.croppie = function (opts) {
+      var ot = typeof opts;
 
-  $.croppie = function (container, opts ) {
-    this.$container = $(container);
-    this.options = $.extend(true, {}, $.croppie.defaults, opts);
+      if (ot === 'string') {
+        var args = Array.prototype.slice.call(arguments, 1);
+        var singleInst = $(this).data('croppie');
+
+        if (opts === 'get') {
+          return singleInst.get();
+        }
+        else if (opts === 'result') {
+          return singleInst.result.apply(singleInst, args);
+        }
+
+        return this.each(function () {
+          var i = $(this).data('croppie');
+          if (!i) return;
+
+          var method = i[opts];
+          if ($.isFunction(method)) {
+            method.apply(i, args);
+          }
+          else {
+            throw 'Croppie ' + opts + ' method not found';
+          }
+        });
+      }
+      else {
+        return this.each(function () {
+          var i = new Croppie(this, opts);
+          $(this).data('croppie', i);
+        });
+      }
+    };
+  }
+
+  function Croppie(element, opts) {
+    this.$container = $(element);
+    this.options = deepExtend({}, Croppie.defaults, opts);
 
     _create.call(this);
-  };
+  }
 
-  $.croppie.defaults = {
+  Croppie.defaults = {
     viewport: {
       width: 100,
       height: 100,
@@ -498,8 +672,8 @@
     mouseWheelZoom: true,
     update: $.noop
   };
-  /* Public Methods */
-  $.extend($.croppie.prototype, {
+
+  deepExtend(Croppie.prototype, {
     bind: function (options, cb) {
       return _bind.call(this, options, cb);
     },
@@ -509,143 +683,7 @@
     result: function (type) {
       return _result.call(this, type);
     }
-  })
+  });
 
-  $.fn.croppie = function (opts) {
-    var ot = typeof opts;
-
-    if (ot === 'string') {
-      var args = Array.prototype.slice.call(arguments, 1);
-      var singleInst = $(this).data('croppie');
-
-      if (opts === 'get') {
-        return singleInst.get();
-      }
-      else if (opts === 'result') {
-        return singleInst.result.apply(singleInst, args);
-      }
-
-      return this.each(function () {
-        var i = $(this).data('croppie');
-        if (!i) return;
-
-        var method = i[opts];
-        if ($.isFunction(method)) {
-          method.apply(i, args);
-        }
-        else {
-          throw 'Croppie ' + opts + ' method not found';
-        }
-      });
-    }
-    else {
-      return this.each(function () {
-        var i = new $.croppie(this, opts);
-        $(this).data('croppie', i);
-      });
-    }
-  };
-
-  /* Image Drawing Functions */
-  function getHtmlImage(data) {
-      var coords = data.coords,
-          div = $('<div class="croppie-result" />'),
-          img = $('<img />').appendTo(div),
-          width = coords[2] - coords[0],
-          height = coords[3] - coords[1],
-          scale = data.zoom;
-
-      img.css({
-        left: (-1 * coords[0]),
-        top: (-1 * coords[1]),
-        // transform: 'scale(' + scale + ')'
-      }).attr('src', data.imgSrc);
-
-      div.css({
-        width: width,
-        height: height
-      });
-      return div;
-  }
-
-  function getCanvasImage(img, data) {
-      var coords = data.coords,
-          scale = data.zoom,
-          left = coords[0],
-          top = coords[1],
-          width = (coords[2] - coords[0]),
-          height = (coords[3] - coords[1]),
-          circle = data.circle;
-
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-      canvas.width = width;
-      canvas.height = height;
-
-      if (circle) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.clip();
-      }
-
-      ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
-
-      return canvas.toDataURL();
-  }
-
-  /* Utilities */
-  function loadImage (src) {
-    var img = new Image();
-    var def = $.Deferred();
-
-    img.onload = function () {
-      def.resolve(img);
-    };
-    img.src = src;
-    return def.promise();
-  }
-
-  function num (v) {
-    return parseInt(v, 10);
-  }
-
-  /* CSS Transform Prototype */
-  var Transform = function (x, y, scale) {
-    this.x = x;
-    this.y = y;
-    this.scale = scale;
-  };
-
-  Transform.parse = function (v) {
-    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
-      return Transform.fromMatrix(v);
-    }
-    else {
-      return Transform.fromString(v);
-    }
-  };
-
-  Transform.fromMatrix = function (v) {
-    var vals = v.substring(7).split(',');
-    if (!vals.length || v === 'none') {
-      vals = [1, 0, 0, 1, 0, 0];
-    }
-
-    return new Transform(parseInt(vals[4], 10), parseInt(vals[5], 10), parseFloat(vals[0]));
-  };
-
-  Transform.fromString = function (v) {
-    var values = v.split(') '),
-        translate = values[0].substring(10).split(','),
-        scale = values[1].substring(6);
-
-    return new Transform(translate[0], translate[1], parseFloat(scale));
-  }
-
-  Transform.prototype.toString = function () {
-    return 'translate(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
-  };
-
-})($);
+  exports.croppie = Croppie;
+}));
