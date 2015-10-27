@@ -1,32 +1,11 @@
 (function ($) {
 
-  $.croppie = function (container, opts ) {
-    this.$container = $(container);
-    this.options = $.extend(true, {}, $.croppie.defaults, opts);
 
-    this._create();
-  };
+  /* Private Methods */
+  function _create() {
+    var self = this,
+        contClass = $.trim('croppie-container ' + self.options.customClass);
 
-  $.croppie.defaults = {
-    viewport: {
-      width: 100,
-      height: 100,
-      type: 'square'
-    },
-    boundary: {
-      width: 300,
-      height: 300
-    },
-    customClass: '',
-    showZoom: true,
-    mouseWheelZoom: true,
-    update: $.noop
-  };
-
-  /* Prototype Extensions */
-  $.croppie.prototype._create = function () {
-    var self = this;
-    var contClass = $.trim('croppie-container ' + self.options.customClass);
     self.$container.addClass(contClass);
     self.$boundary = $('<div class="cr-boundary" />').appendTo(self.$container).css({
       width: self.options.boundary.width,
@@ -39,25 +18,28 @@
     });
     self.$viewport.addClass('croppie-vp-' + self.options.viewport.type);
     self.$overlay = $('<div class="cr-overlay" />').appendTo(self.$boundary);
-    self._initDraggable();
+    _initDraggable.call(this);
 
     if (self.options.showZoom) {
-      self._initializeZoom();
+      _initializeZoom.call(self);
     }
 
     if (self.options.debug) {
       self.$viewport.addClass('debug');
     }
-  };
+  }
 
-  $.croppie.prototype._initializeZoom = function () {
-    var self = this;
-    var wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container);
-    var origin, viewportRect;
+  function _initializeZoom() {
+    var self = this,
+        wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container),
+        origin, 
+        viewportRect;
+
     self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
+    self._currentZoom = 1;
 
     function start () {
-      self._updateCenterPoint();
+      _updateCenterPoint.call(self);
       var oArray = self.$img.css('transform-origin').split(' ');
       origin = {
         x: parseFloat(oArray[0]),
@@ -75,7 +57,7 @@
         y: parseFloat(oArray[1])
       };
 
-      self._onZoom({
+      _onZoom.call(self, {
         value: parseFloat(self.$zoomer.val()),
         origin: origin,
         viewportRect: viewportRect || self.$viewport[0].getBoundingClientRect()
@@ -98,11 +80,9 @@
     if (self.options.mouseWheelZoom) {
       self.$boundary.on('mousewheel.croppie', scroll);
     }
-    
-    self._currentZoom = 1;
-  };
+  }
 
-  $.croppie.prototype._onZoom = function (ui) {
+  function _onZoom(ui) {
     var self = this,
         transform = Transform.parse(self.$img.css('transform')),
         vpRect = ui.viewportRect,
@@ -111,7 +91,7 @@
     self._currentZoom = ui.value;
     transform.scale = self._currentZoom;
 
-    var boundaries = self._getVirtualBoundaries(vpRect),
+    var boundaries = _getVirtualBoundaries.call(self, vpRect),
         transBoundaries = boundaries.translate,
         oBoundaries = boundaries.origin;
 
@@ -140,15 +120,15 @@
       transform:  transform.toString()
     });
     
-    self._updateOverlay();
-    self._triggerUpdate();
-  };
+    _updateOverlay.call(self);
+    _triggerUpdate.call(self);
+  }
 
-  $.croppie.prototype._getVirtualBoundaries = function (vpRect) {
+  function _getVirtualBoundaries(viewport) {
     var self = this,
         scale = self._currentZoom,
-        vpWidth = vpRect.width,
-        vpHeight = vpRect.height,
+        vpWidth = viewport.width,
+        vpHeight = viewport.height,
         centerFromBoundaryX = self.options.boundary.width / 2,
         centerFromBoundaryY = self.options.boundary.height / 2,
         originalImgWidth = self._originalImageWidth,
@@ -185,13 +165,9 @@
         minY: originMinY
       }
     };
-  };
+  }
 
-  $.croppie.prototype._getImageRect = function () {
-    return this.$img[0].getBoundingClientRect();
-  };
-
-  $.croppie.prototype._updateCenterPoint = function () {
+  function _updateCenterPoint() {
     var self = this,
         scale = self._currentZoom,
         data = self.$img[0].getBoundingClientRect(),
@@ -219,9 +195,9 @@
       transformOrigin: center.left + 'px ' + center.top + 'px', 
       transform: transform.toString()
     });
-  };
-  
-  $.croppie.prototype._initDraggable = function () {
+  }
+
+  function _initDraggable() {
     var self = this,
         $win = $(window),
         $body = $('body'),
@@ -244,7 +220,7 @@
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
       scrollers = disableScrollableParents();
-    };
+    }
 
     function disableScrollableParents() {
       var scrollers = self.$container.parents().filter(function() {
@@ -294,7 +270,7 @@
           pageY = ev.pageY || ev.originalEvent.touches[0].pageY,
           deltaX = pageX - originalX,
           deltaY = pageY - originalY,
-          imgRect = self._getImageRect(),
+          imgRect = self.$img[0].getBoundingClientRect(),
           top = transform.y + deltaY,
           left = transform.x + deltaX;
 
@@ -326,10 +302,10 @@
       }
 
       self.$img.css('transform', transform.toString());
-      self._updateOverlay();
+      _updateOverlay.call(self);
       originalY = pageY;
       originalX = pageX;
-    };
+    }
 
     function mouseUp (ev) {
       isDragging = false;
@@ -337,15 +313,15 @@
       scrollers.off('scroll.croppie');
       $(document).off('scroll.croppie');
       $body.css('-webkit-user-select', '');
-      self._updateCenterPoint();
-      self._triggerUpdate();
+      _updateCenterPoint.call(self);
+      _triggerUpdate.call(self);
       originalDistance = 0;
     }
 
     self.$overlay.on('mousedown.croppie touchstart.croppie', mouseDown);
-  };
+  }
 
-  $.croppie.prototype._updateOverlay = function () {
+  function _updateOverlay() {
     var self = this,
         boundRect = this.$boundary[0].getBoundingClientRect(),
         imgData = self.$img[0].getBoundingClientRect();
@@ -356,16 +332,17 @@
       top: imgData.top - boundRect.top,
       left: imgData.left - boundRect.left
     });
-  };
+  }
 
-  $.croppie.prototype._triggerUpdate = function () {
+  function _triggerUpdate() {
     var self = this;
     self.options.update.apply(self.$container, self);
   }
 
-  $.croppie.prototype._updatePropertiesFromImage = function () {
-    var self = this;
-    var imgData = self._getImageRect();
+  function _updatePropertiesFromImage() {
+    var self = this,
+        imgData = self.$img[0].getBoundingClientRect();
+
     self._originalImageWidth = imgData.width;
     self._originalImageHeight = imgData.height;
 
@@ -377,10 +354,10 @@
       self.$zoomer.val(1);
     }
 
-    self._updateOverlay();
-  };
+    _updateOverlay.call(self);
+  }
 
-  $.croppie.prototype._bindPoints = function (points) {
+  function _bindPoints(points) {
     if (points.length != 4) {
       throw "Croppie - Invalid number of points supplied";
     }
@@ -403,9 +380,9 @@
     self.$img.css('transform', new Transform(transformLeft, transformTop, scale).toString());
     self.$zoomer.val(scale);
     self._currentZoom = scale;
-  };
+  }
 
-  $.croppie.prototype.bind = function (options, cb) {
+  function _bind(options, cb) {
     var self = this,
         src,
         points = [];
@@ -419,24 +396,25 @@
       points = options.points;
     }
 
+    self.imgSrc = src;
     var prom = loadImage(src);
     prom.done(function () {
       self.$img.attr('src', src);
-      self._updatePropertiesFromImage();
+      _updatePropertiesFromImage.call(self);
       if (points.length) {
-        self._bindPoints(points);
+        _bindPoints.call(self, points);
       }
-      self._triggerUpdate();
+      _triggerUpdate.call(self);
       if (cb) {
         cb();
       }
     });
-  };
+  }
 
-  $.croppie.prototype.get = function () {
+  function _get() {
     var self = this,
         imgSrc = self.$img.attr('src'),
-        imgData = self._getImageRect(),
+        imgData = self.$img[0].getBoundingClientRect(),
         vpData = self.$viewport[0].getBoundingClientRect(),
         x1 = vpData.left - imgData.left,
         y1 = vpData.top - imgData.top,
@@ -450,22 +428,21 @@
     y2 /= scale;
 
     return {
-      src: imgSrc,
-      imgWidth: imgData.width,
-      imgHeight: imgData.height,
       coords: [x1, y1, x2, y2],
-      zoom: scale,
-      circle: self.options.viewport.type === 'circle'
+      zoom: scale
     };
-  };
+  }
 
-  $.croppie.prototype.result = function (type) {
-    type = type || 'html';
-    var data = this.get(),
+  function _result(type) {
+    var self = this,
+        data = _get.call(self),
         def = $.Deferred();
 
+    data.circle = self.options.viewport.type === 'circle';
+    data.imgSrc = self.imgSrc;
+    type = type || 'html';
     if (type === 'canvas') {
-      loadImage(data.src).done(function (img) {
+      loadImage(self.imgSrc).done(function (img) {
         def.resolve(getCanvasImage(img, data));
       });
     }
@@ -474,7 +451,41 @@
     }
     return def.promise();
   }
-  /* End Prototype Extensions */
+
+  $.croppie = function (container, opts ) {
+    this.$container = $(container);
+    this.options = $.extend(true, {}, $.croppie.defaults, opts);
+
+    _create.call(this);
+  };
+
+  $.croppie.defaults = {
+    viewport: {
+      width: 100,
+      height: 100,
+      type: 'square'
+    },
+    boundary: {
+      width: 300,
+      height: 300
+    },
+    customClass: '',
+    showZoom: true,
+    mouseWheelZoom: true,
+    update: $.noop
+  };
+  /* Public Methods */
+  $.extend($.croppie.prototype, {
+    bind: function (options, cb) {
+      return _bind.call(this, options, cb);
+    },
+    get: function () {
+      return _get.call(this);
+    },
+    result: function (type) {
+      return _result.call(this, type);
+    }
+  })
 
   $.fn.croppie = function (opts) {
     var ot = typeof opts;
@@ -499,7 +510,7 @@
           method.apply(i, args);
         }
         else {
-          throw 'Croppie ' + options + ' method not found';
+          throw 'Croppie ' + opts + ' method not found';
         }
       });
     }
@@ -523,7 +534,8 @@
       img.css({
         left: (-1 * coords[0]),
         top: (-1 * coords[1]),
-      }).attr('src', data.src);
+        // transform: 'scale(' + scale + ')'
+      }).attr('src', data.imgSrc);
 
       div.css({
         width: width,
