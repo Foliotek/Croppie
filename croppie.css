@@ -27,7 +27,7 @@
 	box-shadow:0 0 0 1000px rgba(0, 0, 0, 0.5);
 	z-index: 0;
 }
-.croppie-container .croppie-vp-circle {
+.croppie-container .cr-vp-circle {
 	border-radius: 50%;
 }
 .croppie-container .cr-overlay {

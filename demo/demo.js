@@ -1,12 +1,12 @@
 var Demo = (function() {
 
-	function output(html) {
+	function output(node) {
 		var existing = $('#result .croppie-result');
 		if (existing.length > 0) {
-			existing.replaceWith(html);
+			existing[0].parentNode.replaceChild(node, existing[0]);
 		}
 		else {
-			$('#result').append(html);
+			$('#result')[0].appendChild(node);
 		}
 	}
 

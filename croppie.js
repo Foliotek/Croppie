@@ -59,25 +59,36 @@
     return out;
   };
 
+  function css(el, css) {
+    var cssText = '';
+    for (prop in css) {
+      cssText += prop + ': ' + css[prop] + ';';
+    }
+    el.style.cssText = cssText;
+  }
+
   /* Image Drawing Functions */
   function getHtmlImage(data) {
       var coords = data.coords,
-          div = $('<div class="croppie-result" />'),
-          img = $('<img />').appendTo(div),
+          div = document.createElement('div'), //$('<div class="croppie-result" />'),
+          img = document.createElement('img'), //$('<img />').appendTo(div),
           width = coords[2] - coords[0],
           height = coords[3] - coords[1],
           scale = data.zoom;
 
-      img.css({
-        left: (-1 * coords[0]),
-        top: (-1 * coords[1]),
+      div.classList.add('croppie-result');
+      div.appendChild(img);
+      css(img, {
+        left: (-1 * coords[0]) + 'px',
+        top: (-1 * coords[1]) + 'px'
         // transform: 'scale(' + scale + ')'
-      }).attr('src', data.imgSrc);
-
-      div.css({
-        width: width,
-        height: height
+      })
+      img.src = data.imgSrc;
+      css(div, {
+        width: width + 'px',
+        height: height + 'px'
       });
+
       return div;
   }
 
@@ -164,34 +175,45 @@
   /* Private Methods */
   function _create() {
     var self = this,
-        contClass = $.trim('croppie-container ' + self.options.customClass);
+        contClass = ['croppie-container'],
+        boundary = self.boundary = document.createElement('div'),
+        viewport = self.viewport = document.createElement('div'),
+        img = self.img = document.createElement('img'),
+        overlay = self.overlay = document.createElement('div'),
+        customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null;
 
-    self.$container.addClass(contClass);
-    self.$boundary = $('<div class="cr-boundary" />').appendTo(self.$container).css({
-      width: self.options.boundary.width,
-      height: self.options.boundary.height
+    boundary.classList.add('cr-boundary');
+    css(boundary, {
+      width: self.options.boundary.width + 'px',
+      height: self.options.boundary.height + 'px'
     });
-    self.$img = $('<img class="cr-image" />').appendTo(self.$boundary);
-    self.$viewport = $('<div class="cr-viewport" />').appendTo(self.$boundary).css({
-      width: self.options.viewport.width,
-      height: self.options.viewport.height
+
+    viewport.classList.add('cr-viewport', customViewportClass);
+    css(viewport, {
+      width: self.options.viewport.width + 'px',
+      height: self.options.viewport.height + 'px'
     });
-    self.$viewport.addClass('croppie-vp-' + self.options.viewport.type);
-    self.$overlay = $('<div class="cr-overlay" />').appendTo(self.$boundary);
+
+    img.classList.add('cr-image');
+    overlay.classList.add('cr-overlay');
+
+    self.element.appendChild(boundary);
+    boundary.appendChild(img);
+    boundary.appendChild(viewport);
+    boundary.appendChild(overlay);
+
+    self.element.classList.add(contClass, self.options.customClass || null);
+
     _initDraggable.call(this);
 
     if (self.options.showZoom) {
       _initializeZoom.call(self);
     }
-
-    if (self.options.debug) {
-      self.$viewport.addClass('debug');
-    }
   }
 
   function _initializeZoom() {
     var self = this,
-        wrap = $('<div class="cr-slider-wrap" />').appendTo(self.$container),
+        wrap = $('<div class="cr-slider-wrap" />').appendTo($(self.element)),
         origin, 
         viewportRect;
 
@@ -200,18 +222,18 @@
 
     function start () {
       _updateCenterPoint.call(self);
-      var oArray = self.$img.css(CSS_TRANS_ORG).split(' ');
+      var oArray = $(self.img).css(CSS_TRANS_ORG).split(' ');
       origin = {
         x: parseFloat(oArray[0]),
         y: parseFloat(oArray[1])
       };
 
-      viewportRect = self.$viewport[0].getBoundingClientRect();
+      viewportRect = self.viewport.getBoundingClientRect();
     }
 
     function change () {
       //todo - This is only here to work with pinch zooming.. Clean it up later!!!
-      var oArray = self.$img.css(CSS_TRANS_ORG).split(' ');
+      var oArray = $(self.img).css(CSS_TRANS_ORG).split(' ');
       var origin = {
         x: parseFloat(oArray[0]),
         y: parseFloat(oArray[1])
@@ -220,7 +242,7 @@
       _onZoom.call(self, {
         value: parseFloat(self.$zoomer.val()),
         origin: origin,
-        viewportRect: viewportRect || self.$viewport[0].getBoundingClientRect()
+        viewportRect: viewportRect || self.viewport.getBoundingClientRect()
       });
     }
 
@@ -238,13 +260,13 @@
     self.$zoomer.on('input.croppie change.croppie', change);
     
     if (self.options.mouseWheelZoom) {
-      self.$boundary.on('mousewheel.croppie', scroll);
+      $(self.boundary).on('mousewheel.croppie', scroll);
     }
   }
 
   function _onZoom(ui) {
     var self = this,
-        transform = Transform.parse(self.$img.css(CSS_TRANSFORM)),
+        transform = Transform.parse($(self.img).css(CSS_TRANSFORM)),
         vpRect = ui.viewportRect,
         origin = ui.origin;
 
@@ -275,7 +297,7 @@
       transform.y = transBoundaries.minY;
     }
 
-    self.$img.css({
+    $(self.img).css({
       transformOrigin: origin.x + 'px ' + origin.y + 'px',
       transform:  transform.toString()
     });
@@ -330,10 +352,10 @@
   function _updateCenterPoint() {
     var self = this,
         scale = self._currentZoom,
-        data = self.$img[0].getBoundingClientRect(),
-        vpData = self.$viewport[0].getBoundingClientRect(),
-        transform = Transform.parse(self.$img.css(CSS_TRANSFORM)),
-        previousOrigin = self.$img.css(CSS_TRANS_ORG).split(' '),
+        data = self.img.getBoundingClientRect(),
+        vpData = self.viewport.getBoundingClientRect(),
+        transform = Transform.parse($(self.img).css(CSS_TRANSFORM)),
+        previousOrigin = $(self.img).css(CSS_TRANS_ORG).split(' '),
         pc = {
           left: parseFloat(previousOrigin[0]),
           top: parseFloat(previousOrigin[1])
@@ -351,7 +373,7 @@
 
     transform.x -= adj.left;
     transform.y -= adj.top;
-    self.$img.css({
+    $(self.img).css({
       transformOrigin: center.left + 'px ' + center.top + 'px', 
       transform: transform.toString()
     });
@@ -374,16 +396,16 @@
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      transform = Transform.parse(self.$img.css(CSS_TRANSFORM));
+      transform = Transform.parse($(self.img).css(CSS_TRANSFORM));
       $win.on('mousemove.croppie touchmove.croppie', mouseMove);
       $win.on('mouseup.croppie touchend.croppie', mouseUp);
       $body.css(CSS_USERSELECT, 'none');
-      vpRect = self.$viewport[0].getBoundingClientRect();
+      vpRect = self.viewport.getBoundingClientRect();
       scrollers = disableScrollableParents();
     }
 
     function disableScrollableParents() {
-      var scrollers = self.$container.parents().filter(function() {
+      var scrollers = $(self.element).parents().filter(function() {
         var el = this,
             $el = $(this),
             testRx = /scroll|auto/i,
@@ -430,7 +452,7 @@
           pageY = ev.pageY || ev.originalEvent.touches[0].pageY,
           deltaX = pageX - originalX,
           deltaY = pageY - originalY,
-          imgRect = self.$img[0].getBoundingClientRect(),
+          imgRect = self.img.getBoundingClientRect(),
           top = transform.y + deltaY,
           left = transform.x + deltaX;
 
@@ -461,7 +483,7 @@
         transform.x = left;
       }
 
-      self.$img.css(CSS_TRANSFORM, transform.toString());
+      $(self.img).css(CSS_TRANSFORM, transform.toString());
       _updateOverlay.call(self);
       originalY = pageY;
       originalX = pageX;
@@ -478,15 +500,15 @@
       originalDistance = 0;
     }
 
-    self.$overlay.on('mousedown.croppie touchstart.croppie', mouseDown);
+    $(self.overlay).on('mousedown.croppie touchstart.croppie', mouseDown);
   }
 
   function _updateOverlay() {
     var self = this,
-        boundRect = this.$boundary[0].getBoundingClientRect(),
-        imgData = self.$img[0].getBoundingClientRect();
+        boundRect = self.boundary.getBoundingClientRect(),
+        imgData = self.img.getBoundingClientRect();
 
-    self.$overlay.css({
+    $(self.overlay).css({
       width: imgData.width,
       height: imgData.height,
       top: imgData.top - boundRect.top,
@@ -496,18 +518,18 @@
 
   function _triggerUpdate() {
     var self = this;
-    self.options.update.apply(self.$container, self);
+    self.options.update.apply($(self.element), self);
   }
 
   function _updatePropertiesFromImage() {
     var self = this,
-        imgData = self.$img[0].getBoundingClientRect();
+        imgData = self.img.getBoundingClientRect();
 
     self._originalImageWidth = imgData.width;
     self._originalImageHeight = imgData.height;
 
     if (self.options.showZoom) {
-      var minZoom = self.$boundary.width() / imgData.width;
+      var minZoom = self.boundary.getBoundingClientRect().width / imgData.width;
       var maxZoom = 1.5;
       self.$zoomer.attr('min', minZoom);
       self.$zoomer.attr('max', maxZoom);
@@ -524,8 +546,8 @@
     var self = this,
         pointsWidth = points[2] - points[0],
         pointsHeight = points[3] - points[1],
-        vpData = self.$viewport[0].getBoundingClientRect(),
-        boundRect = self.$boundary[0].getBoundingClientRect(),
+        vpData = self.viewport.getBoundingClientRect(),
+        boundRect = self.boundary.getBoundingClientRect(),
         vpOffset = {
           left: vpData.left - boundRect.left,
           top: vpData.top - boundRect.top
@@ -536,8 +558,8 @@
         transformTop = (-1 * points[1]) + vpOffset.top,
         transformLeft = (-1 * points[0]) + vpOffset.left;
 
-    self.$img.css(CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
-    self.$img.css(CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
+    $(self.img).css(CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
+    $(self.img).css(CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
     self.$zoomer.val(scale);
     self._currentZoom = scale;
   }
@@ -559,7 +581,7 @@
     self.imgSrc = src;
     var prom = loadImage(src);
     prom.done(function () {
-      self.$img.attr('src', src);
+      self.img.src = src;
       _updatePropertiesFromImage.call(self);
       if (points.length) {
         _bindPoints.call(self, points);
@@ -573,9 +595,9 @@
 
   function _get() {
     var self = this,
-        imgSrc = self.$img.attr('src'),
-        imgData = self.$img[0].getBoundingClientRect(),
-        vpData = self.$viewport[0].getBoundingClientRect(),
+        imgSrc = self.img.src,
+        imgData = self.img.getBoundingClientRect(),
+        vpData = self.viewport.getBoundingClientRect(),
         x1 = vpData.left - imgData.left,
         y1 = vpData.top - imgData.top,
         x2 = x1 + vpData.width,
@@ -612,7 +634,6 @@
     return def.promise();
   }
   
-  /* Public Methods */
   if ($) {
     $.fn.croppie = function (opts) {
       var ot = typeof opts;
@@ -651,7 +672,7 @@
   }
 
   function Croppie(element, opts) {
-    this.$container = $(element);
+    this.element = element;
     this.options = deepExtend({}, Croppie.defaults, opts);
 
     _create.call(this);
