@@ -85,7 +85,7 @@
       change()      
     }
 
-    self.$zoomer.on('mousedown.croppie', start);
+    self.$zoomer.on('mousedown.croppie touchstart.croppie', start);
     self.$zoomer.on('input.croppie change.croppie', change);
     self.$zoomer.on('manualchange.croppie', function () {
       start();
@@ -235,8 +235,8 @@
       originalX = ev.pageX;
       originalY = ev.pageY;
       transform = Transform.parse(self.$img.css('transform'));
-      $win.on('mousemove.croppie', mouseMove);
-      $win.on('mouseup.croppie', mouseUp);
+      $win.on('mousemove.croppie touchmove.croppie', mouseMove);
+      $win.on('mouseup.croppie touchend.croppie', mouseUp);
       $body.css('-webkit-user-select', 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
       scrollers = disableScrollableParents();
@@ -286,11 +286,17 @@
     }
 
     function mouseMove (ev) {
-      var deltaX = ev.pageX - originalX,
-          deltaY = ev.pageY - originalY,
+      var pageX = ev.pageX || ev.originalEvent.touches[0].pageX,
+          pageY = ev.pageY || ev.originalEvent.touches[0].pageY,
+          deltaX = pageX - originalX,
+          deltaY = pageY - originalY,
           imgRect = self._getImageRect(),
           top = transform.y + deltaY,
           left = transform.x + deltaX;
+
+      if (ev.type == 'touchmove') {
+        ev.preventDefault();
+      }
 
       if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
         transform.y = top;
@@ -302,13 +308,13 @@
 
       self.$img.css('transform', transform.toString());
       self._updateOverlay();
-      originalY = ev.pageY;
-      originalX = ev.pageX;
+      originalY = pageY;
+      originalX = pageX;
     };
 
     function mouseUp (ev) {
       isDragging = false;
-      $win.off('mousemove.croppie mouseup.croppie');
+      $win.off('mousemove.croppie mouseup.croppie touchmove.croppie touchend.croppie');
       scrollers.off('scroll.croppie');
       $(document).off('scroll.croppie');
       $body.css('-webkit-user-select', '');
@@ -316,7 +322,7 @@
       self._triggerUpdate();
     }
 
-    self.$overlay.on('mousedown.croppie', mouseDown);
+    self.$overlay.on('mousedown.croppie touchstart.croppie', mouseDown);
   };
 
   $.croppie.prototype._updateOverlay = function () {

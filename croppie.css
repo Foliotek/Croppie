@@ -59,6 +59,7 @@
     -webkit-appearance: none;/*removes default webkit styles*/
     /*border: 1px solid white; *//*fix for FF unable to apply focus style bug */
     width: 300px;/*required for proper track sizing in FF*/
+    max-width: 100%;
 }
 .cr-slider::-webkit-slider-runnable-track {
     width: 100%;
