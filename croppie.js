@@ -361,13 +361,18 @@
     var self = this,
         pointsWidth = points[2] - points[0],
         pointsHeight = points[3] - points[1],
-        vpW = self.options.viewport.width,
-        vpH = self.options.viewport.height,
-        scale = vpW / pointsWidth;
+        vpData = self.$viewport[0].getBoundingClientRect(),
+        boundRect = self.$boundary[0].getBoundingClientRect(),
+        scale = vpData.width / pointsWidth,
+        left = (-1 * points[0]), // + (vpData.left -  boundRect.left),
+        top = (-1 * points[1]); // + (vpData.top - boundRect.top);
 
-    self.$img.css('transform-origin', '');
-    self.$img.css('transform', new Transform(-1 * points[0], -1 * points[1], 1).toString());
+    // var origin = (vpData.left - boundRect.left) + 'px ' + (vpData.top - boundRect.top) + 'px';
+
+    self.$img.css('transform', new Transform(left, top, 1).toString());
+    self._updateCenterPoint();
     self.$zoomer.val(scale).trigger('manualchange.croppie');
+    // self.$img.css('transform-origin', '');
   };
 
   $.croppie.prototype.bind = function (options, cb) {
@@ -381,7 +386,7 @@
     }
     else {
       src = options.src;
-      points = options.points;
+      points = options.points; // || [];
     }
 
     var prom = loadImage(src);
@@ -402,11 +407,11 @@
     var self = this,
         imgSrc = self.$img.attr('src'),
         imgData = self._getImageRect(),
-        vpOff = self.$viewport[0].getBoundingClientRect(),
-        x1 = vpOff.left - imgData.left,
-        y1 = vpOff.top - imgData.top,
-        x2 = x1 + self.$viewport.width(),
-        y2 = y1 + self.$viewport.height(),
+        vpData = self.$viewport[0].getBoundingClientRect(),
+        x1 = vpData.left - imgData.left,
+        y1 = vpData.top - imgData.top,
+        x2 = x1 + vpData.width,
+        y2 = y1 + vpData.height,
         scale = self._currentZoom;
 
     x1 /= scale;
