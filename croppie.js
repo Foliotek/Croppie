@@ -1,5 +1,29 @@
 (function ($) {
+  var cssPrefixes = ['Webkit', 'Moz', 'ms'],
+      emptyStyles = document.createElement('div').style,
+      CSS_TRANS_ORG,
+      CSS_TRANSFORM,
+      CSS_USERSELECT;
 
+  function vendorPrefix(prop) {
+    if (prop in emptyStyles) {
+        return prop;
+    }
+
+    var capProp = prop[0].toUpperCase() + prop.slice(1),
+        i = cssPrefixes.length;
+
+    while (i--) {
+        prop = cssPrefixes[ i ] + capProp;
+        if ( prop in emptyStyles ) {
+          return prop;
+        }
+    }
+  }
+
+  CSS_TRANSFORM = vendorPrefix('transform');
+  CSS_TRANS_ORG = vendorPrefix('transformOrigin');
+  CSS_USERSELECT = vendorPrefix('userSelect');
 
   /* Private Methods */
   function _create() {
@@ -40,7 +64,7 @@
 
     function start () {
       _updateCenterPoint.call(self);
-      var oArray = self.$img.css('transform-origin').split(' ');
+      var oArray = self.$img.css(CSS_TRANS_ORG).split(' ');
       origin = {
         x: parseFloat(oArray[0]),
         y: parseFloat(oArray[1])
@@ -51,7 +75,7 @@
 
     function change () {
       //todo - This is only here to work with pinch zooming.. Clean it up later!!!
-      var oArray = self.$img.css('transform-origin').split(' ');
+      var oArray = self.$img.css(CSS_TRANS_ORG).split(' ');
       var origin = {
         x: parseFloat(oArray[0]),
         y: parseFloat(oArray[1])
@@ -84,7 +108,7 @@
 
   function _onZoom(ui) {
     var self = this,
-        transform = Transform.parse(self.$img.css('transform')),
+        transform = Transform.parse(self.$img.css(CSS_TRANSFORM)),
         vpRect = ui.viewportRect,
         origin = ui.origin;
 
@@ -172,8 +196,8 @@
         scale = self._currentZoom,
         data = self.$img[0].getBoundingClientRect(),
         vpData = self.$viewport[0].getBoundingClientRect(),
-        transform = Transform.parse(self.$img.css('transform')),
-        previousOrigin = self.$img.css('transform-origin').split(' '),
+        transform = Transform.parse(self.$img.css(CSS_TRANSFORM)),
+        previousOrigin = self.$img.css(CSS_TRANS_ORG).split(' '),
         pc = {
           left: parseFloat(previousOrigin[0]),
           top: parseFloat(previousOrigin[1])
@@ -214,10 +238,10 @@
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      transform = Transform.parse(self.$img.css('transform'));
+      transform = Transform.parse(self.$img.css(CSS_TRANSFORM));
       $win.on('mousemove.croppie touchmove.croppie', mouseMove);
       $win.on('mouseup.croppie touchend.croppie', mouseUp);
-      $body.css('-webkit-user-select', 'none');
+      $body.css(CSS_USERSELECT, 'none');
       vpRect = self.$viewport[0].getBoundingClientRect();
       scrollers = disableScrollableParents();
     }
@@ -301,7 +325,7 @@
         transform.x = left;
       }
 
-      self.$img.css('transform', transform.toString());
+      self.$img.css(CSS_TRANSFORM, transform.toString());
       _updateOverlay.call(self);
       originalY = pageY;
       originalX = pageX;
@@ -376,8 +400,8 @@
         transformTop = (-1 * points[1]) + vpOffset.top,
         transformLeft = (-1 * points[0]) + vpOffset.left;
 
-    self.$img.css('transform-origin', originLeft + 'px ' + originTop + 'px');
-    self.$img.css('transform', new Transform(transformLeft, transformTop, scale).toString());
+    self.$img.css(CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
+    self.$img.css(CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
     self.$zoomer.val(scale);
     self._currentZoom = scale;
   }
