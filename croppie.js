@@ -68,10 +68,17 @@
     }
 
     function change () {
+      //todo - This is only here to work with pinch zooming.. Clean it up later!!!
+      var oArray = self.$img.css('transform-origin').split(' ');
+      var origin = {
+        x: parseFloat(oArray[0]),
+        y: parseFloat(oArray[1])
+      };
+
       self._onZoom({
         value: parseFloat(self.$zoomer.val()),
         origin: origin,
-        viewportRect: viewportRect
+        viewportRect: viewportRect || self.$viewport[0].getBoundingClientRect()
       });
     }
 
@@ -226,6 +233,7 @@
         cssPos = {},
         originalX,
         originalY,
+        originalDistance,
         scrollers,
         vpRect;
 
@@ -295,7 +303,22 @@
           left = transform.x + deltaX;
 
       if (ev.type == 'touchmove') {
-        ev.preventDefault();
+        ev.preventDefault();        
+        if (ev.originalEvent.touches.length > 1) {
+          var e = ev.originalEvent;
+          var touch1 = e.touches[0];
+          var touch2 = e.touches[1];
+          var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
+
+          if (!originalDistance) {
+            originalDistance = dist;
+          }
+
+          var scale = dist / originalDistance;
+
+          self.$zoomer.val(scale).trigger('change');
+          return;
+        }
       }
 
       if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
@@ -320,6 +343,7 @@
       $body.css('-webkit-user-select', '');
       self._updateCenterPoint();
       self._triggerUpdate();
+      originalDistance = 0;
     }
 
     self.$overlay.on('mousedown.croppie touchstart.croppie', mouseDown);
