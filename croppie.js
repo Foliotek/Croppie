@@ -38,7 +38,7 @@
   CSS_USERSELECT = vendorPrefix('userSelect');
 
 
-   function deepExtend (out) {
+  function deepExtend (out) {
     out = out || {};
 
     for (var i = 1; i < arguments.length; i++) {
@@ -59,12 +59,21 @@
     return out;
   };
 
-  function css(el, css) {
-    var cssText = '';
-    for (prop in css) {
-      cssText += prop + ': ' + css[prop] + ';';
+  function css(el, css, val) {
+    if (typeof(css) === 'string') {
+      var tmp = css;
+      css = {};
+      css[tmp] = val;
     }
-    el.style.cssText = cssText;
+
+    for (var prop in css) {
+      el.style[prop] = css[prop];
+    }
+    // var cssText = '';
+    // for (prop in css) {
+    //   cssText += prop + ': ' + css[prop] + ';';
+    // }
+    // el.style.cssText = cssText;
   }
 
   /* Image Drawing Functions */
@@ -137,8 +146,8 @@
 
   /* CSS Transform Prototype */
   var Transform = function (x, y, scale) {
-    this.x = x;
-    this.y = y;
+    this.x = parseFloat(x);
+    this.y = parseFloat(y);
     this.scale = scale;
   };
 
@@ -171,6 +180,21 @@
   Transform.prototype.toString = function () {
     return 'translate(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
   };
+
+  var TransformOrigin = function (el) {
+    if (!el || !el.style[CSS_TRANSFORM]) {
+      this.x = 0;
+      this.y = 0;
+      return;
+    }
+    var css = el.style[CSS_TRANSFORM].split(' ');
+    this.x = parseFloat(css[0]);
+    this.y = parseFloat(css[1]);
+  };
+
+  TransformOrigin.prototype.toString = function () {
+    return this.x + 'px ' + this.y + 'px';
+  }
 
   /* Private Methods */
   function _create() {
@@ -215,34 +239,26 @@
     var self = this,
         wrap = $('<div class="cr-slider-wrap" />').appendTo($(self.element)),
         origin, 
-        viewportRect;
+        viewportRect,
+        transform;
 
     self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
     self._currentZoom = 1;
 
     function start () {
       _updateCenterPoint.call(self);
-      var oArray = $(self.img).css(CSS_TRANS_ORG).split(' ');
-      origin = {
-        x: parseFloat(oArray[0]),
-        y: parseFloat(oArray[1])
-      };
-
+      origin = new TransformOrigin(self.img);
       viewportRect = self.viewport.getBoundingClientRect();
+      transform = Transform.parse(self.img.style[CSS_TRANSFORM]);
+      console.log(transform);
     }
 
     function change () {
-      //todo - This is only here to work with pinch zooming.. Clean it up later!!!
-      var oArray = $(self.img).css(CSS_TRANS_ORG).split(' ');
-      var origin = {
-        x: parseFloat(oArray[0]),
-        y: parseFloat(oArray[1])
-      };
-
       _onZoom.call(self, {
         value: parseFloat(self.$zoomer.val()),
         origin: origin,
-        viewportRect: viewportRect || self.viewport.getBoundingClientRect()
+        viewportRect: viewportRect || self.viewport.getBoundingClientRect(),
+        transform: transform
       });
     }
 
@@ -257,6 +273,7 @@
     }
 
     self.$zoomer.on('mousedown.croppie touchstart.croppie', start);
+    // this is being fired twice on keypress
     self.$zoomer.on('input.croppie change.croppie', change);
     
     if (self.options.mouseWheelZoom) {
@@ -266,7 +283,7 @@
 
   function _onZoom(ui) {
     var self = this,
-        transform = Transform.parse($(self.img).css(CSS_TRANSFORM)),
+        transform = ui.transform,
         vpRect = ui.viewportRect,
         origin = ui.origin;
 
@@ -297,10 +314,8 @@
       transform.y = transBoundaries.minY;
     }
 
-    $(self.img).css({
-      transformOrigin: origin.x + 'px ' + origin.y + 'px',
-      transform:  transform.toString()
-    });
+    css(self.img, CSS_TRANS_ORG, origin.toString());
+    css(self.img, CSS_TRANSFORM, transform.toString());
     
     _updateOverlay.call(self);
     _triggerUpdate.call(self);
@@ -354,12 +369,8 @@
         scale = self._currentZoom,
         data = self.img.getBoundingClientRect(),
         vpData = self.viewport.getBoundingClientRect(),
-        transform = Transform.parse($(self.img).css(CSS_TRANSFORM)),
-        previousOrigin = $(self.img).css(CSS_TRANS_ORG).split(' '),
-        pc = {
-          left: parseFloat(previousOrigin[0]),
-          top: parseFloat(previousOrigin[1])
-        },
+        transform = Transform.parse(self.img.style[CSS_TRANSFORM]),
+        pc = new TransformOrigin(self.img),
         top = (vpData.top - data.top) + (vpData.height / 2),
         left = (vpData.left - data.left) + (vpData.width / 2),
         center = {},
@@ -368,15 +379,13 @@
     center.top = top / scale;
     center.left = left / scale;
 
-    adj.top = (center.top - pc.top) * (1 - scale);
-    adj.left = (center.left - pc.left) * (1 - scale);
+    adj.top = (center.top - pc.y) * (1 - scale);
+    adj.left = (center.left - pc.x) * (1 - scale);
 
     transform.x -= adj.left;
     transform.y -= adj.top;
-    $(self.img).css({
-      transformOrigin: center.left + 'px ' + center.top + 'px', 
-      transform: transform.toString()
-    });
+    css(self.img, CSS_TRANS_ORG, center.left + 'px ' + center.top + 'px');
+    css(self.img, CSS_TRANSFORM, transform.toString());
   }
 
   function _initDraggable() {
@@ -483,7 +492,7 @@
         transform.x = left;
       }
 
-      $(self.img).css(CSS_TRANSFORM, transform.toString());
+      css(self.img, CSS_TRANSFORM, transform.toString());
       _updateOverlay.call(self);
       originalY = pageY;
       originalX = pageX;
@@ -508,11 +517,11 @@
         boundRect = self.boundary.getBoundingClientRect(),
         imgData = self.img.getBoundingClientRect();
 
-    $(self.overlay).css({
-      width: imgData.width,
-      height: imgData.height,
-      top: imgData.top - boundRect.top,
-      left: imgData.left - boundRect.left
+    css(self.overlay, {
+      width: imgData.width + 'px',
+      height: imgData.height + 'px',
+      top: (imgData.top - boundRect.top) + 'px',
+      left: (imgData.left - boundRect.left) + 'px'
     });
   }
 
@@ -558,8 +567,9 @@
         transformTop = (-1 * points[1]) + vpOffset.top,
         transformLeft = (-1 * points[0]) + vpOffset.left;
 
-    $(self.img).css(CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
-    $(self.img).css(CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
+    css(self.img, CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
+    css(self.img, CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
+
     self.$zoomer.val(scale);
     self._currentZoom = scale;
   }
