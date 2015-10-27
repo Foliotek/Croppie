@@ -88,7 +88,6 @@
     self.$zoomer.on('mousedown.croppie', start);
     self.$zoomer.on('input.croppie change.croppie', change);
     self.$zoomer.on('manualchange.croppie', function () {
-      log('here');
       start();
       change();
     });
@@ -364,11 +363,11 @@
         pointsHeight = points[3] - points[1],
         vpW = self.options.viewport.width,
         vpH = self.options.viewport.height,
-        scale = pointsWidth/ vpW;
+        scale = vpW / pointsWidth;
 
+    self.$img.css('transform', new Transform(-1 * points[0], -1 * points[1], 1).toString());
+    self._updateCenterPoint();
     self.$zoomer.val(scale).trigger('manualchange.croppie');
-    self.$img.css('transform-origin', '0px 0px');
-    self.$img.css('transform', new Transform(-1 * points[0], -1 * points[1], scale).toString());
   };
 
   $.croppie.prototype.bind = function (options, cb) {
@@ -410,10 +409,10 @@
         y2 = y1 + self.$viewport.height(),
         scale = self._currentZoom;
 
-    x1 *= scale;
-    x2 *= scale;
-    y1 *= scale;
-    y2 *= scale;
+    x1 /= scale;
+    x2 /= scale;
+    y1 /= scale;
+    y2 /= scale;
 
     return {
       src: imgSrc,
@@ -477,7 +476,7 @@
     }
   };
 
-  /* Utilities */
+  /* Image Drawing Functions */
   function getHtmlImage(data) {
       var coords = data.coords,
           div = $('<div class="croppie-result" />'),
@@ -487,15 +486,13 @@
           scale = data.zoom;
 
       img.css({
-        left: (-1 * coords[0]) / scale,
-        top: (-1 * coords[1]) / scale,
-        width: data.imgWidth,
-        height: data.imgHeight
+        left: (-1 * coords[0]),
+        top: (-1 * coords[1]),
       }).attr('src', data.src);
 
       div.css({
-        width: width / scale,
-        height: height / scale
+        width: width,
+        height: height
       });
       return div;
   }
@@ -503,23 +500,11 @@
   function getCanvasImage(img, data) {
       var coords = data.coords,
           scale = data.zoom,
-          left = coords[0] / scale,
-          top = coords[1] / scale,
-          width = (coords[2] - coords[0]) / scale,
-          height = (coords[3] - coords[1]) / scale,
+          left = coords[0],
+          top = coords[1],
+          width = (coords[2] - coords[0]),
+          height = (coords[3] - coords[1]),
           circle = data.circle;
-
-      if (scale !== 1) {
-        var scaleCanvas = document.createElement('canvas'),
-            scaleCtx = scaleCanvas.getContext('2d'),
-            scaleW = img.width * scale,
-            scaleH = img.height * scale;
-
-        scaleCanvas.width = scaleW;
-        scaleCanvas.height = scaleH;
-        scaleCtx.drawImage(img, 0, 0, scaleW, scaleH);
-        img = scaleCanvas; // drawImage() takes in canvas as well as image
-      }
 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
@@ -539,6 +524,7 @@
       return canvas.toDataURL();
   }
 
+  /* Utilities */
   function loadImage (src) {
     var img = new Image();
     var def = $.Deferred();
@@ -554,6 +540,7 @@
     return parseInt(v, 10);
   }
 
+  /* CSS Transform Prototype */
   var Transform = function (x, y, scale) {
     this.x = x;
     this.y = y;
