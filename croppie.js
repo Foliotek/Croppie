@@ -94,11 +94,7 @@
 
     self.$zoomer.on('mousedown.croppie touchstart.croppie', start);
     self.$zoomer.on('input.croppie change.croppie', change);
-    self.$zoomer.on('manualchange.croppie', function () {
-      start();
-      change();
-    });
-
+    
     if (self.options.mouseWheelZoom) {
       self.$boundary.on('mousewheel.croppie', scroll);
     }
@@ -311,7 +307,7 @@
           var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
 
           if (!originalDistance) {
-            originalDistance = dist;
+            originalDistance = dist / self._currentZoom;
           }
 
           var scale = dist / originalDistance;
@@ -403,7 +399,6 @@
         transformTop = (-1 * points[1]) + vpOffset.top,
         transformLeft = (-1 * points[0]) + vpOffset.left;
 
-    log(vpOffset, originTop, originLeft, transformTop, transformLeft);
     self.$img.css('transform-origin', originLeft + 'px ' + originTop + 'px');
     self.$img.css('transform', new Transform(transformLeft, transformTop, scale).toString());
     self.$zoomer.val(scale);
