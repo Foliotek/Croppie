@@ -365,8 +365,8 @@
         vpH = self.options.viewport.height,
         scale = vpW / pointsWidth;
 
+    self.$img.css('transform-origin', '');
     self.$img.css('transform', new Transform(-1 * points[0], -1 * points[1], 1).toString());
-    self._updateCenterPoint();
     self.$zoomer.val(scale).trigger('manualchange.croppie');
   };
 
