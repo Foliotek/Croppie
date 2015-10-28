@@ -57,7 +57,7 @@
       }
     }
     return out;
-  };
+  }
 
   function css(el, css, val) {
     if (typeof(css) === 'string') {
@@ -79,8 +79,8 @@
   /* Image Drawing Functions */
   function getHtmlImage(data) {
       var coords = data.coords,
-          div = document.createElement('div'), //$('<div class="croppie-result" />'),
-          img = document.createElement('img'), //$('<img />').appendTo(div),
+          div = document.createElement('div'),
+          img = document.createElement('img'),
           width = coords[2] - coords[0],
           height = coords[3] - coords[1],
           scale = data.zoom;
@@ -148,7 +148,7 @@
   var Transform = function (x, y, scale) {
     this.x = parseFloat(x);
     this.y = parseFloat(y);
-    this.scale = scale;
+    this.scale = parseFloat(scale);
   };
 
   Transform.parse = function (v) {
@@ -172,9 +172,11 @@
   Transform.fromString = function (v) {
     var values = v.split(') '),
         translate = values[0].substring(10).split(','),
-        scale = values[1].substring(6);
+        scale = values.length > 1 ? values[1].substring(6) : 1,
+        x = translate.length > 1 ? translate[0] : 0,
+        y = translate.length > 1 ? translate[1] : 0;
 
-    return new Transform(translate[0], translate[1], parseFloat(scale));
+    return new Transform(x, y, scale);
   }
 
   Transform.prototype.toString = function () {
@@ -194,7 +196,7 @@
 
   TransformOrigin.prototype.toString = function () {
     return this.x + 'px ' + this.y + 'px';
-  }
+  };
 
   /* Private Methods */
   function _create() {
@@ -237,25 +239,32 @@
 
   function _initializeZoom() {
     var self = this,
-        wrap = $('<div class="cr-slider-wrap" />').appendTo($(self.element)),
+        wrap = document.createElement('div'),
+        zoomer = self.zoomer = document.createElement('input'),
         origin, 
         viewportRect,
         transform;
 
-    self.$zoomer = $('<input type="range" class="cr-slider" step="0.01" />').appendTo(wrap);
-    self._currentZoom = 1;
+    wrap.classList.add('cr-slider-wrap');
+    zoomer.type = 'range';
+    zoomer.classList.add('cr-slider');
+    zoomer.step = '0.01';
+    zoomer.value = 1;
 
+    self.element.appendChild(wrap);
+    wrap.appendChild(zoomer);
+
+    self._currentZoom = 1;
     function start () {
       _updateCenterPoint.call(self);
       origin = new TransformOrigin(self.img);
       viewportRect = self.viewport.getBoundingClientRect();
       transform = Transform.parse(self.img.style[CSS_TRANSFORM]);
-      console.log(transform);
     }
 
     function change () {
       _onZoom.call(self, {
-        value: parseFloat(self.$zoomer.val()),
+        value: parseFloat(zoomer.value),
         origin: origin,
         viewportRect: viewportRect || self.viewport.getBoundingClientRect(),
         transform: transform
@@ -268,13 +277,13 @@
 
       ev.preventDefault();
       start();
-      self.$zoomer.val(targetZoom);
+      zoomer.value = targetZoom;
       change()      
     }
 
-    self.$zoomer.on('mousedown.croppie touchstart.croppie', start);
+    $(self.zoomer).on('mousedown.croppie touchstart.croppie', start);
     // this is being fired twice on keypress
-    self.$zoomer.on('input.croppie change.croppie', change);
+    $(self.zoomer).on('input.croppie change.croppie', change);
     
     if (self.options.mouseWheelZoom) {
       $(self.boundary).on('mousewheel.croppie', scroll);
@@ -479,7 +488,7 @@
 
           var scale = dist / originalDistance;
 
-          self.$zoomer.val(scale).trigger('change');
+          $(self.zoomer).val(scale).trigger('change');
           return;
         }
       }
@@ -503,7 +512,7 @@
       $win.off('mousemove.croppie mouseup.croppie touchmove.croppie touchend.croppie');
       scrollers.off('scroll.croppie');
       $(document).off('scroll.croppie');
-      $body.css('-webkit-user-select', '');
+      $body.css(CSS_USERSELECT, '');
       _updateCenterPoint.call(self);
       _triggerUpdate.call(self);
       originalDistance = 0;
@@ -527,22 +536,23 @@
 
   function _triggerUpdate() {
     var self = this;
-    self.options.update.apply($(self.element), self);
+    self.options.update.apply(self.element, self);
   }
 
   function _updatePropertiesFromImage() {
     var self = this,
-        imgData = self.img.getBoundingClientRect();
+        imgData = self.img.getBoundingClientRect(),
+        minZoom = 0,
+        maxZoom = 1.5;
 
     self._originalImageWidth = imgData.width;
     self._originalImageHeight = imgData.height;
 
     if (self.options.showZoom) {
-      var minZoom = self.boundary.getBoundingClientRect().width / imgData.width;
-      var maxZoom = 1.5;
-      self.$zoomer.attr('min', minZoom);
-      self.$zoomer.attr('max', maxZoom);
-      self.$zoomer.val(1);
+      minZoom = self.boundary.getBoundingClientRect().width / imgData.width;
+      self.zoomer.min = minZoom;
+      self.zoomer.max = maxZoom;
+      self.zoomer.value = 1;
     }
 
     _updateOverlay.call(self);
@@ -570,7 +580,7 @@
     css(self.img, CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
     css(self.img, CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
 
-    self.$zoomer.val(scale);
+    self.zoomer.value = scale;
     self._currentZoom = scale;
   }
 
