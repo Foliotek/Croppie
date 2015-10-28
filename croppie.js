@@ -10,8 +10,7 @@
         factory((root.commonJsStrict = {}), root.b);
     }
 }(this, function (exports, b) {
-  var $ = this.jQuery,
-      cssPrefixes = ['Webkit', 'Moz', 'ms'],
+  var cssPrefixes = ['Webkit', 'Moz', 'ms'],
       emptyStyles = document.createElement('div').style,
       CSS_TRANS_ORG,
       CSS_TRANSFORM,
@@ -36,7 +35,6 @@
   CSS_TRANSFORM = vendorPrefix('transform');
   CSS_TRANS_ORG = vendorPrefix('transformOrigin');
   CSS_USERSELECT = vendorPrefix('userSelect');
-
 
   function deepExtend (out) {
     out = out || {};
@@ -152,7 +150,10 @@
   };
 
   Transform.parse = function (v) {
-    if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
+    if (v.style) {
+      return Transform.parse(v.style[CSS_TRANSFORM]);
+    }
+    else if (v.indexOf('matrix') > -1 || v.indexOf('none') > -1) {
       return Transform.fromMatrix(v);
     }
     else {
@@ -272,7 +273,7 @@
     }
 
     function scroll (ev) { 
-      var delta = ev.originalEvent.deltaY / -1000,
+      var delta = ev.deltaY / -1000,
           targetZoom = self._currentZoom + delta;
 
       ev.preventDefault();
@@ -281,12 +282,15 @@
       change()      
     }
 
-    $(self.zoomer).on('mousedown.croppie touchstart.croppie', start);
-    // this is being fired twice on keypress
-    $(self.zoomer).on('input.croppie change.croppie', change);
+    self.zoomer.addEventListener('mousedown', start);
+    self.zoomer.addEventListener('touchstart', start);
+    
+    self.zoomer.addEventListener('input', change);// this is being fired twice on keypress
+    self.zoomer.addEventListener('change', change);
     
     if (self.options.mouseWheelZoom) {
-      $(self.boundary).on('mousewheel.croppie', scroll);
+      self.boundary.addEventListener('mousewheel', scroll);
+      self.boundary.addEventListener('DOMMouseScroll', scroll);
     }
   }
 
@@ -399,8 +403,6 @@
 
   function _initDraggable() {
     var self = this,
-        $win = $(window),
-        $body = $('body'),
         isDragging = false,
         cssPos = {},
         originalX,
@@ -414,17 +416,19 @@
       isDragging = true;
       originalX = ev.pageX;
       originalY = ev.pageY;
-      transform = Transform.parse($(self.img).css(CSS_TRANSFORM));
-      $win.on('mousemove.croppie touchmove.croppie', mouseMove);
-      $win.on('mouseup.croppie touchend.croppie', mouseUp);
-      $body.css(CSS_USERSELECT, 'none');
+      transform = Transform.parse(self.img);
+      window.addEventListener('mousemove', mouseMove);
+      window.addEventListener('touchmove', mouseMove);
+      window.addEventListener('mouseup', mouseUp);
+      window.addEventListener('touchend', mouseUp);
+      document.body.style[CSS_USERSELECT] = 'none';
       vpRect = self.viewport.getBoundingClientRect();
     }
 
     function mouseMove (ev) {
       ev.preventDefault();
-      var pageX = ev.pageX || ev.originalEvent.touches[0].pageX,
-          pageY = ev.pageY || ev.originalEvent.touches[0].pageY,
+      var pageX = ev.pageX || ev.touches[0].pageX,
+          pageY = ev.pageY || ev.touches[0].pageY,
           deltaX = pageX - originalX,
           deltaY = pageY - originalY,
           imgRect = self.img.getBoundingClientRect(),
@@ -432,10 +436,9 @@
           left = transform.x + deltaX;
 
       if (ev.type == 'touchmove') {
-        if (ev.originalEvent.touches.length > 1) {
-          var e = ev.originalEvent;
-          var touch1 = e.touches[0];
-          var touch2 = e.touches[1];
+        if (ev.touches.length > 1) {
+          var touch1 = ev.touches[0];
+          var touch2 = ev.touches[1];
           var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
 
           if (!originalDistance) {
@@ -444,7 +447,8 @@
 
           var scale = dist / originalDistance;
 
-          $(self.zoomer).val(scale).trigger('change');
+          self.zoomer.value = scale;
+          self.zoomer.dispatchEvent('change');
           return;
         }
       }
@@ -465,14 +469,18 @@
 
     function mouseUp (ev) {
       isDragging = false;
-      $win.off('mousemove.croppie mouseup.croppie touchmove.croppie touchend.croppie');
-      $body.css(CSS_USERSELECT, '');
+      window.removeEventListener('mousemove', mouseMove);
+      window.removeEventListener('touchmove', mouseMove);
+      window.removeEventListener('mouseup', mouseUp);
+      window.removeEventListener('touchend', mouseUp);
+      document.body.style[CSS_USERSELECT] = 'none';
       _updateCenterPoint.call(self);
       _triggerUpdate.call(self);
       originalDistance = 0;
     }
 
-    $(self.overlay).on('mousedown.croppie touchstart.croppie', mouseDown);
+    self.overlay.addEventListener('mousedown', mouseDown);
+    self.overlay.addEventListener('touchstart', mouseDown);
   }
 
   function _updateOverlay() {
@@ -608,7 +616,8 @@
     return def.promise();
   }
   
-  if ($) {
+  if (this.jQuery) {
+    var $ = this.jQuery;
     $.fn.croppie = function (opts) {
       var ot = typeof opts;
 
@@ -680,5 +689,5 @@
     }
   });
 
-  exports.croppie = Croppie;
+  exports.Croppie = window.Croppie = Croppie;
 }));

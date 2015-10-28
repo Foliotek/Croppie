@@ -46,6 +46,15 @@ var Demo = (function() {
 		});
 	}
 
+	function demoVanilla() {
+		var el = document.getElementById('vanilla-demo');
+		var vCrop = new Croppie(el, {
+			viewport: { width: 100, height: 100 },
+			boundary: { width: 300, height: 300 }
+		});
+		vCrop.bind('/demo/demo-2.jpg');
+	}
+
 	function bindNavigation () {
 		var $body = $('body');
 		$('nav a').on('click', function (ev) {
@@ -61,7 +70,8 @@ var Demo = (function() {
 	function init() {
 		bindNavigation();
 		mainCropper();
-		demoBasic();		
+		demoBasic();	
+		demoVanilla();	
 	}
 
 	return {

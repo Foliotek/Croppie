@@ -109,11 +109,15 @@ pre[class*="language"] {
     padding-top: 50px;
 }
 
-
 h2 {
     color: white;
     font-size: 23px;
     font-weight: 300;
+}
+
+.demo-wrap {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
 /* Grid - subset */
