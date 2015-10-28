@@ -184,12 +184,12 @@
   };
 
   var TransformOrigin = function (el) {
-    if (!el || !el.style[CSS_TRANSFORM]) {
+    if (!el || !el.style[CSS_TRANS_ORG]) {
       this.x = 0;
       this.y = 0;
       return;
     }
-    var css = el.style[CSS_TRANSFORM].split(' ');
+    var css = el.style[CSS_TRANS_ORG].split(' ');
     this.x = parseFloat(css[0]);
     this.y = parseFloat(css[1]);
   };
@@ -406,10 +406,10 @@
         originalX,
         originalY,
         originalDistance,
-        scrollers,
         vpRect;
 
     function mouseDown(ev) {
+      ev.preventDefault();
       if (isDragging) return;
       isDragging = true;
       originalX = ev.pageX;
@@ -419,53 +419,10 @@
       $win.on('mouseup.croppie touchend.croppie', mouseUp);
       $body.css(CSS_USERSELECT, 'none');
       vpRect = self.viewport.getBoundingClientRect();
-      scrollers = disableScrollableParents();
-    }
-
-    function disableScrollableParents() {
-      var scrollers = $(self.element).parents().filter(function() {
-        var el = this,
-            $el = $(this),
-            testRx = /scroll|auto/i,
-            vertScroll, horizScroll;
-
-        if (($el.css('overflow') + $el.css('overflowX') + $el.css('overflowY')).indexOf('scroll') >= 0) 
-          return true;
-
-        vertScroll = (el.clientHeight < el.scrollHeight) && ($el.css('overflowY') + $el.css('overflow')).match(testRx);
-
-        if (vertScroll) 
-          return true;
-
-        horizScroll = (el.clientWidth < el.scrollWidth) && ($el.css('overflowY') + $el.css('overflow')).match(testRx);
-        
-        return horizScroll;
-      });
-
-      scrollers.each(function() {
-        var $el = $(this);
-        $el.data('croppieScrollTopStart', $el.scrollTop());
-        $el.data('croppieScrollLeftStart', $el.scrollLeft());
-      });
-
-      scrollers.on('scroll.croppie', function(ev) {
-        var $el = $(ev.currentTarget);
-        $el.scrollTop($el.data('croppieScrollTopStart'));
-        $el.scrollLeft($el.data('croppieScrollLeftStart'));
-      })
-
-      
-      var docScrollTopStart = $(document).scrollTop();
-      var docScrollLeftStart = $(document).scrollLeft();
-      $(document).on('scroll.croppie', function() {
-        $(document).scrollTop(docScrollTopStart);
-        $(document).scrollLeft(docScrollLeftStart);
-      });
-
-      return scrollers;
     }
 
     function mouseMove (ev) {
+      ev.preventDefault();
       var pageX = ev.pageX || ev.originalEvent.touches[0].pageX,
           pageY = ev.pageY || ev.originalEvent.touches[0].pageY,
           deltaX = pageX - originalX,
@@ -475,7 +432,6 @@
           left = transform.x + deltaX;
 
       if (ev.type == 'touchmove') {
-        ev.preventDefault();        
         if (ev.originalEvent.touches.length > 1) {
           var e = ev.originalEvent;
           var touch1 = e.touches[0];
@@ -510,8 +466,6 @@
     function mouseUp (ev) {
       isDragging = false;
       $win.off('mousemove.croppie mouseup.croppie touchmove.croppie touchend.croppie');
-      scrollers.off('scroll.croppie');
-      $(document).off('scroll.croppie');
       $body.css(CSS_USERSELECT, '');
       _updateCenterPoint.call(self);
       _triggerUpdate.call(self);
