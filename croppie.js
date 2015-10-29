@@ -57,21 +57,27 @@
     return out;
   }
 
-  function css(el, css, val) {
-    if (typeof(css) === 'string') {
-      var tmp = css;
-      css = {};
-      css[tmp] = val;
-    }
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  };
 
-    for (var prop in css) {
-      el.style[prop] = css[prop];
-    }
-    // var cssText = '';
-    // for (prop in css) {
-    //   cssText += prop + ': ' + css[prop] + ';';
-    // }
-    // el.style.cssText = cssText;
+  //http://jsperf.com/vanilla-css
+  function css(el, styles, val) {
+    var elStyles = el.style;
+    Object.keys(styles).forEach(function setStyle(k) {
+      elStyles[k] = styles[k];
+    });
   }
 
   /* Image Drawing Functions */
@@ -260,7 +266,7 @@
       _updateCenterPoint.call(self);
       origin = new TransformOrigin(self.img);
       viewportRect = self.viewport.getBoundingClientRect();
-      transform = Transform.parse(self.img.style[CSS_TRANSFORM]);
+      transform = Transform.parse(self.img);
     }
 
     function change () {
@@ -273,7 +279,7 @@
     }
 
     function scroll (ev) { 
-      var delta = ev.deltaY / -1000,
+      var delta = ev.deltaY / - 1000,
           targetZoom = self._currentZoom + delta;
 
       ev.preventDefault();
@@ -327,10 +333,12 @@
       transform.y = transBoundaries.minY;
     }
 
-    css(self.img, CSS_TRANS_ORG, origin.toString());
-    css(self.img, CSS_TRANSFORM, transform.toString());
+    var transCss = {};
+    transCss[CSS_TRANSFORM] = transform.toString();
+    transCss[CSS_TRANS_ORG] = origin.toString();
+    css(self.img, transCss);
     
-    _updateOverlay.call(self);
+    _debouncedOverlay.call(self);
     _triggerUpdate.call(self);
   }
 
@@ -389,16 +397,19 @@
         center = {},
         adj = {};
 
-    center.top = top / scale;
-    center.left = left / scale;
+    center.y = top / scale;
+    center.x = left / scale;
 
-    adj.top = (center.top - pc.y) * (1 - scale);
-    adj.left = (center.left - pc.x) * (1 - scale);
+    adj.y = (center.y - pc.y) * (1 - scale);
+    adj.x = (center.x - pc.x) * (1 - scale);
 
-    transform.x -= adj.left;
-    transform.y -= adj.top;
-    css(self.img, CSS_TRANS_ORG, center.left + 'px ' + center.top + 'px');
-    css(self.img, CSS_TRANSFORM, transform.toString());
+    transform.x -= adj.x;
+    transform.y -= adj.y;
+
+    var newCss = {};
+    newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
+    newCss[CSS_TRANSFORM] = transform.toString();
+    css(self.img, newCss); 
   }
 
   function _initDraggable() {
@@ -433,7 +444,8 @@
           deltaY = pageY - originalY,
           imgRect = self.img.getBoundingClientRect(),
           top = transform.y + deltaY,
-          left = transform.x + deltaX;
+          left = transform.x + deltaX,
+          newCss = {};
 
       if (ev.type == 'touchmove') {
         if (ev.touches.length > 1) {
@@ -461,7 +473,8 @@
         transform.x = left;
       }
 
-      css(self.img, CSS_TRANSFORM, transform.toString());
+      newCss[CSS_TRANSFORM]= transform.toString();
+      css(self.img, newCss);
       _updateOverlay.call(self);
       originalY = pageY;
       originalX = pageX;
@@ -495,6 +508,7 @@
       left: (imgData.left - boundRect.left) + 'px'
     });
   }
+  var _debouncedOverlay = debounce(_updateOverlay, 500);
 
   function _triggerUpdate() {
     var self = this;
@@ -537,10 +551,12 @@
         originTop = points[1],
         originLeft = points[0],
         transformTop = (-1 * points[1]) + vpOffset.top,
-        transformLeft = (-1 * points[0]) + vpOffset.left;
+        transformLeft = (-1 * points[0]) + vpOffset.left,
+        newCss = {};
 
-    css(self.img, CSS_TRANS_ORG, originLeft + 'px ' + originTop + 'px');
-    css(self.img, CSS_TRANSFORM, new Transform(transformLeft, transformTop, scale).toString());
+    newCss[CSS_TRANS_ORG] = originLeft + 'px ' + originTop + 'px';
+    newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
+    css(self.img, newCss);
 
     self.zoomer.value = scale;
     self._currentZoom = scale;
