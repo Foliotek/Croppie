@@ -22,7 +22,7 @@ var Demo = (function() {
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev){
-            mc.croppie('result', 'canvas').done(function (resp) {
+            mc.croppie('result', 'canvas').then(function (resp) {
 				window.open(resp);
 			});
 		});
@@ -35,7 +35,7 @@ var Demo = (function() {
 				height: 200
 			},
 			update: function (cropper) {
-                $(this).croppie('result').done(function(resp) {
+                $(this).croppie('result').then(function(resp) {
                     output(resp);
                 });
 			}

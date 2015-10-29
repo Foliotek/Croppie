@@ -135,13 +135,16 @@
   /* Utilities */
   function loadImage (src) {
     var img = new Image(),
-        def = $.Deferred();
+        prom;
 
-    img.onload = function () {
-      def.resolve(img);
-    };
-    img.src = src;
-    return def.promise();
+    prom = new Promise(function (resolve, reject) {
+      img.onload = function () {
+        resolve(img);
+      };
+      img.src = src;
+    });
+    
+    return prom;
   }
 
   function num (v) {
@@ -578,7 +581,7 @@
 
     self.imgSrc = src;
     var prom = loadImage(src);
-    prom.done(function () {
+    prom.then(function () {
       self.img.src = src;
       _updatePropertiesFromImage.call(self);
       if (points.length) {
@@ -616,20 +619,23 @@
   function _result(type) {
     var self = this,
         data = _get.call(self),
-        def = $.Deferred();
+        prom;
 
     data.circle = self.options.viewport.type === 'circle';
     data.imgSrc = self.imgSrc;
     type = type || 'html';
-    if (type === 'canvas') {
-      loadImage(self.imgSrc).done(function (img) {
-        def.resolve(getCanvasImage(img, data));
-      });
-    }
-    else {
-      def.resolve(getHtmlImage(data));
-    }
-    return def.promise();
+
+    prom = new Promise(function (resolve, reject) {
+      if (type === 'canvas') {
+        loadImage(self.imgSrc).then(function (img) {
+          resolve(getCanvasImage(img, data));
+        });
+      }
+      else {
+        resolve(getHtmlImage(data));
+      }
+    });
+    return prom;
   }
   
   if (this.jQuery) {
@@ -690,7 +696,7 @@
     customClass: '',
     showZoom: true,
     mouseWheelZoom: true,
-    update: $.noop
+    update: function () {}
   };
 
   deepExtend(Croppie.prototype, {
