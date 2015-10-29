@@ -74,10 +74,15 @@
 
   //http://jsperf.com/vanilla-css
   function css(el, styles, val) {
-    var elStyles = el.style;
-    Object.keys(styles).forEach(function setStyle(k) {
-      elStyles[k] = styles[k];
-    });
+    if (typeof(styles) === 'string') {
+      var tmp = styles;
+      styles = {};
+      styles[tmp] = val;
+    }
+
+    for (var prop in styles) {
+      el.style[prop] = styles[prop];
+    }
   }
 
   /* Image Drawing Functions */
@@ -304,6 +309,8 @@
   }
 
   function _onZoom(ui) {
+    // console.time('all');
+    // console.time('begin');
     var self = this,
         transform = ui.transform,
         vpRect = ui.viewportRect,
@@ -315,7 +322,9 @@
     var boundaries = _getVirtualBoundaries.call(self, vpRect),
         transBoundaries = boundaries.translate,
         oBoundaries = boundaries.origin;
+    // console.timeEnd('begin');
 
+    // console.time('var');
     if (transform.x >= transBoundaries.maxX) {
       origin.x = oBoundaries.minX;
       transform.x = transBoundaries.maxX;
@@ -335,14 +344,21 @@
       origin.y = oBoundaries.maxY;
       transform.y = transBoundaries.minY;
     }
+    // console.timeEnd('var');
 
+    // console.time('css');
     var transCss = {};
     transCss[CSS_TRANSFORM] = transform.toString();
     transCss[CSS_TRANS_ORG] = origin.toString();
     css(self.img, transCss);
+    // console.timeEnd('css');
     
+    // console.time('end');
     _debouncedOverlay.call(self);
     _triggerUpdate.call(self);
+    // console.timeEnd('end');
+    // console.timeEnd('all');
+    // console.log('==============');
   }
 
   function _getVirtualBoundaries(viewport) {
