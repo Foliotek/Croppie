@@ -47,7 +47,7 @@
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
               <pre class="language-javascript"><code class="language-javascript">
-$('#item').croppie({
+var c = new Croppie(document.getElementById('item'), {
     viewport: {
         width: px,
         height: px,
@@ -62,20 +62,25 @@ $('#item').croppie({
     mouseWheelZoom: true|false, //default true
     update: function (cropper) { }
 });
-
-// Bind an image to the cropper
-$('#item').croppie('bind', 'path/to/image.png');
-
-// Get the crop data from a cropper
-var cropData = $('#item').croppie('get');
-
-// Get the result of cropped image
+// bind an image to croppie
+c.bind({
+    src: 'path/to/image',
+    points: []
+});
+// get crop points from croppie
+var data = c.get();
+// get result from croppie
 // returns Promise
-var result = $('item').croppie('result', 'html|canvas'); // default html
-result.done(function (img) {
+var result = c.result('html|canvas').then(function (img) {
     //img is html positioning & sizing the image correctly if resultType is 'html'
     //img is base64 url of cropped image if resultType is 'canvas' 
 });
+            </code></pre>
+            <p>Or you can use jquery</p>
+            <pre class="language-javascript"><code class="language-javascript">
+$('#item').croppie(opts);
+
+$('#item').croppie(method, args);
               </code></pre>
             </div>
           </section>
@@ -145,6 +150,6 @@ result.done(function (img) {
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-2398527-4');ga('send','pageview');
         </script>
-        <a href="https://github.com/foliotek/imagecropper"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+        <a href="https://github.com/foliotek/Croppie"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
     </body>
 </html>
