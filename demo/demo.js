@@ -52,7 +52,7 @@ var Demo = (function() {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 }
 		});
-		vCrop.bind('/demo/demo-2.jpg');
+		vCrop.bind('demo/demo-2.jpg');
 	}
 
 	function bindNavigation () {
