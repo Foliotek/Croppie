@@ -34,7 +34,7 @@ var Demo = (function() {
 				width: 150,
 				height: 200
 			},
-			update: function (cropper) {
+			update: function (data) {
                 $(this).croppie('result').then(function(resp) {
                     output(resp);
                 });
