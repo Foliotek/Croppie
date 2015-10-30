@@ -14,7 +14,8 @@
       emptyStyles = document.createElement('div').style,
       CSS_TRANS_ORG,
       CSS_TRANSFORM,
-      CSS_USERSELECT;
+      CSS_USERSELECT,
+      CSS_TRANSLATE;
 
   function vendorPrefix(prop) {
     if (prop in emptyStyles) {
@@ -35,6 +36,7 @@
   CSS_TRANSFORM = vendorPrefix('transform');
   CSS_TRANS_ORG = vendorPrefix('transformOrigin');
   CSS_USERSELECT = vendorPrefix('userSelect');
+
 
   function deepExtend (out) {
     out = out || {};
@@ -157,6 +159,8 @@
   }
 
   /* CSS Transform Prototype */
+  var _translate = 'translate3d',
+      _translateSuffix = ', 0px';
   var Transform = function (x, y, scale) {
     this.x = parseFloat(x);
     this.y = parseFloat(y);
@@ -186,7 +190,7 @@
 
   Transform.fromString = function (v) {
     var values = v.split(') '),
-        translate = values[0].substring(10).split(','),
+        translate = values[0].substring(_translate.length + 1).split(','),
         scale = values.length > 1 ? values[1].substring(6) : 1,
         x = translate.length > 1 ? translate[0] : 0,
         y = translate.length > 1 ? translate[1] : 0;
@@ -195,7 +199,7 @@
   }
 
   Transform.prototype.toString = function () {
-    return 'translate(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
+    return _translate + '(' + this.x + 'px, ' + this.y + 'px' + _translateSuffix + ') scale(' + this.scale + ')';
   };
 
   var TransformOrigin = function (el) {
