@@ -14,8 +14,7 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT,
-        CSS_TRANSLATE;
+        CSS_USERSELECT;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -154,10 +153,6 @@
         return prom;
     }
 
-    function num(v) {
-        return parseInt(v, 10);
-    }
-
     /* CSS Transform Prototype */
     var _translate = 'translate3d',
         _translateSuffix = ', 0px';
@@ -233,7 +228,10 @@
             height: self.options.boundary.height + 'px'
         });
 
-        viewport.classList.add('cr-viewport', customViewportClass);
+        viewport.classList.add('cr-viewport');
+        if (customViewportClass) {
+          viewport.classList.add(customViewportClass);
+        }
         css(viewport, {
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
@@ -247,7 +245,10 @@
         boundary.appendChild(viewport);
         boundary.appendChild(overlay);
 
-        self.element.classList.add(contClass, self.options.customClass || null);
+        self.element.classList.add(contClass);
+        if (self.options.customClass) {
+          self.element.classList.add(self.options.customClass);
+        }
 
         _initDraggable.call(this);
 
@@ -438,7 +439,6 @@
     function _initDraggable() {
         var self = this,
             isDragging = false,
-            cssPos = {},
             originalX,
             originalY,
             originalDistance,

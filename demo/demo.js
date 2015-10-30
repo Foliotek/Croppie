@@ -35,13 +35,13 @@ var Demo = (function() {
 				height: 200
 			},
 			update: function (data) {
-                $(this).croppie('result').then(function(resp) {
+                cont.croppie('result').then(function(resp) {
                     output(resp);
                 });
 			}
 		});
 		cont.croppie('bind', {
-			src: 'demo/cat.jpg',
+			url: 'demo/cat.jpg',
 			points: [77.38630964949324,469.4327689505912,280.08901235219594,739.7030392208615]
 		});
 	}
