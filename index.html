@@ -65,7 +65,7 @@ var c = new Croppie(document.getElementById('item'), {
 // bind an image to croppie
 c.bind({
     src: 'path/to/image',
-    points: []
+    points: [x1, y1, x2, y2]
 });
 // get crop points from croppie
 var data = c.get();
@@ -84,6 +84,87 @@ $('#item').croppie(method, args);
               </code></pre>
             </div>
           </section>
+
+        <section class="api">
+            <a name="api"></a>
+            <div class="section-header"><h2>API</h2></div>
+            <div class="container">
+                <section>
+                    <h3>Options</h3>
+                    <ul>
+                        <li>
+                            <strong>boundary</strong><em>object</em>
+                            <p>The outer container of the cropper</p>
+                            <ul>
+                                <li>
+                                    <strong>width</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                                <li>
+                                    <strong>height</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>customClass</strong><em>string</em>
+                            <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
+                        </li>
+                        <li>
+                            <strong>mouseWheelZoom</strong><em>Default true</em>
+                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
+                        </li>
+                        <li>
+                            <strong>showZoom</strong><em>Default true</em>
+                            <p>Hide or Show the zoom slider</p>
+                        </li>
+                        <li>
+                            <strong>viewport</strong><em>object</em>
+                            <p>The inner container of the coppie.  The visible part of the image</p>
+                            <ul>
+                                <li>
+                                    <strong>width</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                                <li>
+                                    <strong>height</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                                <li>
+                                    <strong>type</strong><em>'square'|'circle' (default 'square')</em>
+                                    <p></p>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Methods</h3>
+                    <ul>
+                        <li>
+                            <strong>get()</strong><em>returns object</em>
+                            <p>Get the crop points, and the zoom of the image.</p>
+                        </li>
+                        <li>
+                            <strong>bind({ url: 'path/to/image.jpg', points: [x1, y1, x2, y2] })</strong><em>returns Promise</em>
+                            <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
+                        </li>
+                        <li>
+                            <strong>result(resultType)</strong><em>returns Promise</em>
+                            <p>Get the resulting crop of the image.  resultType can be 'canvas' or 'html'.  'canvas' returns a base64 image.  'html' returns html of a image cropped by positioning within a div.</p>
+                        </li>
+                </section>
+                <section>
+                    <h3>Events</h3>
+                    <ul>
+                        <li>
+                            <strong>update(croppe)</strong><em>returns Croppie</em>
+                            <p>when the croppie is dragged around or zoomed, update is fired.</p>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+        </section>
 
         <section>
             <a name="demos"></a>
