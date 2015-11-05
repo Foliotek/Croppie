@@ -71,7 +71,18 @@
             timeout = setTimeout(later, wait);
             if (callNow) func.apply(context, args);
         };
-    };
+    }
+
+    function dispatchChange(element) {
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            element.dispatchEvent(evt);
+        }
+        else {
+            element.fireEvent("onchange");
+        }
+    }
 
     //http://jsperf.com/vanilla-css
     function css(el, styles, val) {
@@ -285,9 +296,9 @@
         function change() {
             _onZoom.call(self, {
                 value: parseFloat(zoomer.value),
-                origin: origin,
+                origin: origin || new TransformOrigin(self.img),
                 viewportRect: viewportRect || self.viewport.getBoundingClientRect(),
-                transform: transform
+                transform: transform || Transform.parse(self.img)
             });
         }
 
@@ -298,7 +309,7 @@
             ev.preventDefault();
             start();
             zoomer.value = targetZoom;
-            change()
+            change();
         }
 
         self.zoomer.addEventListener('mousedown', start);
@@ -472,7 +483,8 @@
                     var scale = dist / originalDistance;
 
                     self.zoomer.value = scale;
-                    self.zoomer.dispatchEvent('change');
+                    dispatchChange(self.zoomer);
+                    // self.zoomer.dispatchEvent('change');
                     return;
                 }
             }
@@ -533,6 +545,7 @@
             vpData = self.viewport.getBoundingClientRect(),
             minZoom = 0,
             maxZoom = 1.5,
+            initialZoom = 1,
             minW,
             minH;
 
@@ -543,11 +556,16 @@
             minW = vpData.width / imgData.width;
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
+            if (minZoom > maxZoom) {
+                maxZoom = minZoom + 1;
+                initialZoom = minZoom + ((maxZoom - minZoom) / 2);
+            }
             self.zoomer.min = minZoom;
             self.zoomer.max = maxZoom;
-            self.zoomer.value = 1;
+            self.zoomer.value = initialZoom;
+            dispatchChange(self.zoomer);
+            // self.zoomer.dispatchEvent('change');
         }
-
         _updateOverlay.call(self);
     }
 
@@ -590,10 +608,9 @@
         }
         else {
             url = options.url;
-            points = options.points;
+            points = options.points || [];
         }
 
-        log(options);
         self.imgSrc = url;
         var prom = loadImage(url);
         prom.then(function () {

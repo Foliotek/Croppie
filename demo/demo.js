@@ -55,6 +55,43 @@ var Demo = (function() {
 		vCrop.bind('demo/demo-2.jpg');
 	}
 
+
+	function demoUpload() {
+		var $uploadCrop;
+
+		function readFile(input) {
+ 			if (input.files && input.files[0]) {
+	            var reader = new FileReader();
+	            
+	            reader.onload = function (e) {
+	            	$uploadCrop.croppie('bind', {
+	            		url: e.target.result
+	            	});
+	                // $('#blah').attr('src', e.target.result);
+	            }
+	            
+	            reader.readAsDataURL(input.files[0]);
+	        }
+	        else {
+		        alert("Sorry - you're browser doesn't support the FileReader API");
+		    }
+		}
+
+		$uploadCrop = $('#upload-demo').croppie({
+			viewport: {
+				width: 200,
+				height: 200,
+				type: 'circle'
+			},
+			boundary: {
+				width: 300,
+				height: 300
+			}
+		});
+
+		$('#upload').on('change', function () { readFile(this); });
+	}
+
 	function bindNavigation () {
 		var $body = $('body');
 		$('nav a').on('click', function (ev) {
@@ -72,6 +109,7 @@ var Demo = (function() {
 		mainCropper();
 		demoBasic();	
 		demoVanilla();	
+		demoUpload();
 	}
 
 	return {
