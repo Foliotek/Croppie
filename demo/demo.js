@@ -10,7 +10,31 @@ var Demo = (function() {
 		}
 	}
 
-	function mainCropper () {
+	function popupResult(result) {
+		var html;
+		if (result.html) {
+			html = result.html;
+		}
+		if (result.src) {
+			html = '<img src="' + result.src + '" />';
+		}
+		swal({
+			title: '',
+			html: true,
+			text: html,
+			allowOutsideClick: true
+		});
+		setTimeout(function(){
+		$('.sweet-alert').css('margin', function() {
+			var top = -1 * ($(this).height() / 2),
+				left = -1 * ($(this).width() / 2);
+
+			return top + 'px 0 0 ' + left + 'px';
+		});
+		}, 1);
+	}
+
+	function demoMain () {
 		var mc = $('#cropper-1');
 		mc.croppie({
 			viewport: {
@@ -21,40 +45,49 @@ var Demo = (function() {
 			// mouseWheelZoom: false
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
-		$('.js-main-image').on('click', function (ev){
+		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', 'canvas').then(function (resp) {
-				window.open(resp);
+				popupResult({
+					src: resp
+				});
 			});
 		});
 	}
 
 	function demoBasic() {
-		var cont = $('#demo-basic').croppie({
+		var basic = $('#demo-basic').croppie({
 			viewport: {
 				width: 150,
 				height: 200
-			},
-			update: function (data) {
-                cont.croppie('result').then(function(resp) {
-                    output(resp);
-                });
 			}
 		});
-		cont.croppie('bind', {
+		basic.croppie('bind', {
 			url: 'demo/cat.jpg',
-			points: [77.38630964949324,469.4327689505912,280.08901235219594,739.7030392208615]
+			points: [77,469,280,739]
+		});
+		$('.basic-result').on('click', function() {
+			basic.croppie('result', 'html').then(function (resp) {
+				popupResult({
+					html: resp.outerHTML
+				});
+			});
 		});
 	}
 
 	function demoVanilla() {
-		var el = document.getElementById('vanilla-demo');
-		var vCrop = new Croppie(el, {
+		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 }
 		});
-		vCrop.bind('demo/demo-2.jpg');
+		vanilla.bind('demo/demo-2.jpg');
+		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
+			vanilla.result('html').then(function (src) {
+				popupResult({
+					html: src.outerHTML
+				});
+			});
+		});
 	}
-
 
 	function demoUpload() {
 		var $uploadCrop;
@@ -106,7 +139,7 @@ var Demo = (function() {
 
 	function init() {
 		bindNavigation();
-		mainCropper();
+		demoMain();
 		demoBasic();	
 		demoVanilla();	
 		demoUpload();

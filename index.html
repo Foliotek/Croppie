@@ -7,6 +7,7 @@
 
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
+        <link rel="Stylesheet" type="text/css" href="bower_components/sweetalert/dist/sweetalert.css" />
         <link rel="Stylesheet" type="text/css" href="croppie.css" />
         <link rel="Stylesheet" type="text/css" href="demo/demo.css" />
         <link rel="icon" href="//foliotek.github.io/favico-64.png" />
@@ -30,7 +31,7 @@
                           Croppie is a fast, easy to use image cropping plugin with tons of configuration options!
                         </p>
                         <div class="buttons">
-                            <button>Possible Button</button>
+                            <a href="https://github.com/foliotek/croppie" class="btn">View on Github</a>
                             <button class="js-main-image">Get Result</button>
                         </div>
                     </div>
@@ -173,25 +174,48 @@ $('#item').croppie(method, args);
             </div>
             <div class="container">
                 <div class="demo-wrap">
-                    <div class="grid demo-wrap">
+                    <div class="grid">
                         <div class="col-1-2">
-                        <fieldset>
-                        <legend>Cropper</legend>
-                        <div id="demo-basic">
-
-                        </div>
-                        </fieldset>
+                            <div id="demo-basic"></div>
                         </div>
                         <div class="col-1-2">
-                            <fieldset>
-                            <legend>Output</legend>
-                            <div id="result"></div>
-                            </fieldset>
+                            <strong>Example</strong>
+                          <pre class="language-javascript"><code class="language-javascript">
+var basic = $('#demo-basic').croppie({
+    viewport: {
+        width: 150,
+        height: 200
+    }
+});
+basic.croppie('bind', {
+    url: 'demo/cat.jpg',
+    points: [77,469,280,739]
+});
+//on button click
+basic.croppie('result', 'html');
+                          </code></pre>
+                          <button class="basic-result">Result</button>
                         </div>
                     </div>
                 </div>
                 <div class="demo-wrap">
-                    <div id="vanilla-demo">
+                    <div class="grid">
+                        <div class="col-1-2">
+                            <strong>Example</strong>
+                            <pre class="language-javascript"><code class="language-javascript">
+var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
+    viewport: { width: 100, height: 100 },
+    boundary: { width: 300, height: 300 }
+});
+vanilla.bind('demo/demo-2.jpg');
+//on button click
+vanilla.result('canvas');
+                            </code></pre>
+                            <button class="vanilla-result">Result</button>
+                        </div>
+                        <div class="col-1-2">
+                            <div id="vanilla-demo"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="demo-wrap">
@@ -221,6 +245,7 @@ $('#item').croppie(method, args);
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
         <script src="demo/prism.js"></script>
+        <script src="bower_components/sweetalert/dist/sweetalert.min.js"></script>
 
         <script src="croppie.js"></script>
         <script src="demo/demo.js"></script>

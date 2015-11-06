@@ -76,13 +76,17 @@ section.who p {
     padding: 5px 0;
 }
 
-button {
+button,
+a.btn {
     background-color: #189094;
     color: white;
     padding: 10px 15px;
     border-radius: 3px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    text-shadow: none;
 }
 button:focus {
     outline: 0;
@@ -117,8 +121,8 @@ h2 {
 }
 
 .demo-wrap {
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-top: 20px;
 }
 
 .api h3 {
@@ -150,6 +154,12 @@ h2 {
     color: #aaa;
     font-style: normal;
     padding: 0 5px;
+}
+
+/* Sweet alert modifications */
+.sweet-alert {
+    width: auto;
+    max-width: 85%;
 }
 
 /* Grid - subset */
