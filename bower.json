@@ -1,11 +1,11 @@
 {
   "name": "Croppie",
-  "homepage": "https://github.com/Foliotek/ImageCropper",
+  "homepage": "https://github.com/Foliotek/Croppie",
   "authors": [
     "Dustin Smith <thedustinsmith@gmail.com>",
     "Ethan Calvert <calvert1591@gmail.com>"
   ],
-  "description": "An image cropper built on top of jquery",
+  "description": "A javascript image cropper",
   "main": "croppie.js",
   "moduleType": [],
   "keywords": [
@@ -24,6 +24,6 @@
     "index.html"
   ],
   "dependencies": {
-    "jquery": "~2.1.4"
+
   }
 }

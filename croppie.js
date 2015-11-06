@@ -103,8 +103,8 @@
             div = document.createElement('div'),
             img = document.createElement('img'),
             width = points[2] - points[0],
-            height = points[3] - points[1],
-            scale = data.zoom;
+            height = points[3] - points[1];
+            // scale = data.zoom;
 
         div.classList.add('croppie-result');
         div.appendChild(img);
@@ -124,7 +124,7 @@
 
     function getCanvasImage(img, data) {
         var points = data.points,
-            scale = data.zoom,
+            // scale = data.zoom,
             left = points[0],
             top = points[1],
             width = (points[2] - points[0]),
@@ -575,7 +575,7 @@
         }
         var self = this,
             pointsWidth = points[2] - points[0],
-            pointsHeight = points[3] - points[1],
+            // pointsHeight = points[3] - points[1],
             vpData = self.viewport.getBoundingClientRect(),
             boundRect = self.boundary.getBoundingClientRect(),
             vpOffset = {
@@ -629,7 +629,6 @@
 
     function _get() {
         var self = this,
-            imgSrc = self.img.src,
             imgData = self.img.getBoundingClientRect(),
             vpData = self.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
