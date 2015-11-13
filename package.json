@@ -24,5 +24,10 @@
   "bugs": {
     "url": "https://github.com/Foliotek/Croppie/issues"
   },
-  "homepage": "http://foliotek.github.io/Croppie"
+  "homepage": "http://foliotek.github.io/Croppie",
+  "files": [
+    "croppie.css",
+    "croppie.js",
+    "croppie.min.js"
+  ]
 }
