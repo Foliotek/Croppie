@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" >
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Croppie - a javascript image cropper - Foliotek</title>
+        <title>Croppie - a sipmle javascript image cropper - Foliotek</title>
 
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
@@ -176,9 +176,6 @@ $('#item').croppie(method, args);
                 <div class="demo-wrap">
                     <div class="grid">
                         <div class="col-1-2">
-                            <div id="demo-basic"></div>
-                        </div>
-                        <div class="col-1-2">
                             <strong>Example</strong>
                           <pre class="language-javascript"><code class="language-javascript">
 var basic = $('#demo-basic').croppie({
@@ -194,12 +191,20 @@ basic.croppie('bind', {
 //on button click
 basic.croppie('result', 'html');
                           </code></pre>
-                          <button class="basic-result">Result</button>
+                          <div class="actions">
+                              <button class="basic-result">Result</button>
+                          </div>
+                        </div>
+                        <div class="col-1-2">
+                            <div id="demo-basic"></div>
                         </div>
                     </div>
                 </div>
                 <div class="demo-wrap">
                     <div class="grid">
+                        <div class="col-1-2">
+                            <div id="vanilla-demo"></div>
+                        </div>
                         <div class="col-1-2">
                             <strong>Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">
@@ -211,16 +216,44 @@ vanilla.bind('demo/demo-2.jpg');
 //on button click
 vanilla.result('canvas');
                             </code></pre>
-                            <button class="vanilla-result">Result</button>
-                        </div>
-                        <div class="col-1-2">
-                            <div id="vanilla-demo"></div>
+                            <div class="actions">
+                                <button class="vanilla-result">Result</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="demo-wrap">
-                    <input type="file" id="upload" value="Choose a file" />
-                    <div id="upload-demo"></div>
+                <div class="demo-wrap upload-demo">
+                    <div class="grid">
+                        <div class="col-1-2">
+                            <strong>Upload Example</strong>
+                            <pre class="language-javascript"><code class="language-javascript">
+$uploadCrop = $('#upload-demo').croppie({
+    viewport: {
+        width: 200,
+        height: 200,
+        type: 'circle'
+    },
+    boundary: {
+        width: 300,
+        height: 300
+    }
+});
+                            </code></pre>
+                            <div class="actions">
+                                <button class="file-btn">
+                                    <span>Upload</span>
+                                    <input type="file" id="upload" value="Choose a file" />
+                                </button>
+                                <button class="upload-result">Result</button>
+                            </div>
+                        </div>
+                        <div class="col-1-2">
+                            <div class="upload-msg">
+                                Upload a file to start cropping
+                            </div>
+                            <div id="upload-demo"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

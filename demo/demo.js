@@ -25,12 +25,12 @@ var Demo = (function() {
 			allowOutsideClick: true
 		});
 		setTimeout(function(){
-		$('.sweet-alert').css('margin', function() {
-			var top = -1 * ($(this).height() / 2),
-				left = -1 * ($(this).width() / 2);
+			$('.sweet-alert').css('margin', function() {
+				var top = -1 * ($(this).height() / 2),
+					left = -1 * ($(this).width() / 2);
 
-			return top + 'px 0 0 ' + left + 'px';
-		});
+				return top + 'px 0 0 ' + left + 'px';
+			});
 		}, 1);
 	}
 
@@ -100,6 +100,7 @@ var Demo = (function() {
 	            	$uploadCrop.croppie('bind', {
 	            		url: e.target.result
 	            	});
+	            	$('.upload-demo').addClass('ready');
 	                // $('#blah').attr('src', e.target.result);
 	            }
 	            
@@ -123,6 +124,13 @@ var Demo = (function() {
 		});
 
 		$('#upload').on('change', function () { readFile(this); });
+		$('.upload-result').on('click', function (ev) {
+			$uploadCrop.croppie('result', 'canvas').then(function (resp) {
+				popupResult({
+					src: resp
+				});
+			});
+		});
 	}
 
 	function bindNavigation () {

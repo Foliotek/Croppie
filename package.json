@@ -1,7 +1,7 @@
 {
   "name": "croppie",
   "version": "1.0.0",
-  "description": "A javascript image cropper",
+  "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

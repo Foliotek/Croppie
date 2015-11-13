@@ -92,6 +92,25 @@ button:focus {
     outline: 0;
 }
 
+.file-btn {
+    position: relative;
+}
+.file-btn input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+.actions {
+    padding: 5px 0;
+}
+.actions button {
+    margin-right: 5px;
+}
+
 pre[class*="language"] {
     margin: 0;
     padding-top: 0;
@@ -154,6 +173,28 @@ h2 {
     color: #aaa;
     font-style: normal;
     padding: 0 5px;
+}
+
+.upload-demo #upload-demo,
+.upload-demo .upload-result,
+.upload-demo.ready .upload-msg {
+    display: none;
+}
+.upload-demo.ready #upload-demo {
+    display: block;
+}
+.upload-demo.ready .upload-result {
+    display: inline-block;    
+}
+
+.upload-msg {
+    text-align: center;
+    padding: 50px;
+    font-size: 22px;
+    color: #aaa;
+    width: 260px;
+    margin: 50px auto;
+    border: 1px solid #aaa;
 }
 
 /* Sweet alert modifications */
