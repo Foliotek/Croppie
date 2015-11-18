@@ -546,8 +546,15 @@
             minZoom = 0,
             maxZoom = 1.5,
             initialZoom = 1,
+            cssReset = {},
+            transformReset = new Transform(0, 0, initialZoom),
+            originReset = new TransformOrigin(),
             minW,
             minH;
+
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        cssReset[CSS_TRANS_ORG] = originReset.toString();
+        css(self.img, cssReset);
 
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
@@ -564,8 +571,12 @@
             self.zoomer.max = maxZoom;
             self.zoomer.value = initialZoom;
             dispatchChange(self.zoomer);
-            // self.zoomer.dispatchEvent('change');
         }
+
+        self._currentZoom = transformReset.scale = initialZoom;
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        css(self.img, cssReset)
+
         _updateOverlay.call(self);
     }
 
