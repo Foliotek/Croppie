@@ -1,3 +1,5 @@
 npm-debug.log
 node_modules/
-bower_components
+
+# Only commenting this out in gh-pages
+#bower_components
