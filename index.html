@@ -151,8 +151,15 @@ $('#item').croppie(method, args);
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                         </li>
                         <li>
-                            <strong>result(resultType)</strong><em>returns Promise</em>
-                            <p>Get the resulting crop of the image.  resultType can be 'canvas' or 'html'.  'canvas' returns a base64 image.  'html' returns html of a image cropped by positioning within a div.</p>
+                            <strong>result({ type: 'canvas|html', size: 'viewport|originall' })</strong><em>returns Promise</em>
+                            <p>Get the resulting crop of the image.</p>
+                            <ul>
+                                <li><code class="language-javascript">type: 'canvas'</code> returns a base64 encoded image string.</li>
+                                <li><code class="language-javascript">type: 'html'</code>  returns html with the positioned correctly and overflow hidden.</li>
+                                <li><code class="language-javascript">size: 'viewport'</code>  returns the cropped image sized the same as the viewport.</li>
+                                <li><code class="language-javascript">size: 'original'</code>  returns the cropped image at the image's original dimensions.</li>
+                                <li><em>* size is only applicable on canvas results</em></li>
+                            </ul>
                         </li>
                         <li>
                             <strong>refresh()</strong><em></em>

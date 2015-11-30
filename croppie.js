@@ -124,27 +124,33 @@
 
     function getCanvasImage(img, data) {
         var points = data.points,
-            // scale = data.zoom,
             left = points[0],
             top = points[1],
             width = (points[2] - points[0]),
             height = (points[3] - points[1]),
             circle = data.circle,
             canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d');
+            ctx = canvas.getContext('2d'),
+            outWidth = width,
+            outHeight = height;
 
-        canvas.width = width;
-        canvas.height = height;
+        if (data.outputWidth && data.outputHeight) {
+            outWidth = data.outputWidth;
+            outHeight = data.outputHeight;
+        }
+
+        canvas.width = outWidth;
+        canvas.height = outHeight;
 
         if (circle) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, true);
+            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.clip();
         }
 
-        ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
+        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
 
         return canvas.toDataURL();
     }
@@ -681,14 +687,23 @@
         };
     }
 
-    function _result(type) {
+    function _result(options) {
         var self = this,
             data = _get.call(self),
+            opts = options || { type: 'canvas', size: 'viewport' },
+            type = (typeof(opts) === 'string' ? opts : opts.type),
+            size = opts.size || 'viewport',
+            vpRect,
             prom;
+
+        if (size === 'viewport') {
+            vpRect = self.elements.viewport.getBoundingClientRect();
+            data.outputWidth = vpRect.width;
+            data.outputHeight = vpRect.height;
+        }
 
         data.circle = self.options.viewport.type === 'circle';
         data.url = self.data.url;
-        type = type || 'html';
 
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
