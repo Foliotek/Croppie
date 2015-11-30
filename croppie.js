@@ -113,7 +113,7 @@
             top: (-1 * points[1]) + 'px'
             // transform: 'scale(' + scale + ')'
         })
-        img.src = data.imgSrc;
+        img.src = data.url;
         css(div, {
             width: width + 'px',
             height: height + 'px'
@@ -233,6 +233,10 @@
             overlay = self.overlay = document.createElement('div'),
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null;
 
+        // Properties on class
+        self.data = {};
+
+        // Generating Markup
         boundary.classList.add('cr-boundary');
         css(boundary, {
             width: self.options.boundary.width + 'px',
@@ -261,6 +265,7 @@
           self.element.classList.add(self.options.customClass);
         }
 
+        // Initialize drag & zoom
         _initDraggable.call(this);
 
         if (self.options.showZoom) {
@@ -549,33 +554,38 @@
             cssReset = {},
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
+            isVisible = self.img.offsetHeight > 0 && self.img.offsetWidth > 0,
             minW,
             minH;
 
-        cssReset[CSS_TRANSFORM] = transformReset.toString();
-        cssReset[CSS_TRANS_ORG] = originReset.toString();
-        css(self.img, cssReset);
+        // check if the img is visible
+        if (isVisible && !self.data.bound) {
+            self.data.bound = true;
+            cssReset[CSS_TRANSFORM] = transformReset.toString();
+            cssReset[CSS_TRANS_ORG] = originReset.toString();
+            css(self.img, cssReset);
 
-        self._originalImageWidth = imgData.width;
-        self._originalImageHeight = imgData.height;
+            self._originalImageWidth = imgData.width;
+            self._originalImageHeight = imgData.height;
 
-        if (self.options.showZoom) {
-            minW = vpData.width / imgData.width;
-            minH = vpData.height / imgData.height;
-            minZoom = Math.max(minW, minH);
-            if (minZoom > maxZoom) {
-                maxZoom = minZoom + 1;
-                initialZoom = minZoom + ((maxZoom - minZoom) / 2);
+            if (self.options.showZoom) {
+                minW = vpData.width / imgData.width;
+                minH = vpData.height / imgData.height;
+                minZoom = Math.max(minW, minH);
+                if (minZoom > maxZoom) {
+                    maxZoom = minZoom + 1;
+                    initialZoom = minZoom + ((maxZoom - minZoom) / 2);
+                }
+                self.zoomer.min = minZoom;
+                self.zoomer.max = maxZoom;
+                self.zoomer.value = initialZoom;
+                dispatchChange(self.zoomer);
             }
-            self.zoomer.min = minZoom;
-            self.zoomer.max = maxZoom;
-            self.zoomer.value = initialZoom;
-            dispatchChange(self.zoomer);
-        }
 
-        self._currentZoom = transformReset.scale = initialZoom;
-        cssReset[CSS_TRANSFORM] = transformReset.toString();
-        css(self.img, cssReset)
+            self._currentZoom = transformReset.scale = initialZoom;
+            cssReset[CSS_TRANSFORM] = transformReset.toString();
+            css(self.img, cssReset)
+        }
 
         _updateOverlay.call(self);
     }
@@ -617,12 +627,17 @@
             url = options;
             options = {};
         }
+        else if (Array.isArray(options)) {
+            points = options.slice();
+        }
         else {
             url = options.url;
             points = options.points || [];
         }
 
-        self.imgSrc = url;
+        self.data.bound = false;
+        self.data.url = url || self.data.url;
+        self.data.points = points || self.data.points;
         var prom = loadImage(url);
         prom.then(function () {
             self.img.src = url;
@@ -665,12 +680,12 @@
             prom;
 
         data.circle = self.options.viewport.type === 'circle';
-        data.imgSrc = self.imgSrc;
+        data.url = self.data.url;
         type = type || 'html';
 
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
-                loadImage(self.imgSrc).then(function (img) {
+                loadImage(data.url).then(function (img) {
                     resolve(getCanvasImage(img, data));
                 });
             }
@@ -679,6 +694,10 @@
             }
         });
         return prom;
+    }
+
+    function _refresh() {
+        _updatePropertiesFromImage.call(this);
     }
 
     if (this.jQuery) {
@@ -751,6 +770,9 @@
         },
         result: function (type) {
             return _result.call(this, type);
+        },
+        refresh: function () {
+            return _refresh.call(this);
         }
     });
 

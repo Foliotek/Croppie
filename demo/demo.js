@@ -101,13 +101,12 @@ var Demo = (function() {
 	            		url: e.target.result
 	            	});
 	            	$('.upload-demo').addClass('ready');
-	                // $('#blah').attr('src', e.target.result);
 	            }
 	            
 	            reader.readAsDataURL(input.files[0]);
 	        }
 	        else {
-		        alert("Sorry - you're browser doesn't support the FileReader API");
+		        swal("Sorry - you're browser doesn't support the FileReader API");
 		    }
 		}
 
@@ -133,6 +132,27 @@ var Demo = (function() {
 		});
 	}
 
+	function demoHidden() {
+		var $hid = $('#hidden-demo');
+
+		$hid.croppie({
+			viewport: {
+				width: 175,
+				height: 175,
+				type: 'circle'
+			},
+			boundary: {
+				width: 200,
+				height: 200
+			}
+		});
+		$hid.croppie('bind', 'demo/demo-3.jpg');
+		$('.show-hidden').on('click', function () {
+			$hid.toggle();
+			$hid.croppie('refresh');
+		});
+	}
+
 	function bindNavigation () {
 		var $body = $('body');
 		$('nav a').on('click', function (ev) {
@@ -151,6 +171,7 @@ var Demo = (function() {
 		demoBasic();	
 		demoVanilla();	
 		demoUpload();
+		demoHidden();
 	}
 
 	return {

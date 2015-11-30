@@ -176,7 +176,7 @@ $('#item').croppie(method, args);
                 <div class="demo-wrap">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Basic Example</strong>
                           <pre class="language-javascript"><code class="language-javascript">
 var basic = $('#demo-basic').croppie({
     viewport: {
@@ -189,8 +189,7 @@ basic.croppie('bind', {
     points: [77,469,280,739]
 });
 //on button click
-basic.croppie('result', 'html');
-                          </code></pre>
+basic.croppie('result', 'html');</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
                           </div>
@@ -206,7 +205,7 @@ basic.croppie('result', 'html');
                             <div id="vanilla-demo"></div>
                         </div>
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Vanilla Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">
 var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
     viewport: { width: 100, height: 100 },
@@ -214,8 +213,7 @@ var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 });
 vanilla.bind('demo/demo-2.jpg');
 //on button click
-vanilla.result('canvas');
-                            </code></pre>
+vanilla.result('canvas');</code></pre>
                             <div class="actions">
                                 <button class="vanilla-result">Result</button>
                             </div>
@@ -237,8 +235,7 @@ $uploadCrop = $('#upload-demo').croppie({
         width: 300,
         height: 300
     }
-});
-                            </code></pre>
+});</code></pre>
                             <div class="actions">
                                 <button class="file-btn">
                                     <span>Upload</span>
@@ -252,6 +249,23 @@ $uploadCrop = $('#upload-demo').croppie({
                                 Upload a file to start cropping
                             </div>
                             <div id="upload-demo"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-wrap hidden-demo">
+                    <div class="grid">
+                        <div class="col-1-2">
+                            <strong>Hidden Example</strong>
+                            <p>When binding a croppie element that isn't visible (ie: in a modal), you'll need to trigger a refresh so croppie can correctly get the position of the element</p>
+
+                            <pre class="language-javascript"><code class="language-javascript">
+$('#hidden-demo').croppie('refresh')</code></pre>
+                            <div class="actions">
+                                <button class="show-hidden">Toggle Croppie</button>
+                            </div>
+                        </div>
+                        <div class="col-1-2">
+                            <div id="hidden-demo" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
