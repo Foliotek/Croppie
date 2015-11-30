@@ -18,8 +18,8 @@
             <div class="container">
                 <nav>
                     <ul>
-                        <a href="#home">Home</a>
                         <a href="#options">Usage</a>
+                        <a href="#api">API</a>
                         <a href="#demos">Demos</a>
                         <a href="#who">Who</a>
                     </ul>
@@ -153,6 +153,14 @@ $('#item').croppie(method, args);
                         <li>
                             <strong>result(resultType)</strong><em>returns Promise</em>
                             <p>Get the resulting crop of the image.  resultType can be 'canvas' or 'html'.  'canvas' returns a base64 image.  'html' returns html of a image cropped by positioning within a div.</p>
+                        </li>
+                        <li>
+                            <strong>refresh()</strong><em></em>
+                            <p>Used to notify croppie of a change in visibility of the croppie element.  Since croppie relies on positioning of elements, it depends on the element being visible when bound.  This method provides the ability update these positions after the element is shown.</p>
+                        </li>
+                        <li>
+                            <strong>destroy()</strong><em></em>
+                            <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
                 </section>
                 <section>
