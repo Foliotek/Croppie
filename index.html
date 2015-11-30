@@ -18,8 +18,8 @@
             <div class="container">
                 <nav>
                     <ul>
-                        <a href="#home">Home</a>
                         <a href="#options">Usage</a>
+                        <a href="#api">API</a>
                         <a href="#demos">Demos</a>
                         <a href="#who">Who</a>
                     </ul>
@@ -151,8 +151,23 @@ $('#item').croppie(method, args);
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                         </li>
                         <li>
-                            <strong>result(resultType)</strong><em>returns Promise</em>
-                            <p>Get the resulting crop of the image.  resultType can be 'canvas' or 'html'.  'canvas' returns a base64 image.  'html' returns html of a image cropped by positioning within a div.</p>
+                            <strong>result({ type: 'canvas|html', size: 'viewport|originall' })</strong><em>returns Promise</em>
+                            <p>Get the resulting crop of the image.</p>
+                            <ul>
+                                <li><code class="language-javascript">type: 'canvas'</code> returns a base64 encoded image string.</li>
+                                <li><code class="language-javascript">type: 'html'</code>  returns html with the positioned correctly and overflow hidden.</li>
+                                <li><code class="language-javascript">size: 'viewport'</code>  returns the cropped image sized the same as the viewport.</li>
+                                <li><code class="language-javascript">size: 'original'</code>  returns the cropped image at the image's original dimensions.</li>
+                                <li><em>* size is only applicable on canvas results</em></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>refresh()</strong><em></em>
+                            <p>Used to notify croppie of a change in visibility of the croppie element.  Since croppie relies on positioning of elements, it depends on the element being visible when bound.  This method provides the ability update these positions after the element is shown.</p>
+                        </li>
+                        <li>
+                            <strong>destroy()</strong><em></em>
+                            <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
                 </section>
                 <section>
@@ -176,7 +191,7 @@ $('#item').croppie(method, args);
                 <div class="demo-wrap">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Basic Example</strong>
                           <pre class="language-javascript"><code class="language-javascript">
 var basic = $('#demo-basic').croppie({
     viewport: {
@@ -189,8 +204,7 @@ basic.croppie('bind', {
     points: [77,469,280,739]
 });
 //on button click
-basic.croppie('result', 'html');
-                          </code></pre>
+basic.croppie('result', 'html');</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
                           </div>
@@ -206,7 +220,7 @@ basic.croppie('result', 'html');
                             <div id="vanilla-demo"></div>
                         </div>
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Vanilla Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">
 var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
     viewport: { width: 100, height: 100 },
@@ -214,8 +228,7 @@ var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 });
 vanilla.bind('demo/demo-2.jpg');
 //on button click
-vanilla.result('canvas');
-                            </code></pre>
+vanilla.result('canvas');</code></pre>
                             <div class="actions">
                                 <button class="vanilla-result">Result</button>
                             </div>
@@ -237,8 +250,7 @@ $uploadCrop = $('#upload-demo').croppie({
         width: 300,
         height: 300
     }
-});
-                            </code></pre>
+});</code></pre>
                             <div class="actions">
                                 <button class="file-btn">
                                     <span>Upload</span>
@@ -252,6 +264,23 @@ $uploadCrop = $('#upload-demo').croppie({
                                 Upload a file to start cropping
                             </div>
                             <div id="upload-demo"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-wrap hidden-demo">
+                    <div class="grid">
+                        <div class="col-1-2">
+                            <strong>Hidden Example</strong>
+                            <p>When binding a croppie element that isn't visible (ie: in a modal), you'll need to trigger a refresh so croppie can correctly get the position of the element</p>
+
+                            <pre class="language-javascript"><code class="language-javascript">
+$('#hidden-demo').croppie('refresh')</code></pre>
+                            <div class="actions">
+                                <button class="show-hidden">Toggle Croppie</button>
+                            </div>
+                        </div>
+                        <div class="col-1-2">
+                            <div id="hidden-demo" style="display: none;"></div>
                         </div>
                     </div>
                 </div>

@@ -81,9 +81,9 @@ var Demo = (function() {
 		});
 		vanilla.bind('demo/demo-2.jpg');
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
-			vanilla.result('html').then(function (src) {
+			vanilla.result('canvas').then(function (src) {
 				popupResult({
-					html: src.outerHTML
+					src: src
 				});
 			});
 		});
@@ -101,13 +101,12 @@ var Demo = (function() {
 	            		url: e.target.result
 	            	});
 	            	$('.upload-demo').addClass('ready');
-	                // $('#blah').attr('src', e.target.result);
 	            }
 	            
 	            reader.readAsDataURL(input.files[0]);
 	        }
 	        else {
-		        alert("Sorry - you're browser doesn't support the FileReader API");
+		        swal("Sorry - you're browser doesn't support the FileReader API");
 		    }
 		}
 
@@ -125,11 +124,35 @@ var Demo = (function() {
 
 		$('#upload').on('change', function () { readFile(this); });
 		$('.upload-result').on('click', function (ev) {
-			$uploadCrop.croppie('result', 'canvas').then(function (resp) {
+			$uploadCrop.croppie('result', {
+				type: 'canvas',
+				size: 'original'
+			}).then(function (resp) {
 				popupResult({
 					src: resp
 				});
 			});
+		});
+	}
+
+	function demoHidden() {
+		var $hid = $('#hidden-demo');
+
+		$hid.croppie({
+			viewport: {
+				width: 175,
+				height: 175,
+				type: 'circle'
+			},
+			boundary: {
+				width: 200,
+				height: 200
+			}
+		});
+		$hid.croppie('bind', 'demo/demo-3.jpg');
+		$('.show-hidden').on('click', function () {
+			$hid.toggle();
+			$hid.croppie('refresh');
 		});
 	}
 
@@ -151,6 +174,7 @@ var Demo = (function() {
 		demoBasic();	
 		demoVanilla();	
 		demoUpload();
+		demoHidden();
 	}
 
 	return {

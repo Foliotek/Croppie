@@ -144,6 +144,14 @@ h2 {
     padding-top: 20px;
 }
 
+.demo-wrap strong {
+    font-size: 16px;
+    display: block;
+    font-weight: 400;
+    color: #aaa;
+    margin: 0 0 5px 0;
+}
+
 .api h3 {
     font-size: 18px;
     font-weight: 400;
