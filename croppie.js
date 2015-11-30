@@ -549,15 +549,17 @@
 
     function _updatePropertiesFromImage() {
         var self = this,
-            imgData = self.elements.img.getBoundingClientRect(),
-            vpData = self.elements.viewport.getBoundingClientRect(),
             minZoom = 0,
             maxZoom = 1.5,
             initialZoom = 1,
             cssReset = {},
+            img = self.elements.img,
+            zoomer = self.elements.zoomer,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
-            isVisible = self.elements.img.offsetHeight > 0 && self.elements.img.offsetWidth > 0,
+            isVisible = img.offsetHeight > 0 && img.offsetWidth > 0,
+            imgData,
+            vpData,
             minW,
             minH;
 
@@ -566,8 +568,10 @@
             self.data.bound = true;
             cssReset[CSS_TRANSFORM] = transformReset.toString();
             cssReset[CSS_TRANS_ORG] = originReset.toString();
-            css(self.elements.img, cssReset);
+            css(img, cssReset);
 
+            imgData = img.getBoundingClientRect();
+            vpData = self.elements.viewport.getBoundingClientRect();
             self._originalImageWidth = imgData.width;
             self._originalImageHeight = imgData.height;
 
@@ -579,15 +583,15 @@
                     maxZoom = minZoom + 1;
                     initialZoom = minZoom + ((maxZoom - minZoom) / 2);
                 }
-                self.elements.zoomer.min = minZoom;
-                self.elements.zoomer.max = maxZoom;
-                self.elements.zoomer.value = initialZoom;
-                dispatchChange(self.elements.zoomer);
+                zoomer.min = minZoom;
+                zoomer.max = maxZoom;
+                zoomer.value = initialZoom;
+                dispatchChange(zoomer);
             }
 
             self._currentZoom = transformReset.scale = initialZoom;
             cssReset[CSS_TRANSFORM] = transformReset.toString();
-            css(self.elements.img, cssReset)
+            css(img, cssReset)
         }
 
         _updateOverlay.call(self);
