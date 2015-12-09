@@ -321,7 +321,7 @@
 
         function change() {
             _onZoom.call(self, {
-                value: parseFloat(zoomer.value).toFixed(2),
+                value: parseFloat(zoomer.value),
                 origin: origin || new TransformOrigin(self.elements.img),
                 viewportRect: viewportRect || self.elements.viewport.getBoundingClientRect(),
                 transform: transform || Transform.parse(self.elements.img)
@@ -735,6 +735,7 @@
     }
 
     function _refresh() {
+        console.warn("Croppie.refresh() is deprecated.  Please use Croppie.bind() without any arguments instead.  refresh() will be removed in a later release.");
         _updatePropertiesFromImage.call(this);
     }
 
