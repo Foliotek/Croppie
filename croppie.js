@@ -168,7 +168,9 @@
 
         prom = new Promise(function (resolve, reject) {
             img.onload = function () {
-                resolve(img);
+                setTimeout(function() {
+                    resolve(img);
+                }, 1);
             };
             img.src = src;
         });
@@ -288,6 +290,10 @@
         }
     }
 
+    function _setZoomerVal (v) {
+        this.elements.zoomer.value = parseFloat(v).toFixed(2);
+    }
+
     function _initializeZoom() {
         var self = this,
             wrap = self.elements.zoomerWrap = document.createElement('div'),
@@ -315,7 +321,7 @@
 
         function change() {
             _onZoom.call(self, {
-                value: parseFloat(zoomer.value),
+                value: parseFloat(zoomer.value).toFixed(2),
                 origin: origin || new TransformOrigin(self.elements.img),
                 viewportRect: viewportRect || self.elements.viewport.getBoundingClientRect(),
                 transform: transform || Transform.parse(self.elements.img)
@@ -328,7 +334,7 @@
 
             ev.preventDefault();
             start();
-            zoomer.value = targetZoom;
+            _setZoomerVal.call(self, targetZoom);
             change();
         }
 
@@ -502,7 +508,7 @@
 
                     var scale = dist / originalDistance;
 
-                    self.elements.zoomer.value = scale;
+                    _setZoomerVal.call(self, scale);
                     dispatchChange(self.elements.zoomer);
                     // self.elements.zoomer.dispatchEvent('change');
                     return;
@@ -595,9 +601,9 @@
                     maxZoom = minZoom + 1;
                     initialZoom = minZoom + ((maxZoom - minZoom) / 2);
                 }
-                zoomer.min = minZoom;
-                zoomer.max = maxZoom;
-                zoomer.value = initialZoom;
+                zoomer.min = parseFloat(minZoom).toFixed(2);
+                zoomer.max = parseFloat(maxZoom).toFixed(2);
+                _setZoomerVal.call(self, initialZoom);
                 dispatchChange(zoomer);
             }
 
@@ -633,7 +639,7 @@
         newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
         css(self.elements.img, newCss);
 
-        self.elements.zoomer.value = scale;
+        _setZoomerVal.call(self, scale);
         self._currentZoom = scale;
     }
 
@@ -648,6 +654,10 @@
         }
         else if (Array.isArray(options)) {
             points = options.slice();
+        }
+        else if (typeof (options) == 'undefined' && self.data.url) { //refreshing
+            _updatePropertiesFromImage.call(self);
+            return null;
         }
         else {
             url = options.url;
