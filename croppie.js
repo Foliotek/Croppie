@@ -694,6 +694,10 @@
             y2 = y1 + vpData.height,
             scale = self._currentZoom;
 
+        if(scale === Infinity){
+            scale = 1;
+        }
+        
         x1 /= scale;
         x2 /= scale;
         y1 /= scale;
