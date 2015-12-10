@@ -694,7 +694,7 @@
             y2 = y1 + vpData.height,
             scale = self._currentZoom;
 
-        if(scale === Infinity){
+        if(scale === Infinity || isNaN(scale)){
             scale = 1;
         }
         
