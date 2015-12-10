@@ -291,7 +291,9 @@
     }
 
     function _setZoomerVal (v) {
-        this.elements.zoomer.value = parseFloat(v).toFixed(2);
+        if(this.options.showZoom){
+            this.elements.zoomer.value = parseFloat(v).toFixed(2);
+        }
     }
 
     function _initializeZoom() {
@@ -742,7 +744,9 @@
     function _destroy () {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        self.element.removeChild(self.elements.zoomerWrap);
+        if (self.options.showZoom) {
+            self.element.removeChild(self.elements.zoomerWrap);
+        }
         delete self.elements;
     }
 
