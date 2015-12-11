@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2015
  * Foliotek
- * Version: 1.0.2
+ * Version: 1.0.3
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -531,7 +531,7 @@
             originalX = pageX;
         }
 
-        function mouseUp(ev) {
+        function mouseUp() {
             isDragging = false;
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
