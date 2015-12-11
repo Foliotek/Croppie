@@ -1,3 +1,9 @@
+/*************************
+ * Croppie
+ * Copyright 2015
+ * Foliotek
+ * Version: 1.0.3
+ *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -156,23 +162,25 @@
     }
 
     /* Utilities */
-    function loadImage(src) {
-        var img = new Image(),
+    function loadImage(src, imageEl) {
+        var img = imageEl || new Image(),
             prom;
 
         prom = new Promise(function (resolve, reject) {
             img.onload = function () {
-                resolve(img);
+                setTimeout(function() {
+                    resolve(img);
+                }, 1);
             };
-            img.src = src;
         });
 
+        img.src = src;
         return prom;
     }
 
     /* CSS Transform Prototype */
-    var _translate = 'translate3d',
-        _translateSuffix = ', 0px';
+    var _TRANSLATE = 'translate3d',
+        _TRANSLATE_SUFFIX = ', 0px';
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -202,7 +210,7 @@
 
     Transform.fromString = function (v) {
         var values = v.split(') '),
-            translate = values[0].substring(_translate.length + 1).split(','),
+            translate = values[0].substring(_TRANSLATE.length + 1).split(','),
             scale = values.length > 1 ? values[1].substring(6) : 1,
             x = translate.length > 1 ? translate[0] : 0,
             y = translate.length > 1 ? translate[1] : 0;
@@ -211,7 +219,7 @@
     }
 
     Transform.prototype.toString = function () {
-        return _translate + '(' + this.x + 'px, ' + this.y + 'px' + _translateSuffix + ') scale(' + this.scale + ')';
+        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
@@ -282,6 +290,12 @@
         }
     }
 
+    function _setZoomerVal (v) {
+        if (this.options.showZoom) {
+            this.elements.zoomer.value = parseFloat(v).toFixed(2);
+        }
+    }
+
     function _initializeZoom() {
         var self = this,
             wrap = self.elements.zoomerWrap = document.createElement('div'),
@@ -322,7 +336,7 @@
 
             ev.preventDefault();
             start();
-            zoomer.value = targetZoom;
+            _setZoomerVal.call(self, targetZoom);
             change();
         }
 
@@ -496,9 +510,8 @@
 
                     var scale = dist / originalDistance;
 
-                    self.elements.zoomer.value = scale;
+                    _setZoomerVal.call(self, scale);
                     dispatchChange(self.elements.zoomer);
-                    // self.elements.zoomer.dispatchEvent('change');
                     return;
                 }
             }
@@ -518,7 +531,7 @@
             originalX = pageX;
         }
 
-        function mouseUp(ev) {
+        function mouseUp() {
             isDragging = false;
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
@@ -569,36 +582,40 @@
             minW,
             minH;
 
-        // check if the img is visible
-        if (isVisible && !self.data.bound) {
-            self.data.bound = true;
-            cssReset[CSS_TRANSFORM] = transformReset.toString();
-            cssReset[CSS_TRANS_ORG] = originReset.toString();
-            css(img, cssReset);
+        if (!isVisible || self.data.bound) {
+            // if the croppie isn't visible or it doesn't need binding
+            return;
+        }
 
-            imgData = img.getBoundingClientRect();
-            vpData = self.elements.viewport.getBoundingClientRect();
-            self._originalImageWidth = imgData.width;
-            self._originalImageHeight = imgData.height;
+        self.data.bound = true;
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        cssReset[CSS_TRANS_ORG] = originReset.toString();
+        css(img, cssReset);
 
-            if (self.options.showZoom) {
-                minW = vpData.width / imgData.width;
-                minH = vpData.height / imgData.height;
-                minZoom = Math.max(minW, minH);
-                if (minZoom > maxZoom) {
-                    maxZoom = minZoom + 1;
-                    initialZoom = minZoom + ((maxZoom - minZoom) / 2);
-                }
-                zoomer.min = minZoom;
-                zoomer.max = maxZoom;
-                zoomer.value = initialZoom;
-                dispatchChange(zoomer);
+        imgData = img.getBoundingClientRect();
+        vpData = self.elements.viewport.getBoundingClientRect();
+        self._originalImageWidth = imgData.width;
+        self._originalImageHeight = imgData.height;
+
+        if (self.options.showZoom) {
+            minW = vpData.width / imgData.width;
+            minH = vpData.height / imgData.height;
+            minZoom = Math.max(minW, minH);
+            
+            if (minZoom > maxZoom) {
+                maxZoom = minZoom + 1;
             }
 
-            self._currentZoom = transformReset.scale = initialZoom;
-            cssReset[CSS_TRANSFORM] = transformReset.toString();
-            css(img, cssReset)
+            zoomer.min = parseFloat(minZoom).toFixed(2);
+            zoomer.max = parseFloat(maxZoom).toFixed(2);
+            initialZoom = (minZoom + maxZoom) / 2;
+            _setZoomerVal.call(self, initialZoom);
+            dispatchChange(zoomer);
         }
+
+        self._currentZoom = transformReset.scale = initialZoom;
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        css(img, cssReset)
 
         _updateOverlay.call(self);
     }
@@ -627,8 +644,22 @@
         newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
         css(self.elements.img, newCss);
 
-        self.elements.zoomer.value = scale;
+        _setZoomerVal.call(self, scale);
         self._currentZoom = scale;
+    }
+
+    function _centerImage() {
+        var self = this,
+            imgDim = self.elements.img.getBoundingClientRect(),
+            vpDim = self.elements.viewport.getBoundingClientRect(),
+            boundDim = self.elements.boundary.getBoundingClientRect(),
+            vpLeft = vpDim.left - boundDim.left,
+            vpTop = vpDim.top - boundDim.top,
+            w = vpLeft - ((imgDim.width - vpDim.width) / 2),
+            h = vpTop - ((imgDim.height - vpDim.height) / 2),
+            transform = new Transform(w, h, self._currentZoom);
+
+        css(self.elements.img, CSS_TRANSFORM, transform.toString());
     }
 
     function _bind(options, cb) {
@@ -643,6 +674,10 @@
         else if (Array.isArray(options)) {
             points = options.slice();
         }
+        else if (typeof (options) == 'undefined' && self.data.url) { //refreshing
+            _updatePropertiesFromImage.call(self);
+            return null;
+        }
         else {
             url = options.url;
             points = options.points || [];
@@ -651,12 +686,14 @@
         self.data.bound = false;
         self.data.url = url || self.data.url;
         self.data.points = points || self.data.points;
-        var prom = loadImage(url);
+        var prom = loadImage(url, self.elements.img);
         prom.then(function () {
-            self.elements.img.src = url;
             _updatePropertiesFromImage.call(self);
             if (points.length) {
                 _bindPoints.call(self, points);
+            }
+            else {
+                _centerImage.call(self);
             }
             _triggerUpdate.call(self);
             if (cb) {
@@ -676,6 +713,10 @@
             y2 = y1 + vpData.height,
             scale = self._currentZoom;
 
+        if (scale === Infinity || isNaN(scale)) {
+            scale = 1;
+        }
+        
         x1 /= scale;
         x2 /= scale;
         y1 /= scale;
@@ -719,13 +760,16 @@
     }
 
     function _refresh() {
+        console.warn("Croppie.refresh() is deprecated.  Please use Croppie.bind() without any arguments instead.  refresh() will be removed in a later release.");
         _updatePropertiesFromImage.call(this);
     }
 
     function _destroy () {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        self.element.removeChild(self.elements.zoomerWrap);
+        if (self.options.showZoom) {
+            self.element.removeChild(self.elements.zoomerWrap);
+        }
         delete self.elements;
     }
 

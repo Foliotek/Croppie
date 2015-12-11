@@ -152,7 +152,7 @@ var Demo = (function() {
 		$hid.croppie('bind', 'demo/demo-3.jpg');
 		$('.show-hidden').on('click', function () {
 			$hid.toggle();
-			$hid.croppie('refresh');
+			$hid.croppie('bind');
 		});
 	}
 
