@@ -162,8 +162,8 @@
     }
 
     /* Utilities */
-    function loadImage(src) {
-        var img = new Image(),
+    function loadImage(src, imageEl) {
+        var img = imageEl || new Image(),
             prom;
 
         prom = new Promise(function (resolve, reject) {
@@ -172,15 +172,15 @@
                     resolve(img);
                 }, 1);
             };
-            img.src = src;
         });
 
+        img.src = src;
         return prom;
     }
 
     /* CSS Transform Prototype */
-    var _translate = 'translate3d',
-        _translateSuffix = ', 0px';
+    var _TRANSLATE = 'translate3d',
+        _TRANSLATE_SUFFIX = ', 0px';
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -210,7 +210,7 @@
 
     Transform.fromString = function (v) {
         var values = v.split(') '),
-            translate = values[0].substring(_translate.length + 1).split(','),
+            translate = values[0].substring(_TRANSLATE.length + 1).split(','),
             scale = values.length > 1 ? values[1].substring(6) : 1,
             x = translate.length > 1 ? translate[0] : 0,
             y = translate.length > 1 ? translate[1] : 0;
@@ -219,7 +219,7 @@
     }
 
     Transform.prototype.toString = function () {
-        return _translate + '(' + this.x + 'px, ' + this.y + 'px' + _translateSuffix + ') scale(' + this.scale + ')';
+        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
@@ -686,9 +686,8 @@
         self.data.bound = false;
         self.data.url = url || self.data.url;
         self.data.points = points || self.data.points;
-        var prom = loadImage(url);
+        var prom = loadImage(url, self.elements.img);
         prom.then(function () {
-            self.elements.img.src = url;
             _updatePropertiesFromImage.call(self);
             if (points.length) {
                 _bindPoints.call(self, points);
