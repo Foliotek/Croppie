@@ -7,7 +7,7 @@ Bower: `bower install croppie`
 Npm: `npm install croppie`
 
 Download:
-[a croppie.js](croppie.js) & [a croppie.css](croppie.css)
+[croppie.js](croppie.js) & [croppie.css](croppie.css)
 
 ## Adding croppie to your site
 ```
