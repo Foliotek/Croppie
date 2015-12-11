@@ -291,7 +291,7 @@
     }
 
     function _setZoomerVal (v) {
-        if(this.options.showZoom){
+        if (this.options.showZoom) {
             this.elements.zoomer.value = parseFloat(v).toFixed(2);
         }
     }
@@ -512,7 +512,6 @@
 
                     _setZoomerVal.call(self, scale);
                     dispatchChange(self.elements.zoomer);
-                    // self.elements.zoomer.dispatchEvent('change');
                     return;
                 }
             }
@@ -583,36 +582,40 @@
             minW,
             minH;
 
-        // check if the img is visible
-        if (isVisible && !self.data.bound) {
-            self.data.bound = true;
-            cssReset[CSS_TRANSFORM] = transformReset.toString();
-            cssReset[CSS_TRANS_ORG] = originReset.toString();
-            css(img, cssReset);
+        if (!isVisible || self.data.bound) {
+            // if the croppie isn't visible or it doesn't need binding
+            return;
+        }
 
-            imgData = img.getBoundingClientRect();
-            vpData = self.elements.viewport.getBoundingClientRect();
-            self._originalImageWidth = imgData.width;
-            self._originalImageHeight = imgData.height;
+        self.data.bound = true;
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        cssReset[CSS_TRANS_ORG] = originReset.toString();
+        css(img, cssReset);
 
-            if (self.options.showZoom) {
-                minW = vpData.width / imgData.width;
-                minH = vpData.height / imgData.height;
-                minZoom = Math.max(minW, minH);
-                if (minZoom > maxZoom) {
-                    maxZoom = minZoom + 1;
-                    initialZoom = minZoom + ((maxZoom - minZoom) / 2);
-                }
-                zoomer.min = parseFloat(minZoom).toFixed(2);
-                zoomer.max = parseFloat(maxZoom).toFixed(2);
-                _setZoomerVal.call(self, initialZoom);
-                dispatchChange(zoomer);
+        imgData = img.getBoundingClientRect();
+        vpData = self.elements.viewport.getBoundingClientRect();
+        self._originalImageWidth = imgData.width;
+        self._originalImageHeight = imgData.height;
+
+        if (self.options.showZoom) {
+            minW = vpData.width / imgData.width;
+            minH = vpData.height / imgData.height;
+            minZoom = Math.max(minW, minH);
+            
+            if (minZoom > maxZoom) {
+                maxZoom = minZoom + 1;
             }
 
-            self._currentZoom = transformReset.scale = initialZoom;
-            cssReset[CSS_TRANSFORM] = transformReset.toString();
-            css(img, cssReset)
+            zoomer.min = parseFloat(minZoom).toFixed(2);
+            zoomer.max = parseFloat(maxZoom).toFixed(2);
+            initialZoom = (minZoom + maxZoom) / 2;
+            _setZoomerVal.call(self, initialZoom);
+            dispatchChange(zoomer);
         }
+
+        self._currentZoom = transformReset.scale = initialZoom;
+        cssReset[CSS_TRANSFORM] = transformReset.toString();
+        css(img, cssReset)
 
         _updateOverlay.call(self);
     }
@@ -643,6 +646,20 @@
 
         _setZoomerVal.call(self, scale);
         self._currentZoom = scale;
+    }
+
+    function _centerImage() {
+        var self = this,
+            imgDim = self.elements.img.getBoundingClientRect(),
+            vpDim = self.elements.viewport.getBoundingClientRect(),
+            boundDim = self.elements.boundary.getBoundingClientRect(),
+            vpLeft = vpDim.left - boundDim.left,
+            vpTop = vpDim.top - boundDim.top,
+            w = vpLeft - ((imgDim.width - vpDim.width) / 2),
+            h = vpTop - ((imgDim.height - vpDim.height) / 2),
+            transform = new Transform(w, h, self._currentZoom);
+
+        css(self.elements.img, CSS_TRANSFORM, transform.toString());
     }
 
     function _bind(options, cb) {
@@ -676,6 +693,9 @@
             if (points.length) {
                 _bindPoints.call(self, points);
             }
+            else {
+                _centerImage.call(self);
+            }
             _triggerUpdate.call(self);
             if (cb) {
                 cb();
@@ -694,7 +714,7 @@
             y2 = y1 + vpData.height,
             scale = self._currentZoom;
 
-        if(scale === Infinity || isNaN(scale)){
+        if (scale === Infinity || isNaN(scale)) {
             scale = 1;
         }
         
