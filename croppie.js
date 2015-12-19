@@ -29,10 +29,10 @@
     }
 
     var cssPrefixes = ['Webkit', 'Moz', 'ms'],
-        emptyStyles = document.createElement('div').style,
-        CSS_TRANS_ORG,
-        CSS_TRANSFORM,
-        CSS_USERSELECT;
+            emptyStyles = document.createElement('div').style,
+            CSS_TRANS_ORG,
+            CSS_TRANSFORM,
+            CSS_USERSELECT;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -40,7 +40,7 @@
         }
 
         var capProp = prop[0].toUpperCase() + prop.slice(1),
-            i = cssPrefixes.length;
+                i = cssPrefixes.length;
 
         while (i--) {
             prop = cssPrefixes[i] + capProp;
@@ -82,12 +82,16 @@
             var context = this, args = arguments;
             var later = function () {
                 timeout = null;
-                if (!immediate) func.apply(context, args);
+                if (!immediate){
+                    func.apply(context, args);
+                }
             };
             var callNow = immediate && !timeout;
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
+            if (callNow){
+                func.apply(context, args);
+            }
         };
     }
 
@@ -118,10 +122,10 @@
     /* Image Drawing Functions */
     function getHtmlImage(data) {
         var points = data.points,
-            div = document.createElement('div'),
-            img = document.createElement('img'),
-            width = points[2] - points[0],
-            height = points[3] - points[1];
+                div = document.createElement('div'),
+                img = document.createElement('img'),
+                width = points[2] - points[0],
+                height = points[3] - points[1];
         // scale = data.zoom;
 
         div.classList.add('croppie-result');
@@ -129,8 +133,8 @@
         css(img, {
             left: (-1 * points[0]) + 'px',
             top: (-1 * points[1]) + 'px'
-            // transform: 'scale(' + scale + ')'
-        })
+                    // transform: 'scale(' + scale + ')'
+        });
         img.src = data.url;
         css(div, {
             width: width + 'px',
@@ -140,21 +144,32 @@
         return div;
     }
 
-    function getCanvasImage(img, data) {
+    function getCanvasImage(croppie, img, data) {
         var points = data.points,
-            left = points[0],
-            top = points[1],
-            width = (points[2] - points[0]),
-            height = (points[3] - points[1]),
-            circle = data.circle,
-            canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d'),
-            outWidth = width,
-            outHeight = height;
+                left = points[0],
+                top = points[1],
+                width = (points[2] - points[0]),
+                height = (points[3] - points[1]),
+                circle = data.circle,
+                canvas = document.createElement('canvas'),
+                ctx = canvas.getContext('2d'),
+                outWidth = width,
+                outHeight = height;
 
         if (data.outputWidth && data.outputHeight) {
             outWidth = data.outputWidth;
             outHeight = data.outputHeight;
+        }
+
+        if (croppie.options.fixedOutputSize) {
+            var scaleHeight = outHeight / outWidth;
+            outWidth = croppie.options.outputSize.width;
+
+            if (croppie.options.outputSize.height === 'auto') {
+                outHeight = outWidth * scaleHeight;
+            } else {
+                outHeight = croppie.options.outputSize.height;
+            }
         }
 
         canvas.width = outWidth;
@@ -176,7 +191,7 @@
     /* Utilities */
     function loadImage(src, imageEl) {
         var img = imageEl || new Image(),
-            prom;
+                prom;
 
         prom = new Promise(function (resolve, reject) {
             img.onload = function () {
@@ -192,7 +207,7 @@
 
     /* CSS Transform Prototype */
     var _TRANSLATE = 'translate3d',
-        _TRANSLATE_SUFFIX = ', 0px';
+            _TRANSLATE_SUFFIX = ', 0px';
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -222,13 +237,13 @@
 
     Transform.fromString = function (v) {
         var values = v.split(') '),
-            translate = values[0].substring(_TRANSLATE.length + 1).split(','),
-            scale = values.length > 1 ? values[1].substring(6) : 1,
-            x = translate.length > 1 ? translate[0] : 0,
-            y = translate.length > 1 ? translate[1] : 0;
+                translate = values[0].substring(_TRANSLATE.length + 1).split(','),
+                scale = values.length > 1 ? values[1].substring(6) : 1,
+                x = translate.length > 1 ? translate[0] : 0,
+                y = translate.length > 1 ? translate[1] : 0;
 
         return new Transform(x, y, scale);
-    }
+    };
 
     Transform.prototype.toString = function () {
         return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
@@ -252,9 +267,9 @@
     /* Private Methods */
     function _create() {
         var self = this,
-            contClass = ['croppie-container'],
-            customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay;
+                contClass = ['croppie-container'],
+                customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
+                boundary, img, viewport, css_viewport, overlay, css_overlay;
 
         // Properties on class
         self.data = {};
@@ -267,19 +282,43 @@
         overlay = self.elements.overlay = document.createElement('div');
 
         boundary.classList.add('cr-boundary');
-        css(boundary, {
-            width: self.options.boundary.width + 'px',
-            height: self.options.boundary.height + 'px'
-        });
+
+        if (self.options.responsive) {
+            css_viewport = {
+                'position': 'relative',
+                'width': (self.options.boundary.width > 100 ? 100 : self.options.boundary.width) + '%',
+                'padding-bottom': (self.options.boundary.width > 100 ? 100 : self.options.boundary.width) + '%',
+                'height': 0,
+                'overflow': 'hidden'
+            };
+        } else {
+            css_viewport = {
+                width: self.options.boundary.width + 'px',
+                height: self.options.boundary.height + 'px'
+            };
+        }
+
+        css(boundary, css_viewport);
+
+        if (self.options.responsive) {
+            css_overlay = {
+                'position': 'absolute',
+                'width': self.options.viewport.width + '%',
+                'height': self.options.viewport.height + '%'
+            };
+        } else {
+            css_overlay = {
+                width: self.options.viewport.width + 'px',
+                height: self.options.viewport.height + 'px'
+            };
+        }
 
         viewport.classList.add('cr-viewport');
         if (customViewportClass) {
             viewport.classList.add(customViewportClass);
         }
-        css(viewport, {
-            width: self.options.viewport.width + 'px',
-            height: self.options.viewport.height + 'px'
-        });
+
+        css(viewport, css_overlay);
 
         img.classList.add('cr-image');
         overlay.classList.add('cr-overlay');
@@ -293,6 +332,8 @@
         if (self.options.customClass) {
             self.element.classList.add(self.options.customClass);
         }
+
+        console.log(self.elements.boundary.clientWidth + ' | ' + self.elements.boundary.clientHeight);
 
         // Initialize drag & zoom
         _initDraggable.call(this);
@@ -310,11 +351,11 @@
 
     function _initializeZoom() {
         var self = this,
-            wrap = self.elements.zoomerWrap = document.createElement('div'),
-            zoomer = self.elements.zoomer = document.createElement('input'),
-            origin,
-            viewportRect,
-            transform;
+                wrap = self.elements.zoomerWrap = document.createElement('div'),
+                zoomer = self.elements.zoomer = document.createElement('input'),
+                origin,
+                viewportRect,
+                transform;
 
         wrap.classList.add('cr-slider-wrap');
         zoomer.type = 'range';
@@ -322,8 +363,10 @@
         zoomer.step = '0.01';
         zoomer.value = 1;
 
-        self.element.appendChild(wrap);
-        wrap.appendChild(zoomer);
+        if (self.options.showZoomer) {
+            self.element.appendChild(wrap);
+            wrap.appendChild(zoomer);
+        }
 
         self._currentZoom = 1;
         function start() {
@@ -344,7 +387,7 @@
 
         function scroll(ev) {
             var delta = ev.deltaY / -2000, // denominator is arbitrary - might consider changing based on image size
-                targetZoom = self._currentZoom + delta;
+                    targetZoom = self._currentZoom + delta;
 
             ev.preventDefault();
             start();
@@ -362,20 +405,26 @@
             self.elements.boundary.addEventListener('mousewheel', scroll);
             self.elements.boundary.addEventListener('DOMMouseScroll', scroll);
         }
+
+        if (self.options.responsive) {
+            window.addEventListener('resize', function () {
+                _bind.call(self);
+            });
+        }
     }
 
     function _onZoom(ui) {
         var self = this,
-            transform = ui.transform,
-            vpRect = ui.viewportRect,
-            origin = ui.origin;
+                transform = ui.transform,
+                vpRect = ui.viewportRect,
+                origin = ui.origin;
 
         self._currentZoom = ui.value;
         transform.scale = self._currentZoom;
 
         var boundaries = _getVirtualBoundaries.call(self, vpRect),
-            transBoundaries = boundaries.translate,
-            oBoundaries = boundaries.origin;
+                transBoundaries = boundaries.translate,
+                oBoundaries = boundaries.origin;
 
         if (transform.x >= transBoundaries.maxX) {
             origin.x = oBoundaries.minX;
@@ -408,17 +457,17 @@
 
     function _getVirtualBoundaries(viewport) {
         var self = this,
-            scale = self._currentZoom,
-            vpWidth = viewport.width,
-            vpHeight = viewport.height,
-            centerFromBoundaryX = self.options.boundary.width / 2,
-            centerFromBoundaryY = self.options.boundary.height / 2,
-            originalImgWidth = self._originalImageWidth,
-            originalImgHeight = self._originalImageHeight,
-            curImgWidth = originalImgWidth * scale,
-            curImgHeight = originalImgHeight * scale,
-            halfWidth = vpWidth / 2,
-            halfHeight = vpHeight / 2;
+                scale = self._currentZoom,
+                vpWidth = viewport.width,
+                vpHeight = viewport.height,
+                centerFromBoundaryX = self.elements.boundary.clientWidth / 2,
+                centerFromBoundaryY = self.elements.boundary.clientHeight / 2,
+                originalImgWidth = self._originalImageWidth,
+                originalImgHeight = self._originalImageHeight,
+                curImgWidth = originalImgWidth * scale,
+                curImgHeight = originalImgHeight * scale,
+                halfWidth = vpWidth / 2,
+                halfHeight = vpHeight / 2;
 
 
         var maxX = ((halfWidth / scale) - centerFromBoundaryX) * -1;
@@ -451,15 +500,15 @@
 
     function _updateCenterPoint() {
         var self = this,
-            scale = self._currentZoom,
-            data = self.elements.img.getBoundingClientRect(),
-            vpData = self.elements.viewport.getBoundingClientRect(),
-            transform = Transform.parse(self.elements.img.style[CSS_TRANSFORM]),
-            pc = new TransformOrigin(self.elements.img),
-            top = (vpData.top - data.top) + (vpData.height / 2),
-            left = (vpData.left - data.left) + (vpData.width / 2),
-            center = {},
-            adj = {};
+                scale = self._currentZoom,
+                data = self.elements.img.getBoundingClientRect(),
+                vpData = self.elements.viewport.getBoundingClientRect(),
+                transform = Transform.parse(self.elements.img.style[CSS_TRANSFORM]),
+                pc = new TransformOrigin(self.elements.img),
+                top = (vpData.top - data.top) + (vpData.height / 2),
+                left = (vpData.left - data.left) + (vpData.width / 2),
+                center = {},
+                adj = {};
 
         center.y = top / scale;
         center.x = left / scale;
@@ -478,15 +527,17 @@
 
     function _initDraggable() {
         var self = this,
-            isDragging = false,
-            originalX,
-            originalY,
-            originalDistance,
-            vpRect;
+                isDragging = false,
+                originalX,
+                originalY,
+                originalDistance,
+                vpRect;
 
         function mouseDown(ev) {
             ev.preventDefault();
-            if (isDragging) return;
+            if (isDragging) {
+                return;
+            }
             isDragging = true;
             originalX = ev.pageX;
             originalY = ev.pageY;
@@ -502,15 +553,15 @@
         function mouseMove(ev) {
             ev.preventDefault();
             var pageX = ev.pageX || ev.touches[0].pageX,
-                pageY = ev.pageY || ev.touches[0].pageY,
-                deltaX = pageX - originalX,
-                deltaY = pageY - originalY,
-                imgRect = self.elements.img.getBoundingClientRect(),
-                top = transform.y + deltaY,
-                left = transform.x + deltaX,
-                newCss = {};
+                    pageY = ev.pageY || ev.touches[0].pageY,
+                    deltaX = pageX - originalX,
+                    deltaY = pageY - originalY,
+                    imgRect = self.elements.img.getBoundingClientRect(),
+                    top = transform.y + deltaY,
+                    left = transform.x + deltaX,
+                    newCss = {};
 
-            if (ev.type == 'touchmove') {
+            if (ev.type === 'touchmove') {
                 if (ev.touches.length > 1) {
                     var touch1 = ev.touches[0];
                     var touch2 = ev.touches[1];
@@ -561,8 +612,8 @@
 
     function _updateOverlay() {
         var self = this,
-            boundRect = self.elements.boundary.getBoundingClientRect(),
-            imgData = self.elements.img.getBoundingClientRect();
+                boundRect = self.elements.boundary.getBoundingClientRect(),
+                imgData = self.elements.img.getBoundingClientRect();
 
         css(self.elements.overlay, {
             width: imgData.width + 'px',
@@ -586,20 +637,20 @@
 
     function _updatePropertiesFromImage() {
         var self = this,
-            minZoom = 0,
-            maxZoom = 1.5,
-            initialZoom = 1,
-            cssReset = {},
-            img = self.elements.img,
-            zoomer = self.elements.zoomer,
-            transformReset = new Transform(0, 0, initialZoom),
-            originReset = new TransformOrigin(),
-            isVisible = _isVisible.call(self),
-            imgData,
-            vpData,
-            boundaryData,
-            minW,
-            minH;
+                minZoom = 0,
+                maxZoom = 1.5,
+                initialZoom = 1,
+                cssReset = {},
+                img = self.elements.img,
+                zoomer = self.elements.zoomer,
+                transformReset = new Transform(0, 0, initialZoom),
+                originReset = new TransformOrigin(),
+                isVisible = _isVisible.call(self),
+                imgData,
+                vpData,
+                boundaryData,
+                minW,
+                minH;
 
         if (!isVisible || self.data.bound) {
             // if the croppie isn't visible or it doesn't need binding
@@ -626,7 +677,7 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom)
+            zoomer.min = fix(minZoom);
             zoomer.max = fix(maxZoom);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
@@ -635,7 +686,7 @@
 
         self._currentZoom = transformReset.scale = initialZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
-        css(img, cssReset)
+        css(img, cssReset);
 
         if (self.data.points.length) {
             _bindPoints.call(self, self.data.points);
@@ -644,7 +695,7 @@
             _centerImage.call(self);
         }
 
-        
+
         _updateOverlay.call(self);
     }
 
@@ -653,20 +704,20 @@
             throw "Croppie - Invalid number of points supplied: " + points;
         }
         var self = this,
-            pointsWidth = points[2] - points[0],
-            // pointsHeight = points[3] - points[1],
-            vpData = self.elements.viewport.getBoundingClientRect(),
-            boundRect = self.elements.boundary.getBoundingClientRect(),
-            vpOffset = {
-                left: vpData.left - boundRect.left,
-                top: vpData.top - boundRect.top
-            },
-            scale = vpData.width / pointsWidth,
-            originTop = points[1],
-            originLeft = points[0],
-            transformTop = (-1 * points[1]) + vpOffset.top,
-            transformLeft = (-1 * points[0]) + vpOffset.left,
-            newCss = {};
+                pointsWidth = points[2] - points[0],
+                // pointsHeight = points[3] - points[1],
+                vpData = self.elements.viewport.getBoundingClientRect(),
+                boundRect = self.elements.boundary.getBoundingClientRect(),
+                vpOffset = {
+                    left: vpData.left - boundRect.left,
+                    top: vpData.top - boundRect.top
+                },
+        scale = vpData.width / pointsWidth,
+                originTop = points[1],
+                originLeft = points[0],
+                transformTop = (-1 * points[1]) + vpOffset.top,
+                transformLeft = (-1 * points[0]) + vpOffset.left,
+                newCss = {};
 
         newCss[CSS_TRANS_ORG] = originLeft + 'px ' + originTop + 'px';
         newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
@@ -678,22 +729,22 @@
 
     function _centerImage() {
         var self = this,
-            imgDim = self.elements.img.getBoundingClientRect(),
-            vpDim = self.elements.viewport.getBoundingClientRect(),
-            boundDim = self.elements.boundary.getBoundingClientRect(),
-            vpLeft = vpDim.left - boundDim.left,
-            vpTop = vpDim.top - boundDim.top,
-            w = vpLeft - ((imgDim.width - vpDim.width) / 2),
-            h = vpTop - ((imgDim.height - vpDim.height) / 2),
-            transform = new Transform(w, h, self._currentZoom);
+                imgDim = self.elements.img.getBoundingClientRect(),
+                vpDim = self.elements.viewport.getBoundingClientRect(),
+                boundDim = self.elements.boundary.getBoundingClientRect(),
+                vpLeft = vpDim.left - boundDim.left,
+                vpTop = vpDim.top - boundDim.top,
+                w = vpLeft - ((imgDim.width - vpDim.width) / 2),
+                h = vpTop - ((imgDim.height - vpDim.height) / 2),
+                transform = new Transform(w, h, self._currentZoom);
 
         css(self.elements.img, CSS_TRANSFORM, transform.toString());
     }
 
     function _bind(options, cb) {
         var self = this,
-            url,
-            points = [];
+                url,
+                points = [];
 
         if (typeof (options) === 'string') {
             url = options;
@@ -703,6 +754,7 @@
             points = options.slice();
         }
         else if (typeof (options) == 'undefined' && self.data.url) { //refreshing
+            self.data.bound = false;
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             return null;
@@ -734,13 +786,13 @@
 
     function _get() {
         var self = this,
-            imgData = self.elements.img.getBoundingClientRect(),
-            vpData = self.elements.viewport.getBoundingClientRect(),
-            x1 = vpData.left - imgData.left,
-            y1 = vpData.top - imgData.top,
-            x2 = x1 + vpData.width,
-            y2 = y1 + vpData.height,
-            scale = self._currentZoom;
+                imgData = self.elements.img.getBoundingClientRect(),
+                vpData = self.elements.viewport.getBoundingClientRect(),
+                x1 = vpData.left - imgData.left,
+                y1 = vpData.top - imgData.top,
+                x2 = x1 + vpData.width,
+                y2 = y1 + vpData.height,
+                scale = self._currentZoom;
 
         if (scale === Infinity || isNaN(scale)) {
             scale = 1;
@@ -750,7 +802,7 @@
         y1 = Math.max(0, y1 / scale);
         x2 = Math.max(0, x2 / scale);
         y2 = Math.max(0, y2 / scale);
-       
+
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
             zoom: scale
@@ -759,12 +811,12 @@
 
     function _result(options) {
         var self = this,
-            data = _get.call(self),
-            opts = options || { type: 'canvas', size: 'viewport' },
-            type = (typeof (opts) === 'string' ? opts : opts.type),
-            size = opts.size || 'viewport',
-            vpRect,
-            prom;
+                data = _get.call(self),
+                opts = options || {type: 'canvas', size: 'viewport'},
+        type = (typeof (opts) === 'string' ? opts : opts.type),
+                size = opts.size || 'viewport',
+                vpRect,
+                prom;
 
         if (size === 'viewport') {
             vpRect = self.elements.viewport.getBoundingClientRect();
@@ -778,7 +830,7 @@
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
                 loadImage(data.url).then(function (img) {
-                    resolve(getCanvasImage(img, data));
+                    resolve(getCanvasImage(self, img, data));
                 });
             }
             else {
@@ -820,7 +872,9 @@
 
                 return this.each(function () {
                     var i = $(this).data('croppie');
-                    if (!i) return;
+                    if (!i) {
+                        return;
+                    }
 
                     var method = i[opts];
                     if ($.isFunction(method)) {
@@ -863,7 +917,15 @@
         customClass: '',
         showZoom: true,
         mouseWheelZoom: true,
-        update: function () { }
+        showZoomer: true,
+        update: function () {
+        },
+        responsive: false,
+        fixedOutputSize: false,
+        outputSize: {
+            width: 300,
+            height: 'auto'
+        }
     };
 
     deepExtend(Croppie.prototype, {
