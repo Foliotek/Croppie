@@ -344,9 +344,20 @@
         }
 
         function scroll(ev) {
-            var delta = ev.deltaY / -2000, // denominator is arbitrary - might consider changing based on image size
-                targetZoom = self._currentZoom + delta;
-
+            var delta, targetZoom;
+        
+            if (ev.wheelDelta) {
+                delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
+            } else if (ev.deltaY) {
+                delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
+            } else if (ev.detail) {
+                delta = ev.detail / 60; //delta min: -3 max: 3 // max x 10 x 2
+            } else {
+                delta = 0;
+            }
+        
+            targetZoom = self._currentZoom + delta;
+        
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
