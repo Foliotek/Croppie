@@ -549,7 +549,7 @@
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
             window.removeEventListener('touchend', mouseUp);
-            document.body.style[CSS_USERSELECT] = 'none';
+            document.body.style[CSS_USERSELECT] = '';
             _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             originalDistance = 0;
