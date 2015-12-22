@@ -18,10 +18,10 @@
             <div class="container">
                 <nav>
                     <ul>
-                        <a href="#home">Home</a>
                         <a href="#options">Usage</a>
+                        <a href="#api">API</a>
                         <a href="#demos">Demos</a>
-                        <a href="#who">Who</a>
+                        <a href="#browsers">About</a>
                     </ul>
                 </nav>
                 <div class="grid">
@@ -151,8 +151,23 @@ $('#item').croppie(method, args);
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                         </li>
                         <li>
-                            <strong>result(resultType)</strong><em>returns Promise</em>
-                            <p>Get the resulting crop of the image.  resultType can be 'canvas' or 'html'.  'canvas' returns a base64 image.  'html' returns html of a image cropped by positioning within a div.</p>
+                            <strong>result({ type: 'canvas|html', size: 'viewport|originall' })</strong><em>returns Promise</em>
+                            <p>Get the resulting crop of the image.</p>
+                            <ul>
+                                <li><code class="language-javascript">type: 'canvas'</code> returns a base64 encoded image string.</li>
+                                <li><code class="language-javascript">type: 'html'</code>  returns html with the positioned correctly and overflow hidden.</li>
+                                <li><code class="language-javascript">size: 'viewport'</code>  returns the cropped image sized the same as the viewport.</li>
+                                <li><code class="language-javascript">size: 'original'</code>  returns the cropped image at the image's original dimensions.</li>
+                                <li><em>* size is only applicable on canvas results</em></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>refresh()</strong><em></em>
+                            <p>Used to notify croppie of a change in visibility of the croppie element.  Since croppie relies on positioning of elements, it depends on the element being visible when bound.  This method provides the ability update these positions after the element is shown.</p>
+                        </li>
+                        <li>
+                            <strong>destroy()</strong><em></em>
+                            <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
                 </section>
                 <section>
@@ -176,7 +191,7 @@ $('#item').croppie(method, args);
                 <div class="demo-wrap">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Basic Example</strong>
                           <pre class="language-javascript"><code class="language-javascript">
 var basic = $('#demo-basic').croppie({
     viewport: {
@@ -189,8 +204,7 @@ basic.croppie('bind', {
     points: [77,469,280,739]
 });
 //on button click
-basic.croppie('result', 'html');
-                          </code></pre>
+basic.croppie('result', 'html');</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
                           </div>
@@ -206,7 +220,7 @@ basic.croppie('result', 'html');
                             <div id="vanilla-demo"></div>
                         </div>
                         <div class="col-1-2">
-                            <strong>Example</strong>
+                            <strong>Vanilla Example</strong>
                             <pre class="language-javascript"><code class="language-javascript">
 var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
     viewport: { width: 100, height: 100 },
@@ -214,8 +228,7 @@ var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 });
 vanilla.bind('demo/demo-2.jpg');
 //on button click
-vanilla.result('canvas');
-                            </code></pre>
+vanilla.result('canvas');</code></pre>
                             <div class="actions">
                                 <button class="vanilla-result">Result</button>
                             </div>
@@ -237,8 +250,7 @@ $uploadCrop = $('#upload-demo').croppie({
         width: 300,
         height: 300
     }
-});
-                            </code></pre>
+});</code></pre>
                             <div class="actions">
                                 <button class="file-btn">
                                     <span>Upload</span>
@@ -255,13 +267,51 @@ $uploadCrop = $('#upload-demo').croppie({
                         </div>
                     </div>
                 </div>
+                <div class="demo-wrap hidden-demo">
+                    <div class="grid">
+                        <div class="col-1-2">
+                            <strong>Hidden Example</strong>
+                            <p>When binding a croppie element that isn't visible (ie: in a modal), you'll need to trigger a refresh so croppie can correctly get the position of the element</p>
+
+                            <pre class="language-javascript"><code class="language-javascript">
+$('#hidden-demo').croppie('refresh')</code></pre>
+                            <div class="actions">
+                                <button class="show-hidden">Toggle Croppie</button>
+                            </div>
+                        </div>
+                        <div class="col-1-2">
+                            <div id="hidden-demo" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-          <section class="who">
+
+        <section class="browsers">
+            <a name="browsers"></a>
+            <div class="section-header">
+                <h2>Browser Support</h2>
+            </div>
+            <div class="container">
+                <p>Croppie is supported in the following browsers:</p>
+                <ul>
+                    <li>Firefox 10+</li>
+                    <li>Chrome 12+</li>
+                    <li>IE 10+</li>
+                    <li>Edge</li>
+                    <li>Safari 4+</li>
+                    <li>Opera 15+</li>
+                    <li>iOS</li>
+                    <li>Android</li>
+                </ul>
+                <p><strong>IE9</strong> may be supported, but it isn't tested.  If you're able to test it and let us know, please do so on Github.</p>
+            </div>
+        </section>
+        <section class="who">
             <a name="who"></a>
             <div class="section-header">
-              <h2>Who?</h2>
+              <h2>Who</h2>
             </div>
             <div class="container">
               <p>
@@ -271,7 +321,7 @@ $uploadCrop = $('#upload-demo').croppie({
                 Check out some of our other open source tools: <a href="//foliotek.github.io/AjaxQ">AjaxQ</a> | <a href="//foliotek.github.io/LTI-Tester">LTI Tester</a>
               </p>
             </div>
-          </section>
+        </section>
         <footer>
             Copyright &copy; 2015 | Foliotek
         </footer>
@@ -293,6 +343,6 @@ $uploadCrop = $('#upload-demo').croppie({
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-2398527-4');ga('send','pageview');
         </script>
-        <a href="https://github.com/foliotek/croppie" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1);"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style></a>
+        <a href="https://github.com/foliotek/croppie" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1); -webkit-transform: sale(-1, 1);"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style></a>
     </body>
 </html>
