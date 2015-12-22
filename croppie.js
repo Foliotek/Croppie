@@ -623,7 +623,7 @@
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
 
-            if (minZoom > maxZoom) {
+            if (minZoom >= maxZoom) {
                 maxZoom = minZoom + 1;
             }
 
