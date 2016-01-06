@@ -179,7 +179,9 @@
             prom;
 
         prom = new Promise(function (resolve, reject) {
-            img.setAttribute('crossOrigin', 'anonymous');
+            if (src.substring(0,4).toLowerCase() === 'http') {
+                img.setAttribute('crossOrigin', 'anonymous');
+            }
             img.onload = function () {
                 setTimeout(function () {
                     resolve(img);
