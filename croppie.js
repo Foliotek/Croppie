@@ -179,7 +179,9 @@
             prom;
 
         prom = new Promise(function (resolve, reject) {
-            img.setAttribute('crossOrigin', 'anonymous');
+            if (src.substring(0,4).toLowerCase() === 'http') {
+                img.setAttribute('crossOrigin', 'anonymous');
+            }
             img.onload = function () {
                 setTimeout(function () {
                     resolve(img);
@@ -344,9 +346,20 @@
         }
 
         function scroll(ev) {
-            var delta = ev.deltaY / -2000, // denominator is arbitrary - might consider changing based on image size
-                targetZoom = self._currentZoom + delta;
-
+            var delta, targetZoom;
+        
+            if (ev.wheelDelta) {
+                delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
+            } else if (ev.deltaY) {
+                delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
+            } else if (ev.detail) {
+                delta = ev.detail / 60; //delta min: -3 max: 3 // max x 10 x 2
+            } else {
+                delta = 0;
+            }
+        
+            targetZoom = self._currentZoom + delta;
+        
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
@@ -623,7 +636,7 @@
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
 
-            if (minZoom > maxZoom) {
+            if (minZoom >= maxZoom) {
                 maxZoom = minZoom + 1;
             }
 
@@ -636,7 +649,7 @@
 
         self._currentZoom = transformReset.scale = initialZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
-        css(img, cssReset)
+        css(img, cssReset);
 
         if (self.data.points.length) {
             _bindPoints.call(self, self.data.points);
