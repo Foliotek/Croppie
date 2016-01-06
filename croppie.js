@@ -647,7 +647,7 @@
 
         self._currentZoom = transformReset.scale = initialZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
-        css(img, cssReset)
+        css(img, cssReset);
 
         if (self.data.points.length) {
             _bindPoints.call(self, self.data.points);

@@ -84,6 +84,11 @@ a.btn {
     cursor: pointer;
     text-decoration: none;
     text-shadow: none;
+    display: inline-block;
+    cursor: pointer;
+}
+input[type="file"] {
+    cursor: pointer;
 }
 button:focus {
     outline: 0;
