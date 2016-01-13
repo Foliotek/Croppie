@@ -504,6 +504,13 @@
             isDragging = true;
             originalX = ev.pageX;
             originalY = ev.pageY;
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                originalX = touches.pageX;
+                originalY = touches.pageY;
+            }
+
             transform = Transform.parse(self.elements.img);
             window.addEventListener('mousemove', mouseMove);
             window.addEventListener('touchmove', mouseMove);
@@ -515,9 +522,16 @@
 
         function mouseMove(ev) {
             ev.preventDefault();
-            var pageX = ev.pageX || ev.touches[0].pageX,
-                pageY = ev.pageY || ev.touches[0].pageY,
-                deltaX = pageX - originalX,
+            var pageX = ev.pageX,
+                pageY = ev.pageY;
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                pageX = touches.pageX;
+                pageY = touches.pageY;
+            }
+
+            var deltaX = pageX - originalX,
                 deltaY = pageY - originalY,
                 imgRect = self.elements.img.getBoundingClientRect(),
                 top = transform.y + deltaY,
