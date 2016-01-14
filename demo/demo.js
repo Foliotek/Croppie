@@ -114,11 +114,14 @@ var Demo = (function() {
 			viewport: {
 				width: 200,
 				height: 200,
-				type: 'circle'
+				type: 'square'
 			},
 			boundary: {
 				width: 300,
 				height: 300
+			},
+			zoomer: {
+				maxZoom: 1
 			}
 		});
 
@@ -126,7 +129,7 @@ var Demo = (function() {
 		$('.upload-result').on('click', function (ev) {
 			$uploadCrop.croppie('result', {
 				type: 'canvas',
-				size: 'original'
+				size: 'viewport'
 			}).then(function (resp) {
 				popupResult({
 					src: resp

@@ -73,6 +73,7 @@
                 }
             }
         }
+
         return out;
     }
 
@@ -300,13 +301,15 @@
         // Initialize drag & zoom
         _initDraggable.call(this);
 
-        if (self.options.showZoom) {
+        self.options.zoomer.showZoom = (typeof self.options.zoomer.showZoom !== 'undefined') ? self.options.zoomer.showZoom : true;
+
+        if (self.options.zoomer.showZoom) {
             _initializeZoom.call(self);
         }
     }
 
     function _setZoomerVal(v) {
-        if (this.options.showZoom) {
+        if (this.options.zoomer.showZoom) {
             this.elements.zoomer.value = fix(v);
         }
     }
@@ -372,10 +375,24 @@
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
         self.elements.zoomer.addEventListener('change', change);
 
-        if (self.options.mouseWheelZoom) {
+        self.options.zoomer.mouseWheelZoom = (typeof self.options.zoomer.mouseWheelZoom !== 'undefined') ? self.options.zoomer.mouseWheelZoom : true;
+
+        if (self.options.zoomer.mouseWheelZoom) {
             self.elements.boundary.addEventListener('mousewheel', scroll);
             self.elements.boundary.addEventListener('DOMMouseScroll', scroll);
         }
+    }
+
+    function _destroyZoom() {
+        var self = this;
+
+        console.log(self);
+
+        //self.element.removeChild(self.elements.zoomerWrap);
+
+        //delete self.elements.zoomerWrap;
+
+        console.log('destroy zoom');
     }
 
     function _onZoom(ui) {
@@ -615,7 +632,7 @@
     function _updatePropertiesFromImage() {
         var self = this,
             minZoom = 0,
-            maxZoom = 1.5,
+            maxZoom = this.options.zoomer.maxZoom || 1.5,
             initialZoom = 1,
             cssReset = {},
             img = self.elements.img,
@@ -645,7 +662,12 @@
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
-        if (self.options.showZoom) {
+        if (imgData.width <= vpData.width && imgData.height <= vpData.height) {
+            self.options.zoomer.showZoom = false;
+            _destroyZoom();
+        }
+
+        if (self.options.zoomer.showZoom) {
             minW = vpData.width / imgData.width;
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
@@ -672,7 +694,6 @@
             _centerImage.call(self);
         }
 
-        
         _updateOverlay.call(self);
     }
 
@@ -824,7 +845,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        if (self.options.showZoom) {
+        if (self.options.zoomer.showZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
         delete self.elements;
@@ -888,9 +909,12 @@
             width: 300,
             height: 300
         },
+        zoomer: {
+            maxZoom: 1.5,
+            showZoom: true,
+            mouseWheelZoom: true
+        },
         customClass: '',
-        showZoom: true,
-        mouseWheelZoom: true,
         update: function () { }
     };
 
