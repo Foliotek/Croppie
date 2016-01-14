@@ -757,7 +757,7 @@
     }
 
     function fix(v) {
-        return parseFloat(v).toFixed(2);
+        return parseFloat(v).toFixed(4);
     }
 
     function _get() {
