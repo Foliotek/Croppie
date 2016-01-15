@@ -298,13 +298,13 @@
         // Initialize drag & zoom
         _initDraggable.call(this);
 
-        if (self.options.showZoom) {
+        if (self.options.enableZoom) {
             _initializeZoom.call(self);
         }
     }
 
     function _setZoomerVal(v) {
-        if (this.options.showZoom) {
+        if (this.options.enableZoom) {
             this.elements.zoomer.value = fix(v, 2);
         }
     }
@@ -322,6 +322,7 @@
         zoomer.classList.add('cr-slider');
         zoomer.step = '0.01';
         zoomer.value = 1;
+        zoomer.style.display = self.options.showZoomer ? '' : 'none';
 
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
@@ -618,7 +619,7 @@
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
-        if (self.options.showZoom) {
+        if (self.options.enableZoom) {
             minW = vpData.width / imgData.width;
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
@@ -797,7 +798,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        if (self.options.showZoom) {
+        if (self.options.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
         delete self.elements;
@@ -848,6 +849,11 @@
         this.element = element;
         this.options = deepExtend({}, Croppie.defaults, opts);
 
+        // backwards compatibility
+        if (typeof(opts.showZoom) != 'undefined') {
+            this.options.enableZoom = this.options.showZoomer = opts.showZoom;
+        }
+
         _create.call(this);
     }
 
@@ -862,7 +868,8 @@
             height: 300
         },
         customClass: '',
-        showZoom: true,
+        showZoomer: true,
+        enableZoom: true,
         mouseWheelZoom: true,
         update: function () { }
     };
@@ -879,6 +886,10 @@
         },
         refresh: function () {
             return _refresh.call(this);
+        },
+        setZoom: function (v) {
+            _setZoomerVal.call(this, v);
+            dispatchChange(this.elements.zoomer); 
         },
         destroy: function () {
             return _destroy.call(this);
