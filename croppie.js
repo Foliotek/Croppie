@@ -305,7 +305,7 @@
 
     function _setZoomerVal(v) {
         if (this.options.showZoom) {
-            this.elements.zoomer.value = fix(v);
+            this.elements.zoomer.value = fix(v, 2);
         }
     }
 
@@ -627,8 +627,8 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom)
-            zoomer.max = fix(maxZoom);
+            zoomer.min = fix(minZoom, 2)
+            zoomer.max = fix(maxZoom, 2);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
@@ -729,8 +729,8 @@
         return prom;
     }
 
-    function fix(v) {
-        return parseFloat(v).toFixed(2);
+    function fix(v, decimalPoints) {
+        return parseFloat(v).toFixed(decimalPoints || 0);
     }
 
     function _get() {
