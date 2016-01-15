@@ -41,7 +41,7 @@ var Demo = (function() {
 				width: 150,
 				height: 150,
 				type: 'circle'
-			},
+			}
 			// mouseWheelZoom: false
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
@@ -77,7 +77,8 @@ var Demo = (function() {
 	function demoVanilla() {
 		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
-			boundary: { width: 300, height: 300 }
+			boundary: { width: 300, height: 300 },
+			showZoomer: false
 		});
 		vanilla.bind('demo/demo-2.jpg');
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
