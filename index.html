@@ -162,10 +162,6 @@ $('#item').croppie(method, args);
                             </ul>
                         </li>
                         <li>
-                            <strong>refresh()</strong><em></em>
-                            <p>Used to notify croppie of a change in visibility of the croppie element.  Since croppie relies on positioning of elements, it depends on the element being visible when bound.  This method provides the ability update these positions after the element is shown.</p>
-                        </li>
-                        <li>
                             <strong>destroy()</strong><em></em>
                             <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
@@ -271,10 +267,10 @@ $uploadCrop = $('#upload-demo').croppie({
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Hidden Example</strong>
-                            <p>When binding a croppie element that isn't visible (ie: in a modal), you'll need to trigger a refresh so croppie can correctly get the position of the element</p>
+                            <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call bind again on your croppie element, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
 
                             <pre class="language-javascript"><code class="language-javascript">
-$('#hidden-demo').croppie('refresh')</code></pre>
+$('#hidden-demo').croppie('bind')</code></pre>
                             <div class="actions">
                                 <button class="show-hidden">Toggle Croppie</button>
                             </div>
