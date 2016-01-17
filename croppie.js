@@ -54,26 +54,18 @@
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
 
-
-    function deepExtend(out) {
-        out = out || {};
-
-        for (var i = 1; i < arguments.length; i++) {
-            var obj = arguments[i];
-
-            if (!obj)
-                continue;
-
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    if (typeof obj[key] === 'object')
-                        out[key] = deepExtend({}, obj[key]);
-                    else
-                        out[key] = obj[key];
-                }
+    // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
+    function deepExtend(destination, source) {
+        destination = destination || {};
+        for (var property in source) {
+            if (source[property] && source[property].constructor && source[property].constructor === Object) {
+                destination[property] = destination[property] || {};
+                arguments.callee(destination[property], source[property]);
+            } else {
+                destination[property] = source[property];
             }
         }
-        return out;
+        return destination;
     }
 
     function debounce(func, wait, immediate) {
@@ -874,12 +866,10 @@
 
     function Croppie(element, opts) {
         this.element = element;
-        this.options = deepExtend({}, Croppie.defaults, opts);
+        this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
         // backwards compatibility
-        if (typeof(opts.showZoom) != 'undefined') {
-            this.options.enableZoom = this.options.showZoomer = opts.showZoom;
-        }
+        this.options.enableZoom = this.options.showZoomer;
 
         _create.call(this);
     }
