@@ -59,7 +59,8 @@ var c = new Croppie(document.getElementById('item'), {
         height: px
     },
     customClass: '',
-    showZoom: true|false, //default true
+    enableZoom: true|false, //default true // previously showZoom
+    showZoomer: true|false, //default true
     mouseWheelZoom: true|false, //default true
     update: function (cropper) { }
 });
@@ -68,6 +69,8 @@ c.bind({
     src: 'path/to/image',
     points: [x1, y1, x2, y2]
 });
+// set the zoom programatically. Restricted to the min/max values of the slider
+c.setZoom(1.5);
 // get crop points from croppie
 var data = c.get();
 // get result from croppie
@@ -112,12 +115,16 @@ $('#item').croppie(method, args);
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                         </li>
                         <li>
-                            <strong>mouseWheelZoom</strong><em>Default true</em>
-                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
+                            <strong>enableZoom</strong><em>Default true</em><em>(previously showZoom)</em>
+                            <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
                         </li>
                         <li>
-                            <strong>showZoom</strong><em>Default true</em>
+                            <strong>showZoomer</strong><em>Default true</em>
                             <p>Hide or Show the zoom slider</p>
+                        </li>
+                        <li>
+                            <strong>mouseWheelZoom</strong><em>Default true</em>
+                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
                         </li>
                         <li>
                             <strong>viewport</strong><em>object</em>
@@ -162,8 +169,8 @@ $('#item').croppie(method, args);
                             </ul>
                         </li>
                         <li>
-                            <strong>refresh()</strong><em></em>
-                            <p>Used to notify croppie of a change in visibility of the croppie element.  Since croppie relies on positioning of elements, it depends on the element being visible when bound.  This method provides the ability update these positions after the element is shown.</p>
+                            <strong>setZoom(value)</strong><em></em>
+                            <p>Set the zoom of a Croppie instance.  The value passed in is still restricted to the min/max set by Croppie.</p>
                         </li>
                         <li>
                             <strong>destroy()</strong><em></em>
@@ -224,7 +231,8 @@ basic.croppie('result', 'html');</code></pre>
                             <pre class="language-javascript"><code class="language-javascript">
 var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
     viewport: { width: 100, height: 100 },
-    boundary: { width: 300, height: 300 }
+    boundary: { width: 300, height: 300 },
+    showZoomer: false
 });
 vanilla.bind('demo/demo-2.jpg');
 //on button click
@@ -271,10 +279,10 @@ $uploadCrop = $('#upload-demo').croppie({
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Hidden Example</strong>
-                            <p>When binding a croppie element that isn't visible (ie: in a modal), you'll need to trigger a refresh so croppie can correctly get the position of the element</p>
+                            <p>When binding a croppie element that isn't visible, i.e., in a modal - you'll need to call bind again on your croppie element, to indicate to croppie that the position has changed and it needs to recalculate its points.</p>
 
                             <pre class="language-javascript"><code class="language-javascript">
-$('#hidden-demo').croppie('refresh')</code></pre>
+$('#hidden-demo').croppie('bind')</code></pre>
                             <div class="actions">
                                 <button class="show-hidden">Toggle Croppie</button>
                             </div>

@@ -73,7 +73,6 @@
                 }
             }
         }
-
         return out;
     }
 
@@ -301,16 +300,14 @@
         // Initialize drag & zoom
         _initDraggable.call(this);
 
-        self.options.zoomer.showZoom = (typeof self.options.zoomer.showZoom !== 'undefined') ? self.options.zoomer.showZoom : true;
-
-        if (self.options.zoomer.showZoom) {
+        if (self.options.enableZoom) {
             _initializeZoom.call(self);
         }
     }
 
     function _setZoomerVal(v) {
-        if (this.options.zoomer.showZoom) {
-            this.elements.zoomer.value = fix(v);
+        if (this.options.enableZoom) {
+            this.elements.zoomer.value = fix(v, 2);
         }
     }
 
@@ -327,6 +324,7 @@
         zoomer.classList.add('cr-slider');
         zoomer.step = '0.01';
         zoomer.value = 1;
+        zoomer.style.display = self.options.showZoomer ? '' : 'none';
 
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
@@ -375,24 +373,10 @@
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
         self.elements.zoomer.addEventListener('change', change);
 
-        self.options.zoomer.mouseWheelZoom = (typeof self.options.zoomer.mouseWheelZoom !== 'undefined') ? self.options.zoomer.mouseWheelZoom : true;
-
-        if (self.options.zoomer.mouseWheelZoom) {
+        if (self.options.mouseWheelZoom) {
             self.elements.boundary.addEventListener('mousewheel', scroll);
             self.elements.boundary.addEventListener('DOMMouseScroll', scroll);
         }
-    }
-
-    function _destroyZoom() {
-        var self = this;
-
-        console.log(self);
-
-        //self.element.removeChild(self.elements.zoomerWrap);
-
-        //delete self.elements.zoomerWrap;
-
-        console.log('destroy zoom');
     }
 
     function _onZoom(ui) {
@@ -632,7 +616,7 @@
     function _updatePropertiesFromImage() {
         var self = this,
             minZoom = 0,
-            maxZoom = this.options.zoomer.maxZoom || 1.5,
+            maxZoom = 1.5,
             initialZoom = 1,
             cssReset = {},
             img = self.elements.img,
@@ -662,12 +646,7 @@
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
-        if (imgData.width <= vpData.width && imgData.height <= vpData.height) {
-            self.options.zoomer.showZoom = false;
-            _destroyZoom();
-        }
-
-        if (self.options.zoomer.showZoom) {
+        if (self.options.enableZoom) {
             minW = vpData.width / imgData.width;
             minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
@@ -676,8 +655,8 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom)
-            zoomer.max = fix(maxZoom);
+            zoomer.min = fix(minZoom, 2)
+            zoomer.max = fix(maxZoom, 2);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
@@ -694,6 +673,7 @@
             _centerImage.call(self);
         }
 
+        
         _updateOverlay.call(self);
     }
 
@@ -777,8 +757,8 @@
         return prom;
     }
 
-    function fix(v) {
-        return parseFloat(v).toFixed(4);
+    function fix(v, decimalPoints) {
+        return parseFloat(v).toFixed(decimalPoints || 0);
     }
 
     function _get() {
@@ -845,7 +825,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        if (self.options.zoomer.showZoom) {
+        if (self.options.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
         delete self.elements;
@@ -896,6 +876,11 @@
         this.element = element;
         this.options = deepExtend({}, Croppie.defaults, opts);
 
+        // backwards compatibility
+        if (typeof(opts.showZoom) != 'undefined') {
+            this.options.enableZoom = this.options.showZoomer = opts.showZoom;
+        }
+
         _create.call(this);
     }
 
@@ -909,12 +894,10 @@
             width: 300,
             height: 300
         },
-        zoomer: {
-            maxZoom: 1.5,
-            showZoom: true,
-            mouseWheelZoom: true
-        },
         customClass: '',
+        showZoomer: true,
+        enableZoom: true,
+        mouseWheelZoom: true,
         update: function () { }
     };
 
@@ -930,6 +913,10 @@
         },
         refresh: function () {
             return _refresh.call(this);
+        },
+        setZoom: function (v) {
+            _setZoomerVal.call(this, v);
+            dispatchChange(this.elements.zoomer); 
         },
         destroy: function () {
             return _destroy.call(this);
