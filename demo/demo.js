@@ -42,7 +42,6 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			}
-			// mouseWheelZoom: false
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev) {
@@ -78,7 +77,8 @@ var Demo = (function() {
 		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
-			showZoomer: false
+			zoomer: { showZoomer: false }
+
 		});
 		vanilla.bind('demo/demo-2.jpg');
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
@@ -115,7 +115,7 @@ var Demo = (function() {
 			viewport: {
 				width: 200,
 				height: 200,
-				type: 'circle'
+				type: 'square'
 			},
 			boundary: {
 				width: 300,
@@ -127,7 +127,7 @@ var Demo = (function() {
 		$('.upload-result').on('click', function (ev) {
 			$uploadCrop.croppie('result', {
 				type: 'canvas',
-				size: 'original'
+				size: 'viewport'
 			}).then(function (resp) {
 				popupResult({
 					src: resp
@@ -172,8 +172,8 @@ var Demo = (function() {
 	function init() {
 		bindNavigation();
 		demoMain();
-		demoBasic();	
-		demoVanilla();	
+		demoBasic();
+		demoVanilla();
 		demoUpload();
 		demoHidden();
 	}
