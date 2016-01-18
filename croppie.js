@@ -56,7 +56,6 @@
 
     // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
     function deepExtend(destination, source) {
-        destination = destination || {};
         for (var property in source) {
             if (source[property] && source[property].constructor && source[property].constructor === Object) {
                 destination[property] = destination[property] || {};
@@ -114,14 +113,12 @@
             img = document.createElement('img'),
             width = points[2] - points[0],
             height = points[3] - points[1];
-        // scale = data.zoom;
 
         div.classList.add('croppie-result');
         div.appendChild(img);
         css(img, {
             left: (-1 * points[0]) + 'px',
             top: (-1 * points[1]) + 'px'
-            // transform: 'scale(' + scale + ')'
         })
         img.src = data.url;
         css(div, {
@@ -292,14 +289,14 @@
         // Initialize drag & zoom
         _initDraggable.call(this);
 
-        if (self.options.enableZoom) {
+        if (self.options.zoomer.enableZoom) {
             _initializeZoom.call(self);
         }
     }
 
     function _setZoomerVal(v) {
-        if (this.options.enableZoom) {
-            this.elements.zoomer.value = fix(v, 2);
+        if (this.options.zoomer.enableZoom) {
+            this.elements.zoomer.value = fix(v, 4);
         }
     }
 
@@ -314,14 +311,15 @@
         wrap.classList.add('cr-slider-wrap');
         zoomer.type = 'range';
         zoomer.classList.add('cr-slider');
-        zoomer.step = '0.01';
-        zoomer.value = 1;
-        zoomer.style.display = self.options.showZoomer ? '' : 'none';
+        zoomer.step = '0.0001'; // Bcz we set .fix(xxx, 4)
+        zoomer.value = self.options.zoomer.initialZoom;
+        zoomer.style.display = self.options.zoomer.showZoomer ? '' : 'none';
 
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
 
-        self._currentZoom = 1;
+        self._currentZoom = self.options.zoomer.initialZoom;
+
         function start() {
             _updateCenterPoint.call(self);
             origin = new TransformOrigin(self.elements.img);
@@ -340,7 +338,7 @@
 
         function scroll(ev) {
             var delta, targetZoom;
-        
+
             if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
@@ -350,9 +348,9 @@
             } else {
                 delta = 0;
             }
-        
+
             targetZoom = self._currentZoom + delta;
-        
+
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
@@ -365,7 +363,7 @@
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
         self.elements.zoomer.addEventListener('change', change);
 
-        if (self.options.mouseWheelZoom) {
+        if (self.options.zoomer.mouseWheelZoom) {
             self.elements.boundary.addEventListener('mousewheel', scroll);
             self.elements.boundary.addEventListener('DOMMouseScroll', scroll);
         }
@@ -606,14 +604,21 @@
     }
 
     function _updatePropertiesFromImage() {
-        var self = this,
-            minZoom = 0,
-            maxZoom = 1.5,
-            initialZoom = 1,
+        var self = this;
+
+        if (self._isZoomAuthorized === false) {
+            self.options.zoomer.enableZoom = true;
+            self._isZoomAuthorized = null;
+            self.elements.zoomer.style.display = self.options.zoomer.showZoomer ? '' : 'none';
+        }
+
+        var minZoom = self.options.zoomer.minZoom,
+            maxZoom = self.options.zoomer.maxZoom,
+            initialZoom = self.options.zoomer.initialZoom,
             cssReset = {},
             img = self.elements.img,
             zoomer = self.elements.zoomer,
-            transformReset = new Transform(0, 0, initialZoom),
+            transformReset = new Transform(0, 0, 1),
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self),
             imgData,
@@ -623,7 +628,6 @@
             minH;
 
         if (!isVisible || self.data.bound) {
-            // if the croppie isn't visible or it doesn't need binding
             return;
         }
 
@@ -638,18 +642,24 @@
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
-        if (self.options.enableZoom) {
+        if (self.options.zoomer.enableZoom) {
             minW = vpData.width / imgData.width;
             minH = vpData.height / imgData.height;
-            minZoom = Math.max(minW, minH);
+            var maxMinZoom = Math.max(minW, minH);
+
+            if (minZoom === null || minZoom < maxMinZoom) minZoom = maxMinZoom;
+            if (initialZoom === null) initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
 
             if (minZoom >= maxZoom) {
-                maxZoom = minZoom + 1;
+                maxZoom = initialZoom = minZoom;
+                if (self.options.zoomer.enableZoom) {
+                    self.options.zoomer.enableZoom = self._isZoomAuthorized = false;
+                    self.elements.zoomer.style.display = 'none';
+                }
             }
 
-            zoomer.min = fix(minZoom, 2)
-            zoomer.max = fix(maxZoom, 2);
-            initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            zoomer.min = fix(minZoom, 4);
+            zoomer.max = fix(maxZoom, 4);
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
         }
@@ -718,7 +728,7 @@
 
         if (typeof (options) === 'string') {
             url = options;
-            options = {};
+            //options = {}; // @todo : never used ?
         }
         else if (Array.isArray(options)) {
             points = options.slice();
@@ -817,7 +827,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        if (self.options.enableZoom) {
+        if (self.options.zoomer.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
         delete self.elements;
@@ -867,10 +877,6 @@
     function Croppie(element, opts) {
         this.element = element;
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
-
-        // backwards compatibility
-        this.options.enableZoom = this.options.showZoomer;
-
         _create.call(this);
     }
 
@@ -884,11 +890,16 @@
             width: 300,
             height: 300
         },
+        zoomer: {
+            enableZoom: true,
+            showZoomer: true,
+            mouseWheelZoom: true,
+            initialZoom: null,
+            maxZoom: 1.5,
+            minZoom: null
+        },
         customClass: '',
-        showZoomer: true,
-        enableZoom: true,
-        mouseWheelZoom: true,
-        update: function () { }
+        update: function () {}
     };
 
     deepExtend(Croppie.prototype, {

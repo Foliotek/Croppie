@@ -58,10 +58,15 @@ var c = new Croppie(document.getElementById('item'), {
         width: px,
         height: px
     },
+    zoomer: {
+        enableZoom: true|false, //default true // previously showZoom
+        showZoomer: true|false, //default true
+        mouseWheelZoom: true|false, //default true
+        initialZoom: float, //default null
+        maxZoom: float, //default 1.5
+        minZoom: float //default null
+    }
     customClass: '',
-    enableZoom: true|false, //default true // previously showZoom
-    showZoomer: true|false, //default true
-    mouseWheelZoom: true|false, //default true
     update: function (cropper) { }
 });
 // bind an image to croppie
@@ -97,36 +102,6 @@ $('#item').croppie(method, args);
                     <h3>Options</h3>
                     <ul>
                         <li>
-                            <strong>boundary</strong><em>object</em>
-                            <p>The outer container of the cropper</p>
-                            <ul>
-                                <li>
-                                    <strong>width</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                                <li>
-                                    <strong>height</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <strong>customClass</strong><em>string</em>
-                            <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
-                        </li>
-                        <li>
-                            <strong>enableZoom</strong><em>Default true</em><em>(previously showZoom)</em>
-                            <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
-                        </li>
-                        <li>
-                            <strong>showZoomer</strong><em>Default true</em>
-                            <p>Hide or Show the zoom slider</p>
-                        </li>
-                        <li>
-                            <strong>mouseWheelZoom</strong><em>Default true</em>
-                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
-                        </li>
-                        <li>
                             <strong>viewport</strong><em>object</em>
                             <p>The inner container of the coppie.  The visible part of the image</p>
                             <ul>
@@ -143,6 +118,54 @@ $('#item').croppie(method, args);
                                     <p></p>
                                 </li>
                             </ul>
+                        </li>
+                        <li>
+                            <strong>boundary</strong><em>object</em>
+                            <p>The outer container of the cropper</p>
+                            <ul>
+                                <li>
+                                    <strong>width</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                                <li>
+                                    <strong>height</strong><em>px</em>
+                                    <p></p>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>zoomer</strong><em>object</em>
+                            <p>The zoomer properties</p>
+                            <ul>
+                                <li>
+                                    <strong>enableZoom</strong><em>Default true</em><em>(previously showZoom)</em>
+                                    <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
+                                </li>
+                                <li>
+                                    <strong>showZoomer</strong><em>Default true</em>
+                                    <p>Hide or Show the zoom slider</p>
+                                </li>
+                                <li>
+                                    <strong>mouseWheelZoom</strong><em>Default true</em>
+                                    <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
+                                </li>
+                                <li>
+                                    <strong>initialZoom</strong><em>Default null</em>
+                                    <p>...</p>
+                                </li>
+                                <li>
+                                    <strong>maxZoom</strong><em>Default 1.5</em>
+                                    <p>...</p>
+                                </li>
+                                <li>
+                                    <strong>minZoom</strong><em>Default null</em>
+                                    <p>...</p>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>customClass</strong><em>string</em>
+                            <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
                         </li>
                     </ul>
                 </section>
@@ -232,7 +255,7 @@ basic.croppie('result', 'html');</code></pre>
 var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
     viewport: { width: 100, height: 100 },
     boundary: { width: 300, height: 300 },
-    showZoomer: false
+    zoomer: { showZoomer: false }
 });
 vanilla.bind('demo/demo-2.jpg');
 //on button click

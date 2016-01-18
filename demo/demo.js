@@ -42,7 +42,6 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			}
-			// mouseWheelZoom: false
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev) {
@@ -78,7 +77,8 @@ var Demo = (function() {
 		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
-			showZoomer: false
+			zoomer: { showZoomer: false }
+
 		});
 		vanilla.bind('demo/demo-2.jpg');
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
@@ -120,9 +120,6 @@ var Demo = (function() {
 			boundary: {
 				width: 300,
 				height: 300
-			},
-			zoomer: {
-				maxZoom: 1
 			}
 		});
 
@@ -175,8 +172,8 @@ var Demo = (function() {
 	function init() {
 		bindNavigation();
 		demoMain();
-		demoBasic();	
-		demoVanilla();	
+		demoBasic();
+		demoVanilla();
 		demoUpload();
 		demoHidden();
 	}
