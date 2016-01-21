@@ -130,7 +130,7 @@
             left: (-1 * points[0]) + 'px',
             top: (-1 * points[1]) + 'px'
             // transform: 'scale(' + scale + ')'
-        })
+        });
         img.src = data.url;
         css(div, {
             width: width + 'px',
@@ -231,7 +231,7 @@
             y = translate.length > 1 ? translate[1] : 0;
 
         return new Transform(x, y, scale);
-    }
+    };
 
     Transform.prototype.toString = function () {
         return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
@@ -655,7 +655,7 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom, 2)
+            zoomer.min = fix(minZoom, 2);
             zoomer.max = fix(maxZoom, 2);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
