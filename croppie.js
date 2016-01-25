@@ -32,7 +32,8 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT;
+        CSS_USERSELECT,
+        EXIF_TRANSFORMS;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -54,6 +55,15 @@
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
 
+    EXIF_TRANSFORMS = {
+        '2': { scaleH: -1, scaleV: 1, rotate: 0 },
+        '3': { scaleH: 1, scaleV: 1, rotate: 180 },
+        '4': { scaleH: 1, scaleV: -1, rotate: 0 },
+        '5': { scaleH: 1, scaleV: -1, rotate: 90 },
+        '6': { scaleH: 1, scaleV: 1, rotate: 90 },
+        '7': { scaleH: -1, scaleV: 1, rotate: -90 },
+        '8': { scaleH: 1, scaleV: 1, rotate: -90 }
+    }
 
     function deepExtend(out) {
         out = out || {};
@@ -252,13 +262,41 @@
         return this.x + 'px ' + this.y + 'px';
     };
 
+    function getExifOrientation (img, cb) {
+        if (!window.EXIF) {
+            cb(0);
+        }
+
+        EXIF.getData(img, function () { 
+            var orientation = EXIF.getTag(this, 'Orientation');
+            cb(orientation);            
+        });
+    }
+
+    function rotateCanvas(ctx, img, exifTransform) {
+        var flipH = exifTransform.scaleH === -1,
+            flipV = exifTransform.scaleV === -1,
+            posX = flipH ? -1 * img.width : 0,
+            posY = flipV ? -1 * img.height : 0,
+            rotateDeg = exifTransform.rotate;
+
+        ctx.save();
+        ctx.scale(exifTransform.scaleH, exifTransform.scaleV);
+        ctx.drawImage(img, posX, posY, img.width, img.height);
+        ctx.translate(img.width/2,img.height/2);
+        ctx.rotate(rotateDeg*Math.PI/180);
+        ctx.drawImage(img,-img.width/2,-img.width/2);
+        ctx.restore();
+    }
+
     /* Private Methods */
     function _create() {
         var self = this,
             contClass = ['croppie-container'],
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay;
+            boundary, img, viewport, overlay, canvas;
 
+        self.options.useCanvas = self.options.exif && window.EXIF;
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -268,6 +306,14 @@
         viewport = self.elements.viewport = document.createElement('div');
         img = self.elements.img = document.createElement('img');
         overlay = self.elements.overlay = document.createElement('div');
+
+        if (self.options.useCanvas) {
+            self.elements.canvas = document.createElement('canvas');
+            self.elements.preview = self.elements.canvas;
+        }
+        else {
+            self.elements.preview = self.elements.img;
+        }
 
         boundary.classList.add('cr-boundary');
         css(boundary, {
@@ -284,11 +330,11 @@
             height: self.options.viewport.height + 'px'
         });
 
-        img.classList.add('cr-image');
+        self.elements.preview.classList.add('cr-image');
         overlay.classList.add('cr-overlay');
 
         self.element.appendChild(boundary);
-        boundary.appendChild(img);
+        boundary.appendChild(self.elements.preview);
         boundary.appendChild(viewport);
         boundary.appendChild(overlay);
 
@@ -332,17 +378,17 @@
         self._currentZoom = 1;
         function start() {
             _updateCenterPoint.call(self);
-            origin = new TransformOrigin(self.elements.img);
+            origin = new TransformOrigin(self.elements.preview);
             viewportRect = self.elements.viewport.getBoundingClientRect();
-            transform = Transform.parse(self.elements.img);
+            transform = Transform.parse(self.elements.preview);
         }
 
         function change() {
             _onZoom.call(self, {
                 value: parseFloat(zoomer.value),
-                origin: origin || new TransformOrigin(self.elements.img),
+                origin: origin || new TransformOrigin(self.elements.preview),
                 viewportRect: viewportRect || self.elements.viewport.getBoundingClientRect(),
-                transform: transform || Transform.parse(self.elements.img)
+                transform: transform || Transform.parse(self.elements.preview)
             });
         }
 
@@ -415,7 +461,7 @@
         var transCss = {};
         transCss[CSS_TRANSFORM] = transform.toString();
         transCss[CSS_TRANS_ORG] = origin.toString();
-        css(self.elements.img, transCss);
+        css(self.elements.preview, transCss);
 
         _debouncedOverlay.call(self);
         _triggerUpdate.call(self);
@@ -467,10 +513,10 @@
     function _updateCenterPoint() {
         var self = this,
             scale = self._currentZoom,
-            data = self.elements.img.getBoundingClientRect(),
+            data = self.elements.preview.getBoundingClientRect(),
             vpData = self.elements.viewport.getBoundingClientRect(),
-            transform = Transform.parse(self.elements.img.style[CSS_TRANSFORM]),
-            pc = new TransformOrigin(self.elements.img),
+            transform = Transform.parse(self.elements.preview.style[CSS_TRANSFORM]),
+            pc = new TransformOrigin(self.elements.preview),
             top = (vpData.top - data.top) + (vpData.height / 2),
             left = (vpData.left - data.left) + (vpData.width / 2),
             center = {},
@@ -488,7 +534,7 @@
         var newCss = {};
         newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
         newCss[CSS_TRANSFORM] = transform.toString();
-        css(self.elements.img, newCss);
+        css(self.elements.preview, newCss);
     }
 
     function _initDraggable() {
@@ -512,7 +558,7 @@
                 originalY = touches.pageY;
             }
 
-            transform = Transform.parse(self.elements.img);
+            transform = Transform.parse(self.elements.preview);
             window.addEventListener('mousemove', mouseMove);
             window.addEventListener('touchmove', mouseMove);
             window.addEventListener('mouseup', mouseUp);
@@ -534,7 +580,7 @@
 
             var deltaX = pageX - originalX,
                 deltaY = pageY - originalY,
-                imgRect = self.elements.img.getBoundingClientRect(),
+                imgRect = self.elements.preview.getBoundingClientRect(),
                 top = transform.y + deltaY,
                 left = transform.x + deltaX,
                 newCss = {};
@@ -566,7 +612,7 @@
             }
 
             newCss[CSS_TRANSFORM] = transform.toString();
-            css(self.elements.img, newCss);
+            css(self.elements.preview, newCss);
             _updateOverlay.call(self);
             originalY = pageY;
             originalX = pageX;
@@ -591,7 +637,7 @@
     function _updateOverlay() {
         var self = this,
             boundRect = self.elements.boundary.getBoundingClientRect(),
-            imgData = self.elements.img.getBoundingClientRect();
+            imgData = self.elements.preview.getBoundingClientRect();
 
         css(self.elements.overlay, {
             width: imgData.width + 'px',
@@ -610,7 +656,7 @@
     }
 
     function _isVisible() {
-        return this.elements.img.offsetHeight > 0 && this.elements.img.offsetWidth > 0;
+        return this.elements.preview.offsetHeight > 0 && this.elements.preview.offsetWidth > 0;
     }
 
     function _updatePropertiesFromImage() {
@@ -619,7 +665,7 @@
             maxZoom = 1.5,
             initialZoom = 1,
             cssReset = {},
-            img = self.elements.img,
+            img = self.elements.preview,
             zoomer = self.elements.zoomer,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
@@ -630,6 +676,7 @@
             minW,
             minH;
 
+        log(isVisible);
         if (!isVisible || self.data.bound) {
             // if the croppie isn't visible or it doesn't need binding
             return;
@@ -699,7 +746,7 @@
 
         newCss[CSS_TRANS_ORG] = originLeft + 'px ' + originTop + 'px';
         newCss[CSS_TRANSFORM] = new Transform(transformLeft, transformTop, scale).toString();
-        css(self.elements.img, newCss);
+        css(self.elements.preview, newCss);
 
         _setZoomerVal.call(self, scale);
         self._currentZoom = scale;
@@ -707,7 +754,7 @@
 
     function _centerImage() {
         var self = this,
-            imgDim = self.elements.img.getBoundingClientRect(),
+            imgDim = self.elements.preview.getBoundingClientRect(),
             vpDim = self.elements.viewport.getBoundingClientRect(),
             boundDim = self.elements.boundary.getBoundingClientRect(),
             vpLeft = vpDim.left - boundDim.left,
@@ -716,7 +763,30 @@
             h = vpTop - ((imgDim.height - vpDim.height) / 2),
             transform = new Transform(w, h, self._currentZoom);
 
-        css(self.elements.img, CSS_TRANSFORM, transform.toString());
+        css(self.elements.preview, CSS_TRANSFORM, transform.toString());
+    }
+
+    function _transferImageToCanvas() {
+        var self = this,
+            canvas = self.elements.canvas,
+            img = self.elements.img,
+            ctx = canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.width = self.elements.img.width;
+        canvas.height = self.elements.img.height;
+        
+        ctx.drawImage(img, 0, 0);
+        getExifOrientation(img, function (orientation) {
+            self.data.exifTransform = EXIF_TRANSFORMS[orientation.toString()];
+            rotateCanvas(ctx, img, self.data.exifTransform);
+        });
+
+        // canvas.width = self.elements.img.width;
+        // canvas.height = self.elements.img.height;
+        // rotateContext(canvas);
+        // context.drawImage(self.elements.img, 0, 0);
+        //context.drawImage(self.elements.img, 0, 0);
     }
 
     function _bind(options, cb) {
@@ -748,6 +818,9 @@
         });
         var prom = loadImage(url, self.elements.img);
         prom.then(function () {
+            if (self.options.useCanvas) {
+                _transferImageToCanvas.call(self);
+            }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             if (cb) {
@@ -763,7 +836,7 @@
 
     function _get() {
         var self = this,
-            imgData = self.elements.img.getBoundingClientRect(),
+            imgData = self.elements.preview.getBoundingClientRect(),
             vpData = self.elements.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
             y1 = vpData.top - imgData.top,
@@ -898,6 +971,7 @@
         showZoomer: true,
         enableZoom: true,
         mouseWheelZoom: true,
+        exif: false,
         update: function () { }
     };
 

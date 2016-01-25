@@ -120,14 +120,15 @@ var Demo = (function() {
 			boundary: {
 				width: 300,
 				height: 300
-			}
+			},
+			exif: true
 		});
 
 		$('#upload').on('change', function () { readFile(this); });
 		$('.upload-result').on('click', function (ev) {
 			$uploadCrop.croppie('result', {
 				type: 'canvas',
-				size: 'original'
+				size: 'viewport'
 			}).then(function (resp) {
 				popupResult({
 					src: resp
