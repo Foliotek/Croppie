@@ -7,15 +7,15 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports', 'b'], factory);
+        define(['exports'], factory);
     } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
         // CommonJS
-        factory(exports, require('b'));
+        factory(exports);
     } else {
         // Browser globals
-        factory((root.commonJsStrict = {}), root.b);
+        factory((root.commonJsStrict = {}));
     }
-}(this, function (exports, b) {
+}(this, function (exports) {
 
     if (typeof Promise !== 'function') {
         /*!
