@@ -348,7 +348,7 @@
 
         function scroll(ev) {
             var delta, targetZoom;
-        
+
             if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
@@ -358,9 +358,9 @@
             } else {
                 delta = 0;
             }
-        
+
             targetZoom = self._currentZoom + delta;
-        
+
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
@@ -673,7 +673,7 @@
             _centerImage.call(self);
         }
 
-        
+
         _updateOverlay.call(self);
     }
 
@@ -741,6 +741,8 @@
             points = options.points || [];
         }
 
+        debugger;
+
         self.data.bound = false;
         self.data.url = url || self.data.url;
         self.data.points = (points || self.data.points).map(function (p) {
@@ -779,7 +781,7 @@
         y1 = Math.max(0, y1 / scale);
         x2 = Math.max(0, x2 / scale);
         y2 = Math.max(0, y2 / scale);
-       
+
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
             zoom: scale
@@ -789,7 +791,7 @@
     function _result(options) {
         var self = this,
             data = _get.call(self),
-            opts = options || { type: 'canvas', size: 'viewport' },
+            opts = options || { type: 'canvas', size: 'viewport', forceSquare: false },
             type = (typeof (opts) === 'string' ? opts : opts.type),
             size = opts.size || 'viewport',
             vpRect,
@@ -801,7 +803,12 @@
             data.outputHeight = vpRect.height;
         }
 
-        data.circle = self.options.viewport.type === 'circle';
+        if (opts.forceSquare) {
+          data.circle = false;
+        } else {
+          data.circle = self.options.viewport.type === 'circle';
+        }
+
         data.url = self.data.url;
 
         prom = new Promise(function (resolve, reject) {
@@ -916,7 +923,7 @@
         },
         setZoom: function (v) {
             _setZoomerVal.call(this, v);
-            dispatchChange(this.elements.zoomer); 
+            dispatchChange(this.elements.zoomer);
         },
         destroy: function () {
             return _destroy.call(this);
