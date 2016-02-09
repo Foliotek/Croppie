@@ -32,8 +32,7 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT,
-        EXIF_TRANSFORMS;
+        CSS_USERSELECT;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -54,16 +53,6 @@
     CSS_TRANSFORM = vendorPrefix('transform');
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
-
-    EXIF_TRANSFORMS = {
-        '2': { scaleH: -1, scaleV: 1, rotate: 0 },
-        '3': { scaleH: 1, scaleV: 1, rotate: 180 },
-        '4': { scaleH: 1, scaleV: -1, rotate: 0 },
-        '5': { scaleH: 1, scaleV: -1, rotate: 90 },
-        '6': { scaleH: 1, scaleV: 1, rotate: 90 },
-        '7': { scaleH: -1, scaleV: 1, rotate: -90 },
-        '8': { scaleH: 1, scaleV: 1, rotate: -90 }
-    }
 
     function deepExtend(out) {
         out = out || {};
@@ -125,63 +114,6 @@
         }
     }
 
-    /* Image Drawing Functions */
-    function getHtmlImage(data) {
-        var points = data.points,
-            div = document.createElement('div'),
-            img = document.createElement('img'),
-            width = points[2] - points[0],
-            height = points[3] - points[1];
-        // scale = data.zoom;
-
-        div.classList.add('croppie-result');
-        div.appendChild(img);
-        css(img, {
-            left: (-1 * points[0]) + 'px',
-            top: (-1 * points[1]) + 'px'
-            // transform: 'scale(' + scale + ')'
-        });
-        img.src = data.url;
-        css(div, {
-            width: width + 'px',
-            height: height + 'px'
-        });
-
-        return div;
-    }
-
-    function getCanvasImage(img, data) {
-        var points = data.points,
-            left = points[0],
-            top = points[1],
-            width = (points[2] - points[0]),
-            height = (points[3] - points[1]),
-            circle = data.circle,
-            canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d'),
-            outWidth = width,
-            outHeight = height;
-
-        if (data.outputWidth && data.outputHeight) {
-            outWidth = data.outputWidth;
-            outHeight = data.outputHeight;
-        }
-
-        canvas.width = outWidth;
-        canvas.height = outHeight;
-
-        if (circle) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.clip();
-        }
-
-        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
-
-        return canvas.toDataURL();
-    }
 
     /* Utilities */
     function loadImage(src, imageEl) {
@@ -273,19 +205,60 @@
         });
     }
 
-    function rotateCanvas(ctx, img, exifTransform) {
-        var flipH = exifTransform.scaleH === -1,
-            flipV = exifTransform.scaleV === -1,
-            posX = flipH ? -1 * img.width : 0,
-            posY = flipV ? -1 * img.height : 0,
-            rotateDeg = exifTransform.rotate;
+    function rotateCanvas(canvas, ctx, img, orientation) {
+        var width = img.width,
+            height = img.height;
 
-        ctx.save();
-        ctx.scale(exifTransform.scaleH, exifTransform.scaleV);
-        ctx.drawImage(img, posX, posY, img.width, img.height);
-        ctx.translate(img.width/2,img.height/2);
-        ctx.rotate(rotateDeg*Math.PI/180);
-        ctx.drawImage(img,-img.width/2,-img.width/2);
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.save();
+      switch (orientation) {
+          case 2:
+             ctx.translate(width, 0);
+             ctx.scale(-1, 1);
+             break;
+
+          case 3:
+              ctx.translate(width, height);
+              ctx.rotate(180*Math.PI/180);
+              break;
+
+          case 4:
+              ctx.translate(0, height);
+              ctx.scale(1, -1);
+              break;
+
+          case 5:
+              canvas.width = height;
+              canvas.height = width;
+              ctx.rotate(90*Math.PI/180);
+              ctx.scale(1, -1);
+              break;
+
+          case 6:
+              canvas.width = height;
+              canvas.height = width;
+              ctx.rotate(90*Math.PI/180);
+              ctx.translate(0, -height);
+              break;
+
+          case 7:
+              canvas.width = height;
+              canvas.height = width;
+              ctx.rotate(-90*Math.PI/180);
+              ctx.translate(-width, height);
+              ctx.scale(1, -1);
+              break;
+
+          case 8:
+              canvas.width = height;
+              canvas.height = width;
+              ctx.translate(0, width);
+              ctx.rotate(-90*Math.PI/180);
+              break;
+        }
+        ctx.drawImage(img, 0,0, width, height);
         ctx.restore();
     }
 
@@ -676,7 +649,6 @@
             minW,
             minH;
 
-        log(isVisible);
         if (!isVisible || self.data.bound) {
             // if the croppie isn't visible or it doesn't need binding
             return;
@@ -773,20 +745,74 @@
             ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = self.elements.img.width;
-        canvas.height = self.elements.img.height;
-        
-        ctx.drawImage(img, 0, 0);
+        canvas.width = img.width;
+        canvas.height = img.height;
+
         getExifOrientation(img, function (orientation) {
-            self.data.exifTransform = EXIF_TRANSFORMS[orientation.toString()];
-            rotateCanvas(ctx, img, self.data.exifTransform);
+            var transform = EXIF_TRANSFORMS[orientation];
+            if (transform) {
+                // rotateCanvas(canvas, ctx, img, transform);
+                rotateCanvas(canvas, ctx, img, parseInt(orientation));
+            }
+            else {
+                ctx.drawImage(img, 0, 0);
+            }
+        });
+    }
+
+    function _getHtmlResult(data) {
+        var points = data.points,
+            div = document.createElement('div'),
+            img = document.createElement('img'),
+            width = points[2] - points[0],
+            height = points[3] - points[1];
+
+        div.classList.add('croppie-result');
+        div.appendChild(img);
+        css(img, {
+            left: (-1 * points[0]) + 'px',
+            top: (-1 * points[1]) + 'px'
+        });
+        img.src = data.url;
+        css(div, {
+            width: width + 'px',
+            height: height + 'px'
         });
 
-        // canvas.width = self.elements.img.width;
-        // canvas.height = self.elements.img.height;
-        // rotateContext(canvas);
-        // context.drawImage(self.elements.img, 0, 0);
-        //context.drawImage(self.elements.img, 0, 0);
+        return div;
+    }
+
+    function _getCanvasResult(img, data) {
+        var points = data.points,
+            left = points[0],
+            top = points[1],
+            width = (points[2] - points[0]),
+            height = (points[3] - points[1]),
+            circle = data.circle,
+            canvas = document.createElement('canvas'),
+            ctx = canvas.getContext('2d'),
+            outWidth = width,
+            outHeight = height;
+
+        if (data.outputWidth && data.outputHeight) {
+            outWidth = data.outputWidth;
+            outHeight = data.outputHeight;
+        }
+
+        canvas.width = outWidth;
+        canvas.height = outHeight;
+
+        if (circle) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.clip();
+        }
+
+        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
+
+        return canvas.toDataURL();
     }
 
     function _bind(options, cb) {
@@ -819,6 +845,7 @@
         var prom = loadImage(url, self.elements.img);
         prom.then(function () {
             if (self.options.useCanvas) {
+                self.elements.img.exifdata = null;
                 _transferImageToCanvas.call(self);
             }
             _updatePropertiesFromImage.call(self);
@@ -879,12 +906,10 @@
 
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
-                loadImage(data.url).then(function (img) {
-                    resolve(getCanvasImage(img, data));
-                });
+                resolve(_getCanvasResult.call(self, self.elements.preview, data));
             }
             else {
-                resolve(getHtmlImage(data));
+                resolve(_getHtmlResult.call(self, data));
             }
         });
         return prom;
