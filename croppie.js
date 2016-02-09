@@ -749,14 +749,7 @@
         canvas.height = img.height;
 
         getExifOrientation(img, function (orientation) {
-            var transform = EXIF_TRANSFORMS[orientation];
-            if (transform) {
-                // rotateCanvas(canvas, ctx, img, transform);
-                rotateCanvas(canvas, ctx, img, parseInt(orientation));
-            }
-            else {
-                ctx.drawImage(img, 0, 0);
-            }
+            rotateCanvas(canvas, ctx, img, parseInt(orientation));
         });
     }
 
