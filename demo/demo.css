@@ -64,6 +64,10 @@ section.hero {
     margin-bottom: 0;
     min-height: 450px;
 }
+.hero h2 {
+    font-size: 16px;
+    font-weight: 400;
+}
 
 section.who {
     margin-bottom: 30px;
@@ -114,7 +118,7 @@ button:focus {
 }
 
 pre[class*="language"] {
-    margin: 0;
+    margin: 10px 0;
     padding-top: 0;
 }
 
@@ -154,35 +158,48 @@ h2 {
     margin: 0 0 5px 0;
 }
 
-.api h3 {
+.documentation h3 {
     font-size: 18px;
     font-weight: 400;
     border-bottom: 1px solid #0C4648;
     margin: 15px 0 10px;
 }
-.api ul {
+.documentation ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.api section > ul > li {
-    margin-bottom: 2em;
+.documentation section > ul > li {
+    margin-bottom: 1.5em;
 }
 
-.api p {
+.documentation p {
     margin: 5px 0 10px;
 }
 
-.api ul li ul {
-    padding-left: 15px;
-    border-left: 3px solid #ddd;
+.documentation .parameter-list li {
+    padding-left: 5px;
+    line-height: 28px;
 }
-
-.api em {
+.documentation .parameter-list li.values {
+    padding-left: 20px;
+}
+.documentation em {
     color: #aaa;
     font-style: normal;
     padding: 0 5px;
+}
+
+.documentation strong.focus {
+    font-size: 18px;
+    color: #189094;
+    font-weight: 700;
+}
+.documentation span.default {
+    padding-right: 10px;
+    font-weight: 600;
+    color: #777;
 }
 
 .upload-demo #upload-demo,

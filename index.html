@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Croppie - a simple javascript image cropper - Foliotek</title>
 
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700' rel='stylesheet' type='text/css'>
         <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
         <link rel="Stylesheet" type="text/css" href="bower_components/sweetalert/dist/sweetalert.css" />
         <link rel="Stylesheet" type="text/css" href="croppie.css" />
@@ -19,7 +19,7 @@
                 <nav>
                     <ul>
                         <a href="#options">Usage</a>
-                        <a href="#api">API</a>
+                        <a href="#documentation">Documentation</a>
                         <a href="#demos">Demos</a>
                         <a href="#browsers">About</a>
                     </ul>
@@ -27,9 +27,9 @@
                 <div class="grid">
                     <div class="col-1-2">
                         <h1>Croppie</h1>
-                        <p>
+                        <h2>
                           Croppie is a fast, easy to use image cropping plugin with tons of configuration options!
-                        </p>
+                        </h2>
                         <div class="buttons">
                             <a href="https://github.com/foliotek/croppie" class="btn">View on Github</a>
                             <button class="js-main-image">Get Result</button>
@@ -47,8 +47,7 @@
             <a name="options"></a>
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
-              <pre class="language-javascript"><code class="language-javascript">
-var c = new Croppie(document.getElementById('item'), {
+              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), {
     viewport: {
         width: px,
         height: px,
@@ -89,60 +88,53 @@ $('#item').croppie(method, args);
             </div>
           </section>
 
-        <section class="api">
-            <a name="api"></a>
-            <div class="section-header"><h2>API</h2></div>
+        <section class="documentation">
+            <a name="documentation"></a>
+            <div class="section-header"><h2>Documentation</h2></div>
             <div class="container">
                 <section>
                     <h3>Options</h3>
                     <ul>
                         <li>
-                            <strong>boundary</strong><em>object</em>
+                            <strong class="focus">boundary</strong><em>object</em>
                             <p>The outer container of the cropper</p>
-                            <ul>
-                                <li>
-                                    <strong>width</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                                <li>
-                                    <strong>height</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                            </ul>
+                            <span class="default">Default</span>
+                            <code class="language-javascript">{ 
+                                width: 300, 
+                                height: 300
+                            }</code>
                         </li>
                         <li>
-                            <strong>customClass</strong><em>string</em>
+                            <strong class="focus">customClass</strong><em>string</em>
                             <p>A class of your choosing to add to the container to add custom styles to your croppie</p>
+                            <span class="default">Default</span><code class="language-javascript">''</code>
                         </li>
                         <li>
-                            <strong>enableZoom</strong><em>Default true</em><em>(previously showZoom)</em>
+                            <strong class="focus">enableZoom</strong><em>boolean</em>
                             <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
+                            <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li>
-                            <strong>showZoomer</strong><em>Default true</em>
-                            <p>Hide or Show the zoom slider</p>
-                        </li>
-                        <li>
-                            <strong>mouseWheelZoom</strong><em>Default true</em>
+                            <strong class="focus">mouseWheelZoom</strong><em>boolean</em>
                             <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
+                            <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li>
-                            <strong>viewport</strong><em>object</em>
+                            <strong class="focus">showZoomer</strong><em>boolean</em>
+                            <p>Hide or Show the zoom slider</p>
+                            <span class="default">Default</span><code class="language-javascript">true</code>
+                        </li>
+                        <li>
+                            <strong class="focus">viewport</strong><em>object</em>
                             <p>The inner container of the coppie.  The visible part of the image</p>
-                            <ul>
-                                <li>
-                                    <strong>width</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                                <li>
-                                    <strong>height</strong><em>px</em>
-                                    <p></p>
-                                </li>
-                                <li>
-                                    <strong>type</strong><em>'square'|'circle' (default 'square')</em>
-                                    <p></p>
-                                </li>
-                            </ul>
+                            <span class="default">Default</span>
+                            <code class="language-javascript">{ 
+                                width: 100,
+                                height: 100,
+                                type: 'square'
+                            }</code>
+                            <br /><br />
+                            <span class="default">Valid type values:</span><code class="language-javascript">'square' 'circle'</code>
                         </li>
                     </ul>
                 </section>
@@ -150,38 +142,63 @@ $('#item').croppie(method, args);
                     <h3>Methods</h3>
                     <ul>
                         <li>
-                            <strong>get()</strong><em>returns object</em>
+                            <strong class="focus">get()</strong><em>object</em>
                             <p>Get the crop points, and the zoom of the image.</p>
                         </li>
                         <li>
-                            <strong>bind({ url: 'path/to/image.jpg', points: [x1, y1, x2, y2] })</strong><em>returns Promise</em>
+                            <strong class="focus">bind({ url, points })</strong><em>Promise</em>
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
-                        </li>
-                        <li>
-                            <strong>result({ type: 'canvas|html', size: 'viewport|originall' })</strong><em>returns Promise</em>
-                            <p>Get the resulting crop of the image.</p>
-                            <ul>
-                                <li><code class="language-javascript">type: 'canvas'</code> returns a base64 encoded image string.</li>
-                                <li><code class="language-javascript">type: 'html'</code>  returns html with the positioned correctly and overflow hidden.</li>
-                                <li><code class="language-javascript">size: 'viewport'</code>  returns the cropped image sized the same as the viewport.</li>
-                                <li><code class="language-javascript">size: 'original'</code>  returns the cropped image at the image's original dimensions.</li>
-                                <li><em>* size is only applicable on canvas results</em></li>
+                            <span class="default">Parameters</span>
+                            <br />
+                            <ul class="parameter-list">
+                                <li><code class="language-javascript">url</code> URL to image</li>
+                                <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
                             </ul>
                         </li>
                         <li>
-                            <strong>setZoom(value)</strong><em></em>
-                            <p>Set the zoom of a Croppie instance.  The value passed in is still restricted to the min/max set by Croppie.</p>
+                            <strong class="focus">destroy()</strong><em></em>
+                            <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
                         <li>
-                            <strong>destroy()</strong><em></em>
-                            <p>Destroy a croppie instance and remove it from the DOM</p>
+                            <strong class="focus">result({ type, size })</strong><em>Promise</em>
+                            <p>Get the resulting crop of the image.</p>
+                            <span class="default">Parameters</span>
+                            <br />
+                            <ul class="parameter-list">
+                                <li>
+                                    <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'canvas'</code>
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'canvas'</code> returns a the cropped image encoded in base64
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'html'</code> returns html of the image positioned within an div of hidden overflow
+                                </li>
+                                <li>
+                                    <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code> 
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'viewport'</code> the size of the resulting image will be the same width and height as the viewport
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
+                                </li>
+                            </ul>
+                        <li>
+                            <strong class="focus">setZoom(value)</strong><em></em>
+                            <p>Set the zoom of a Croppie instance.  The value passed in is still restricted to the min/max set by Croppie.</p>
+                            <ul class="parameter-list">
+                                <li>
+                                    <code class="language-javascript">value</code> a floating point to scale the image within the croppie.  Must be between a min and max value set by croppie.
+                                </li>
+                            </ul>
                         </li>
                 </section>
                 <section>
                     <h3>Events</h3>
                     <ul>
                         <li>
-                            <strong>update(croppe)</strong><em>returns Croppie</em>
+                            <strong class="focus">update(croppe)</strong><em>Croppie</em>
                             <p>when the croppie is dragged around or zoomed, update is fired.</p>
                         </li>
                     </ul>
@@ -194,8 +211,8 @@ $('#item').croppie(method, args);
             <div class="section-header">
                 <h2>Demos</h2>
             </div>
-            <div class="container">
-                <div class="demo-wrap">
+            <div class="demo-wrap">
+                <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Basic Example</strong>
@@ -221,15 +238,18 @@ basic.croppie('result', 'html');</code></pre>
                         </div>
                     </div>
                 </div>
+            </div>
                 <div class="demo-wrap">
-                    <div class="grid">
-                        <div class="col-1-2">
-                            <div id="vanilla-demo"></div>
-                        </div>
-                        <div class="col-1-2">
-                            <strong>Vanilla Example</strong>
-                            <pre class="language-javascript"><code class="language-javascript">
-var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
+                    <div class="container">
+                        <div class="grid">
+                            <div class="col-1-2">
+                                <div id="vanilla-demo"></div>
+                            </div>
+                            <div class="col-1-2">
+                                <strong>Vanilla Example</strong>
+                                <pre class="language-javascript"><code class="language-javascript">
+var el = document.getElementById('vanilla-demo');
+var vanilla = new Croppie(el, {
     viewport: { width: 100, height: 100 },
     boundary: { width: 300, height: 300 },
     showZoomer: false
@@ -237,13 +257,15 @@ var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 vanilla.bind('demo/demo-2.jpg');
 //on button click
 vanilla.result('canvas');</code></pre>
-                            <div class="actions">
-                                <button class="vanilla-result">Result</button>
+                                <div class="actions">
+                                    <button class="vanilla-result">Result</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="demo-wrap upload-demo">
+                    <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Upload Example</strong>
@@ -275,7 +297,9 @@ $uploadCrop = $('#upload-demo').croppie({
                         </div>
                     </div>
                 </div>
+                </div>
                 <div class="demo-wrap hidden-demo">
+                    <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
                             <strong>Hidden Example</strong>
@@ -291,8 +315,8 @@ $('#hidden-demo').croppie('bind')</code></pre>
                             <div id="hidden-demo" style="display: none;"></div>
                         </div>
                     </div>
+                    </div>
                 </div>
-            </div>
         </section>
 
 
@@ -331,7 +355,7 @@ $('#hidden-demo').croppie('bind')</code></pre>
             </div>
         </section>
         <footer>
-            Copyright &copy; 2015 | Foliotek
+            Copyright &copy; 2016 | Foliotek
         </footer>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
