@@ -189,6 +189,7 @@
             };
         });
 
+        img.style.opacity = 0;
         img.src = src;
         return prom;
     }
@@ -348,7 +349,7 @@
 
         function scroll(ev) {
             var delta, targetZoom;
-        
+
             if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
@@ -358,9 +359,9 @@
             } else {
                 delta = 0;
             }
-        
+
             targetZoom = self._currentZoom + delta;
-        
+
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
@@ -638,6 +639,7 @@
         self.data.bound = true;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         cssReset[CSS_TRANS_ORG] = originReset.toString();
+        cssReset['opacity'] = 1;
         css(img, cssReset);
 
         imgData = img.getBoundingClientRect();
@@ -673,7 +675,7 @@
             _centerImage.call(self);
         }
 
-        
+
         _updateOverlay.call(self);
     }
 
@@ -779,7 +781,7 @@
         y1 = Math.max(0, y1 / scale);
         x2 = Math.max(0, x2 / scale);
         y2 = Math.max(0, y2 / scale);
-       
+
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
             zoom: scale
@@ -916,7 +918,7 @@
         },
         setZoom: function (v) {
             _setZoomerVal.call(this, v);
-            dispatchChange(this.elements.zoomer); 
+            dispatchChange(this.elements.zoomer);
         },
         destroy: function () {
             return _destroy.call(this);
@@ -924,4 +926,7 @@
     });
 
     exports.Croppie = window.Croppie = Croppie;
+
+    if (typeof module === 'object' && !!module.exports)
+      module.exports = Croppie;    
 }));
