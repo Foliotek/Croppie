@@ -20,10 +20,17 @@ Documentation can be found [here](http://foliotek.github.io/Croppie#documentatio
 
 
 ## Developing on Croppie
-**Minifying**
+#### Static Server
+`npm install -g live-server`
 
+#### Minifying
 `uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js`
 
-**Running a static site**
-
-I like to use `npm install node-static -g` and run `static` in the directory.
+#### Releasing a new version
+1. Bump version in croppie.js
+2. Minify/Uglify
+3. Commit
+4. npm version [new version]
+5. `git push && git push --tags`
+6. npm publish
+7. Draft a new release with new tag on [github](https://github.com/Foliotek/Croppie/releases)

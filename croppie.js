@@ -1,8 +1,8 @@
 /*************************
  * Croppie
- * Copyright 2015
+ * Copyright 2016
  * Foliotek
- * Version: 1.0.6
+ * Version: 2.0.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -904,7 +904,6 @@
     }
 
     function _refresh() {
-        console.warn("Croppie.refresh() is deprecated.  Please use Croppie.bind() without any arguments instead.  refresh() will be removed in a later release.");
         _updatePropertiesFromImage.call(this);
     }
 
@@ -962,9 +961,6 @@
         this.element = element;
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
-        // backwards compatibility
-        this.options.enableZoom = this.options.showZoomer;
-
         _create.call(this);
     }
 
@@ -1010,6 +1006,7 @@
 
     exports.Croppie = window.Croppie = Croppie;
 
-    if (typeof module === 'object' && !!module.exports)
-      module.exports = Croppie;    
+    if (typeof module === 'object' && !!module.exports) {
+        module.exports = Croppie;    
+    }
 }));

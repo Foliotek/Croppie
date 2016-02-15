@@ -42,8 +42,25 @@
                     </div>
                 </div>
             </div>
-          </section>
-          <section>
+        </section>
+        <section class="installation">
+            <a name="install"></a>
+            <div class="section-header"><h2>Installation</h2></div>
+            <div class="container">
+                <p><strong>NPM:</strong></p>
+                <pre class="language-javascript" style="width: 225px;"><code class="language-javascript">npm install croppie</code></pre>
+                <p><strong>Bower:</strong></p>
+                <pre class="language-javascript" style="width: 225px;"><code class="language-javascript">bower install croppie</code></pre>
+                <p><strong>Download:</strong></p>
+                <p><a href="https://github.com/Foliotek/Croppie/releases">Source</a></p>
+                
+                <hr />
+                <p><strong>Then add the following elements to your page:</strong></p>
+                <pre class="language-html"><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
+&lt;script src="croppie.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+        </section>
+        <section>
             <a name="options"></a>
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
@@ -86,7 +103,7 @@ $('#item').croppie(opts);
 $('#item').croppie(method, args);
               </code></pre>
             </div>
-          </section>
+        </section>
 
         <section class="documentation">
             <a name="documentation"></a>
@@ -113,6 +130,12 @@ $('#item').croppie(method, args);
                             <strong class="focus">enableZoom</strong><em>boolean</em>
                             <p>Enable zooming functionality.  If set to false - scrolling and pinching would not zoom.</p>
                             <span class="default">Default</span><code class="language-javascript">true</code>
+                        </li>
+                        <li>
+                            <strong class="focus">exif</strong><em>boolean</em>
+                            <p>Enable exif orientation reading.  Tells Croppie to read exif orientation from the image data and orient the image correctly before rendering to the page.</p>
+                            <p>Requires <a href="https://github.com/exif-js/exif-js">exif.js</a></p>
+                            <span class="default">Default</span><code class="language-javascript">false</code>
                         </li>
                         <li>
                             <strong class="focus">mouseWheelZoom</strong><em>boolean</em>
@@ -268,9 +291,10 @@ vanilla.result('canvas');</code></pre>
                     <div class="container">
                     <div class="grid">
                         <div class="col-1-2">
-                            <strong>Upload Example</strong>
+                            <strong>Upload Example (with exif orientation compatability)</strong>
                             <pre class="language-javascript"><code class="language-javascript">
 $uploadCrop = $('#upload-demo').croppie({
+    exif: true,
     viewport: {
         width: 200,
         height: 200,
