@@ -1,6 +1,6 @@
 {
   "name": "croppie",
-  "version": "1.0.6",
+  "version": "2.0.0-beta1",
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "scripts": {
