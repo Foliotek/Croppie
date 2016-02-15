@@ -2,20 +2,20 @@
  * Croppie
  * Copyright 2015
  * Foliotek
- * Version: 1.0.3
+ * Version: 1.0.6
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports', 'b'], factory);
+        define(['exports'], factory);
     } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
         // CommonJS
-        factory(exports, require('b'));
+        factory(exports);
     } else {
         // Browser globals
-        factory((root.commonJsStrict = {}), root.b);
+        factory((root.commonJsStrict = {}));
     }
-}(this, function (exports, b) {
+}(this, function (exports) {
 
     if (typeof Promise !== 'function') {
         /*!
@@ -54,25 +54,18 @@
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
 
-    function deepExtend(out) {
-        out = out || {};
-
-        for (var i = 1; i < arguments.length; i++) {
-            var obj = arguments[i];
-
-            if (!obj)
-                continue;
-
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    if (typeof obj[key] === 'object')
-                        out[key] = deepExtend({}, obj[key]);
-                    else
-                        out[key] = obj[key];
-                }
+    // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
+    function deepExtend(destination, source) {
+        destination = destination || {};
+        for (var property in source) {
+            if (source[property] && source[property].constructor && source[property].constructor === Object) {
+                destination[property] = destination[property] || {};
+                arguments.callee(destination[property], source[property]);
+            } else {
+                destination[property] = source[property];
             }
         }
-        return out;
+        return destination;
     }
 
     function debounce(func, wait, immediate) {
@@ -131,6 +124,7 @@
             };
         });
 
+        img.style.opacity = 0;
         img.src = src;
         return prom;
     }
@@ -326,7 +320,7 @@
 
     function _setZoomerVal(v) {
         if (this.options.enableZoom) {
-            this.elements.zoomer.value = fix(v, 2);
+            this.elements.zoomer.value = fix(v, 4);
         }
     }
 
@@ -367,7 +361,7 @@
 
         function scroll(ev) {
             var delta, targetZoom;
-        
+
             if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
@@ -377,9 +371,9 @@
             } else {
                 delta = 0;
             }
-        
+
             targetZoom = self._currentZoom + delta;
-        
+
             ev.preventDefault();
             start();
             _setZoomerVal.call(self, targetZoom);
@@ -657,6 +651,7 @@
         self.data.bound = true;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         cssReset[CSS_TRANS_ORG] = originReset.toString();
+        cssReset['opacity'] = 1;
         css(img, cssReset);
 
         imgData = img.getBoundingClientRect();
@@ -674,8 +669,8 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom, 2);
-            zoomer.max = fix(maxZoom, 2);
+            zoomer.min = fix(minZoom, 4);
+            zoomer.max = fix(maxZoom, 4);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
@@ -692,7 +687,7 @@
             _centerImage.call(self);
         }
 
-        
+
         _updateOverlay.call(self);
     }
 
@@ -872,7 +867,7 @@
         y1 = Math.max(0, y1 / scale);
         x2 = Math.max(0, x2 / scale);
         y2 = Math.max(0, y2 / scale);
-       
+
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
             zoom: scale
@@ -965,12 +960,10 @@
 
     function Croppie(element, opts) {
         this.element = element;
-        this.options = deepExtend({}, Croppie.defaults, opts);
+        this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
         // backwards compatibility
-        if (typeof(opts.showZoom) != 'undefined') {
-            this.options.enableZoom = this.options.showZoomer = opts.showZoom;
-        }
+        this.options.enableZoom = this.options.showZoomer;
 
         _create.call(this);
     }
@@ -1008,7 +1001,7 @@
         },
         setZoom: function (v) {
             _setZoomerVal.call(this, v);
-            dispatchChange(this.elements.zoomer); 
+            dispatchChange(this.elements.zoomer);
         },
         destroy: function () {
             return _destroy.call(this);
@@ -1016,4 +1009,7 @@
     });
 
     exports.Croppie = window.Croppie = Croppie;
+
+    if (typeof module === 'object' && !!module.exports)
+      module.exports = Croppie;    
 }));
