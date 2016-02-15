@@ -300,7 +300,7 @@
 
     function _setZoomerVal(v) {
         if (this.options.enableZoom) {
-            this.elements.zoomer.value = fix(v, 2);
+            this.elements.zoomer.value = fix(v, 4);
         }
     }
 
@@ -649,8 +649,8 @@
                 maxZoom = minZoom + 1;
             }
 
-            zoomer.min = fix(minZoom, 2);
-            zoomer.max = fix(maxZoom, 2);
+            zoomer.min = fix(minZoom, 4);
+            zoomer.max = fix(maxZoom, 4);
             initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
