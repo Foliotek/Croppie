@@ -871,7 +871,9 @@
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
         // backwards compatibility
-        this.options.enableZoom = this.options.showZoomer;
+        if (typeof(opts.showZoomer) !== 'undefined') {
+            this.options.enableZoom = this.options.showZoomer = opts.showZoomer;
+        }
 
         _create.call(this);
     }
