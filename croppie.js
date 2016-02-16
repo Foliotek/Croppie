@@ -226,7 +226,7 @@
     };
 
     Transform.prototype.toString = function () {
-        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px') scale(' + this.scale + ')';
+        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
