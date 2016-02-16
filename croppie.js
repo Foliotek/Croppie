@@ -787,7 +787,7 @@
             type = (typeof (opts) === 'string' ? opts : opts.type),
             size = opts.size || 'viewport',
             format = opts.format || 'jpg',
-            quality = opts.quality || '1',
+            quality = opts.quality || 1,
             vpRect,
             prom;
 
