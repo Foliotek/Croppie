@@ -162,7 +162,7 @@
 
         ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
 
-        return canvas.toDataURL();
+        return canvas.toDataURL(data.format, data.quality);
     }
 
     /* Utilities */
@@ -783,9 +783,11 @@
     function _result(options) {
         var self = this,
             data = _get.call(self),
-            opts = options || { type: 'canvas', size: 'viewport' },
+            opts = options || { type: 'canvas', size: 'viewport', format: 'jpg', quality: 1 },
             type = (typeof (opts) === 'string' ? opts : opts.type),
             size = opts.size || 'viewport',
+            format = opts.format || 'jpg',
+            quality = opts.quality || 1,
             vpRect,
             prom;
 
@@ -793,6 +795,11 @@
             vpRect = self.elements.viewport.getBoundingClientRect();
             data.outputWidth = vpRect.width;
             data.outputHeight = vpRect.height;
+        }
+
+        if (['jpg', 'jpeg', 'webp'].indexOf(format) > -1) {
+            data.format = (format === 'webp' ? 'image/webp' : 'image/jpeg');
+            data.quality = quality;
         }
 
         data.circle = self.options.viewport.type === 'circle';

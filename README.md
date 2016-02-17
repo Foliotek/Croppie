@@ -55,7 +55,10 @@ Get the resulting crop of the image.
 * `type: 'html'` returns html with the positioned correctly and overflow hidden.
 * `size: 'viewport'` returns the cropped image sized the same as the viewport.
 * `size: 'original'`  returns the cropped image at the image's original dimensions.
-* * size is only applicable on canvas results
+* `format: 'jpg|png|webp'` indicating the image format. Default is `jpg`.
+* `quality: '1'` number between 0 and 1 indicating image quality. Default is `1`.
+* * size, format and quality are only applicable on canvas results.
+* * quality is only applicable with formats `jpg` and `webp`.
 
 **refresh()** *void*
 
