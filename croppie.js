@@ -826,6 +826,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
+        self.element.classList.remove('croppie-container');
         if (self.options.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
@@ -925,5 +926,5 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports)
-      module.exports = Croppie;    
+      module.exports = Croppie;
 }));
