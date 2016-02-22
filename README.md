@@ -32,5 +32,5 @@ Download:
 3. Commit
 4. npm version [new version]
 5. `git push && git push --tags`
-6. npm publish
+6. `npm publish`
 7. Draft a new release with new tag on https://github.com/Foliotek/Croppie/releases
