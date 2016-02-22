@@ -16,12 +16,12 @@ Download:
 ```
 
 ## Documentation
-Documentation can be found [here](http://foliotek.github.io/Croppie#documentation)
+[Documentation](http://foliotek.github.io/Croppie#documentation)
 
 
-## Developing on Croppie
+## Contributing
 #### Static Server
-`npm install -g live-server`
+`live-server`
 
 #### Minifying
 `uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js`
@@ -33,4 +33,4 @@ Documentation can be found [here](http://foliotek.github.io/Croppie#documentatio
 4. npm version [new version]
 5. `git push && git push --tags`
 6. npm publish
-7. Draft a new release with new tag on [github](https://github.com/Foliotek/Croppie/releases)
+7. Draft a new release with new tag on https://github.com/Foliotek/Croppie/releases

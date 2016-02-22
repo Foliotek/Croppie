@@ -183,7 +183,7 @@ $('#item').croppie(method, args);
                             <p>Destroy a croppie instance and remove it from the DOM</p>
                         </li>
                         <li>
-                            <strong class="focus">result({ type, size })</strong><em>Promise</em>
+                            <strong class="focus">result({ type, size, format, quality })</strong><em>Promise</em>
                             <p>Get the resulting crop of the image.</p>
                             <span class="default">Parameters</span>
                             <br />
@@ -206,6 +206,21 @@ $('#item').croppie(method, args);
                                 <li class="values">
                                     <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
                                 </li>
+                                <li>
+                                    <code class="language-javascript">format</code> Indicating the image format.
+                                </li>
+                                <li class="values">
+                                    <span class="default">Default:</span><code class="language-javascript">'jpg'</code>
+                                </li>
+                                <li class="values">
+                                    <span class="default">Valid values:</span><code class="language-javascript">'jpg'|'png'|'webp'</code>
+                                </li>
+                                <li>
+                                    <code class="language-javascript">quality</code> Number between 0 and 1 indicating image quality.
+                                </li>
+                                <li class="values">
+                                    <span class="default">Default:</span><code class="language-javascript">1</code>
+                                </li>
                             </ul>
                         <li>
                             <strong class="focus">setZoom(value)</strong><em></em>
@@ -222,7 +237,7 @@ $('#item').croppie(method, args);
                     <ul>
                         <li>
                             <strong class="focus">update(croppe)</strong><em>Croppie</em>
-                            <p>when the croppie is dragged around or zoomed, update is fired.</p>
+                            <p>Triggered when a drag or zoom occurs</p>
                         </li>
                     </ul>
                 </section>
