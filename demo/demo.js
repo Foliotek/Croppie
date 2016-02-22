@@ -46,7 +46,10 @@ var Demo = (function() {
 		});
 		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev) {
-            mc.croppie('result', 'canvas').then(function (resp) {
+            mc.croppie('result', {
+            	type: 'canvas',
+            	format: 'jpeg'
+            }).then(function (resp) {
 				popupResult({
 					src: resp
 				});

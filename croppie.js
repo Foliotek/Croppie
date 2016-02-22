@@ -800,7 +800,7 @@
 
         ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
 
-        return canvas.toDataURL();
+        return canvas.toDataURL(data.format, data.quality);
     }
 
     function _bind(options, cb) {
@@ -874,14 +874,22 @@
         };
     }
 
+    var RESULT_DEFAULTS = {
+            type: 'canvas', 
+            size: 'viewport', 
+            format: 'png', 
+            quality: 1
+        },
+        RESULT_FORMATS = ['jpeg', 'webp', 'png'];
+
     function _result(options) {
         var self = this,
             data = _get.call(self),
-            opts = options || { type: 'canvas', size: 'viewport', format: 'jpg', quality: 1 },
-            type = (typeof (opts) === 'string' ? opts : opts.type),
-            size = opts.size || 'viewport',
-            format = opts.format || 'jpg',
-            quality = opts.quality || 1,
+            opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
+            type = (typeof (options) === 'string' ? opts : opts.type),
+            size = opts.size,
+            format = opts.format,
+            quality = opts.quality,
             vpRect,
             prom;
 
@@ -891,8 +899,8 @@
             data.outputHeight = vpRect.height;
         }
 
-        if (['jpg', 'jpeg', 'webp'].indexOf(format) > -1) {
-            data.format = (format === 'webp' ? 'image/webp' : 'image/jpeg');
+        if (RESULT_FORMATS.indexOf(format) > -1) {
+            data.format = 'image/' + format;
             data.quality = quality;
         }
 
