@@ -886,7 +886,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
-            type = (typeof (options) === 'string' ? opts : opts.type),
+            type = (typeof (options) === 'string' ? options : opts.type),
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
