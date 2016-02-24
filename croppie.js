@@ -107,6 +107,23 @@
         }
     }
 
+    function addClass(el, c) {
+        if (el.classList) {
+            el.classList.add(c);
+        }
+        else {
+            el.className += ' ' + c;
+        }
+    }
+
+    function removeClass(el, c) {
+        if (el.classList) {
+            el.classList.remove(c);
+        }
+        else {
+            el.className = el.className.replace(c, '');
+        }
+    }
 
     /* Utilities */
     function loadImage(src, imageEl) {
@@ -259,7 +276,7 @@
     /* Private Methods */
     function _create() {
         var self = this,
-            contClass = ['croppie-container'],
+            contClass = 'croppie-container',
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, canvas;
 
@@ -282,32 +299,32 @@
             self.elements.preview = self.elements.img;
         }
 
-        boundary.classList.add('cr-boundary');
+        addClass(boundary, 'cr-boundary');
         css(boundary, {
             width: self.options.boundary.width + 'px',
             height: self.options.boundary.height + 'px'
         });
 
-        viewport.classList.add('cr-viewport');
+        addClass(viewport, 'cr-viewport');
         if (customViewportClass) {
-            viewport.classList.add(customViewportClass);
+            addClass(viewport, customViewportClass);
         }
         css(viewport, {
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
         });
 
-        self.elements.preview.classList.add('cr-image');
-        overlay.classList.add('cr-overlay');
+        addClass(self.elements.preview, 'cr-image');
+        addClass(overlay, 'cr-overlay');
 
         self.element.appendChild(boundary);
         boundary.appendChild(self.elements.preview);
         boundary.appendChild(viewport);
         boundary.appendChild(overlay);
 
-        self.element.classList.add(contClass);
+        addClass(self.element, contClass);
         if (self.options.customClass) {
-            self.element.classList.add(self.options.customClass);
+            addClass(self.element, self.options.customClass);
         }
 
         // Initialize drag & zoom
@@ -332,9 +349,9 @@
             viewportRect,
             transform;
 
-        wrap.classList.add('cr-slider-wrap');
+        addClass(wrap, 'cr-slider-wrap');
+        addClass(zoomer, 'cr-slider');
         zoomer.type = 'range';
-        zoomer.classList.add('cr-slider');
         zoomer.step = '0.01';
         zoomer.value = 1;
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
@@ -755,7 +772,7 @@
             width = points[2] - points[0],
             height = points[3] - points[1];
 
-        div.classList.add('croppie-result');
+        addClass(div, 'croppie-result');
         div.appendChild(img);
         css(img, {
             left: (-1 * points[0]) + 'px',
@@ -886,7 +903,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
-            type = (typeof (options) === 'string' ? opts : opts.type),
+            type = (typeof (options) === 'string' ? options : opts.type),
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
@@ -925,7 +942,7 @@
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
-        self.element.classList.remove('croppie-container');
+        removeClass(self.element, 'croppie-container');
         if (self.options.enableZoom) {
             self.element.removeChild(self.elements.zoomerWrap);
         }
