@@ -807,16 +807,15 @@
         canvas.width = outWidth;
         canvas.height = outHeight;
 
+        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
         if (circle) {
-            ctx.save();
+            ctx.fillStyle = '#fff';
+            ctx.globalCompositeOperation = 'destination-in';
             ctx.beginPath();
             ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
             ctx.closePath();
-            ctx.clip();
+            ctx.fill();
         }
-
-        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
-
         return canvas.toDataURL(data.format, data.quality);
     }
 
