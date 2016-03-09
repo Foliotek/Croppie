@@ -3,7 +3,7 @@
   "version": "2.0.1",
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
-  "dependencies": {
+  "devDependencies": {
     "mocha": "2.4.5"
   },
   "scripts": {
