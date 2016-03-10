@@ -834,6 +834,7 @@
                 _transferImageToCanvas.call(self);
             }
             _updatePropertiesFromImage.call(self);
+            _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             if (cb) {
                 cb();
