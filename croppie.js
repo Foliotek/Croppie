@@ -900,13 +900,24 @@
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
-            vpRect,
+            vpRect = self.elements.viewport.getBoundingClientRect(),
+            ratio = vpRect.width / vpRect.height,
             prom;
 
         if (size === 'viewport') {
-            vpRect = self.elements.viewport.getBoundingClientRect();
             data.outputWidth = vpRect.width;
             data.outputHeight = vpRect.height;
+        } else if (typeof size === 'object') {
+            if (size.width && size.height) {
+                data.outputWidth = size.width;
+                data.outputHeight = size.height;
+            } else if (size.width) {
+                data.outputWidth = size.width;
+                data.outputHeight = size.width / ratio;
+            } else if (size.height) {
+                data.outputWidth = size.height * ratio;
+                data.outputHeight = size.height;
+            }
         }
 
         if (RESULT_FORMATS.indexOf(format) > -1) {
