@@ -51,6 +51,17 @@
                 </div>
             </div>
         </section>
+        <section class="simple">
+            <div class="section-header"><h2>The Basics</h2></div>
+            <div class="container">
+                <pre class="language-javascript"><code class="language-javascript">&lt;div class="demo"&gt;&lt;/div&gt;
+&lt;script&gt;
+$('.demo').croppie({
+    url: 'demo/demo-1.jpg',
+});
+&lt;/script&gt;</code></pre>
+            </div>
+        </section>
         <section class="installation">
             <a id="install" name="install"></a>
             <div class="section-header"><h2>Installation</h2></div>
@@ -72,6 +83,8 @@
             <a name="options"></a>
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
+                <p>The demo above is powered by the following code:</p>
+                
               <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), {
     viewport: {
         width: px,
@@ -102,14 +115,11 @@ var data = c.get();
 var result = c.result('html|canvas').then(function (img) {
     //img is html positioning & sizing the image correctly if resultType is 'html'
     //img is base64 url of cropped image if resultType is 'canvas' 
-});
-            </code></pre>
+});</code></pre>
             <p>Or you can use jquery</p>
-            <pre class="language-javascript"><code class="language-javascript">
-$('#item').croppie(opts);
+            <pre class="language-javascript"><code class="language-javascript">$('#item').croppie(opts);
 
-$('#item').croppie(method, args);
-              </code></pre>
+$('#item').croppie(method, args);</code></pre>
             </div>
         </section>
 
