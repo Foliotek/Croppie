@@ -1,10 +1,10 @@
 {
   "name": "croppie",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
-  "dependencies" : {
-	 "mocha": "2.4.5"
+  "devDependencies": {
+    "mocha": "2.4.5"
   },
   "scripts": {
     "test": "mocha test/unit"

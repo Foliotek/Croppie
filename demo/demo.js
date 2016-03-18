@@ -41,14 +41,15 @@ var Demo = (function() {
 				width: 150,
 				height: 150,
 				type: 'circle'
-			}
+			},
+			url: 'demo/demo-1.jpg',
+			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
-		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'canvas',
-            	format: 'jpeg'
+            	format: 'png'
             }).then(function (resp) {
 				popupResult({
 					src: resp
