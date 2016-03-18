@@ -41,10 +41,10 @@ var Demo = (function() {
 				width: 150,
 				height: 150,
 				type: 'circle'
-			}
+			},
+			url: 'demo/demo-1.jpg'
 			// mouseWheelZoom: false
 		});
-		mc.croppie('bind', 'demo/demo-1.jpg');
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'canvas',

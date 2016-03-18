@@ -999,6 +999,15 @@
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
         _create.call(this);
+        if (this.options.url) {
+            var bindOpts = {
+                url: this.options.url,
+                points: this.options.points
+            };
+            delete this.options['url'];
+            delete this.options['points'];
+            _bind.call(this, bindOpts);
+        }
     }
 
     Croppie.defaults = {
