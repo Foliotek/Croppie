@@ -338,10 +338,7 @@
     function _initializeZoom() {
         var self = this,
             wrap = self.elements.zoomerWrap = document.createElement('div'),
-            zoomer = self.elements.zoomer = document.createElement('input'),
-            origin,
-            viewportRect,
-            transform;
+            zoomer = self.elements.zoomer = document.createElement('input');
 
         addClass(wrap, 'cr-slider-wrap');
         addClass(zoomer, 'cr-slider');
@@ -354,19 +351,13 @@
         wrap.appendChild(zoomer);
 
         self._currentZoom = 1;
-        function start() {
-            _updateCenterPoint.call(self);
-            origin = new TransformOrigin(self.elements.preview);
-            viewportRect = self.elements.viewport.getBoundingClientRect();
-            transform = Transform.parse(self.elements.preview);
-        }
 
         function change() {
             _onZoom.call(self, {
                 value: parseFloat(zoomer.value),
-                origin: origin || new TransformOrigin(self.elements.preview),
-                viewportRect: viewportRect || self.elements.viewport.getBoundingClientRect(),
-                transform: transform || Transform.parse(self.elements.preview)
+                origin: new TransformOrigin(self.elements.preview),
+                viewportRect: self.elements.viewport.getBoundingClientRect(),
+                transform: Transform.parse(self.elements.preview)
             });
         }
 
@@ -386,13 +377,9 @@
             targetZoom = self._currentZoom + delta;
 
             ev.preventDefault();
-            start();
             _setZoomerVal.call(self, targetZoom);
             change();
         }
-
-        self.elements.zoomer.addEventListener('mousedown', start);
-        self.elements.zoomer.addEventListener('touchstart', start);
 
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
         self.elements.zoomer.addEventListener('change', change);
@@ -857,6 +844,7 @@
                 _transferImageToCanvas.call(self);
             }
             _updatePropertiesFromImage.call(self);
+            _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             if (cb) {
                 cb();
