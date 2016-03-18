@@ -412,28 +412,30 @@
         self._currentZoom = ui.value;
         transform.scale = self._currentZoom;
 
-        var boundaries = _getVirtualBoundaries.call(self, vpRect),
-            transBoundaries = boundaries.translate,
-            oBoundaries = boundaries.origin;
+        if (self.options.enforceBoundary) {
+            var boundaries = _getVirtualBoundaries.call(self, vpRect),
+                transBoundaries = boundaries.translate,
+                oBoundaries = boundaries.origin;
 
-        if (transform.x >= transBoundaries.maxX) {
-            origin.x = oBoundaries.minX;
-            transform.x = transBoundaries.maxX;
-        }
+            if (transform.x >= transBoundaries.maxX) {
+                origin.x = oBoundaries.minX;
+                transform.x = transBoundaries.maxX;
+            }
 
-        if (transform.x <= transBoundaries.minX) {
-            origin.x = oBoundaries.maxX;
-            transform.x = transBoundaries.minX;
-        }
+            if (transform.x <= transBoundaries.minX) {
+                origin.x = oBoundaries.maxX;
+                transform.x = transBoundaries.minX;
+            }
 
-        if (transform.y >= transBoundaries.maxY) {
-            origin.y = oBoundaries.minY;
-            transform.y = transBoundaries.maxY;
-        }
+            if (transform.y >= transBoundaries.maxY) {
+                origin.y = oBoundaries.minY;
+                transform.y = transBoundaries.maxY;
+            }
 
-        if (transform.y <= transBoundaries.minY) {
-            origin.y = oBoundaries.maxY;
-            transform.y = transBoundaries.minY;
+            if (transform.y <= transBoundaries.minY) {
+                origin.y = oBoundaries.maxY;
+                transform.y = transBoundaries.minY;
+            }
         }
 
         var transCss = {};
@@ -581,11 +583,17 @@
                 }
             }
 
-            if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                transform.y = top;
-            }
+            if (self.options.enforceBoundary) {
+                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+                    transform.y = top;
+                }
 
-            if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+                    transform.x = left;
+                }
+            }
+            else {
+                transform.y = top;
                 transform.x = left;
             }
 
@@ -672,9 +680,11 @@
         self._originalImageHeight = imgData.height;
 
         if (self.options.enableZoom) {
-            minW = vpData.width / imgData.width;
-            minH = vpData.height / imgData.height;
-            minZoom = Math.max(minW, minH);
+            if (self.options.enforceBoundary) {
+                minW = vpData.width / imgData.width;
+                minH = vpData.height / imgData.height;
+                minZoom = Math.max(minW, minH);
+            }
 
             if (minZoom >= maxZoom) {
                 maxZoom = minZoom + 1;
@@ -873,10 +883,11 @@
             scale = 1;
         }
 
-        x1 = Math.max(0, x1 / scale);
-        y1 = Math.max(0, y1 / scale);
-        x2 = Math.max(0, x2 / scale);
-        y2 = Math.max(0, y2 / scale);
+        var max = self.options.enforceBoundary ? 0 : Number.NEGATIVE_INFINITY;
+        x1 = Math.max(max, x1 / scale);
+        y1 = Math.max(max, y1 / scale);
+        x2 = Math.max(max, x2 / scale);
+        y2 = Math.max(max, y2 / scale);
 
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
@@ -1025,6 +1036,7 @@
         enableZoom: true,
         mouseWheelZoom: true,
         exif: false,
+        enforceBoundary: true,
         update: function () { }
     };
 

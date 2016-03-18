@@ -42,7 +42,8 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			},
-			url: 'demo/demo-1.jpg'
+			url: 'demo/demo-1.jpg',
+			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
 		$('.js-main-image').on('click', function (ev) {
