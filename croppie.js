@@ -274,7 +274,7 @@
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, canvas;
 
-        self.options.useCanvas = self.options.exif && window.EXIF;
+        self.options.useCanvas = self.options.customOrientation || self.options.exif && window.EXIF;
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -745,6 +745,7 @@
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
+            customOrientationEnabled = self.options.customOrientation,
             ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -753,7 +754,7 @@
 
         getExifOrientation(img, function (orientation) {
             rotateCanvas(canvas, ctx, img, parseInt(orientation));
-            if (customOrientation) {
+            if (customOrientationEnabled && customOrientation) {
                 rotateCanvas(canvas, ctx, img, customOrientation);
             }
         });
