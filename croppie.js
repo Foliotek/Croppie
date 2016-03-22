@@ -745,19 +745,24 @@
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
-            customOrientationEnabled = self.options.customOrientation,
+            exif = self.options.exif,
+            customOrientation = self.options.customOrientation && customOrientation,
             ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = img.width;
         canvas.height = img.height;
 
-        getExifOrientation(img, function (orientation) {
-            rotateCanvas(canvas, ctx, img, parseInt(orientation));
-            if (customOrientationEnabled && customOrientation) {
-                rotateCanvas(canvas, ctx, img, customOrientation);
-            }
-        });
+        if (exif) {
+            getExifOrientation(img, function (orientation) {
+                rotateCanvas(canvas, ctx, img, parseInt(orientation));
+                if (customOrientation) {
+                    rotateCanvas(canvas, ctx, img, customOrientation);
+                }
+            });
+        } else if (customOrientation) {
+            rotateCanvas(canvas, ctx, img, customOrientation);
+        }
     }
 
     function _getHtmlResult(data) {
