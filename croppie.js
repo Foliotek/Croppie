@@ -741,7 +741,7 @@
         css(self.elements.preview, CSS_TRANSFORM, transform.toString());
     }
 
-    function _transferImageToCanvas() {
+    function _transferImageToCanvas(customOrientation) {
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
@@ -753,6 +753,9 @@
 
         getExifOrientation(img, function (orientation) {
             rotateCanvas(canvas, ctx, img, parseInt(orientation));
+            if (customOrientation) {
+                rotateCanvas(canvas, ctx, img, customOrientation);
+            }
         });
     }
 
@@ -841,7 +844,7 @@
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
-                _transferImageToCanvas.call(self);
+                _transferImageToCanvas.call(self, options.orientation);
             }
             _updatePropertiesFromImage.call(self);
             _updateCenterPoint.call(self);
