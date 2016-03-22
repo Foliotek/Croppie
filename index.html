@@ -177,6 +177,12 @@ $('#item').croppie(method, args);</code></pre>
                             <br /><br />
                             <span class="default">Valid type values:</span><code class="language-javascript">'square' 'circle'</code>
                         </li>
+                        <li>
+                            <strong class="focus">customOrientation</strong><em>boolean</em>
+                            <p>Enable or disable support for specifying a custom orientation when binding images (See <code class="language-javascript">bind</code> method)</p>
+                            <span class="default">Default</span>
+                            <code class="language-javascript">false</code>
+                        </li>
                     </ul>
                 </section>
                 <section>
@@ -187,13 +193,28 @@ $('#item').croppie(method, args);</code></pre>
                             <p>Get the crop points, and the zoom of the image.</p>
                         </li>
                         <li>
-                            <strong class="focus">bind({ url, points })</strong><em>Promise</em>
+                            <strong class="focus">bind({ url, points, orientation })</strong><em>Promise</em>
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                             <span class="default">Parameters</span>
                             <br />
                             <ul class="parameter-list">
                                 <li><code class="language-javascript">url</code> URL to image</li>
                                 <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
+                                <li><code class="language-javascript">orientation</code> Custom orientation, applied after exif orientation (if enabled). Only works with <code class="language-javascript">customOrientation</code> option enabled (see 'Options').
+                                    <br />
+                                    Valid options are:
+                                    <ul>
+                                        <li><code class="language-javascript">1</code> unchanged</li>
+                                        <li><code class="language-javascript">2</code> flipped horizontally</li>
+                                        <li><code class="language-javascript">3</code> rotated 180 degrees</li>
+                                        <li><code class="language-javascript">4</code> flipped vertically</li>
+                                        <li><code class="language-javascript">5</code> flipped horizontally, then rotated left by 90 degrees</li>
+                                        <li><code class="language-javascript">6</code> rotated left by 90 degrees</li>
+                                        <li><code class="language-javascript">7</code> flipped horizontally, then rotated right by 90 degrees</li>
+                                        <li><code class="language-javascript">8</code> rotated right by 90 degrees</li>
+                                    </pre>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li>
