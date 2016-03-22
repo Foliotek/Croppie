@@ -82,9 +82,13 @@ var Demo = (function() {
 		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
-			showZoomer: false
+			showZoomer: false,
+            customOrientation: true
 		});
-		vanilla.bind('demo/demo-2.jpg');
+		vanilla.bind({
+            url: 'demo/demo-2.jpg',
+            orientation: 4
+        });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result('canvas').then(function (src) {
 				popupResult({
