@@ -274,7 +274,7 @@
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, canvas;
 
-        self.options.useCanvas = self.options.exif && window.EXIF;
+        self.options.useCanvas = self.options.customOrientation || self.options.exif && window.EXIF;
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -741,19 +741,28 @@
         css(self.elements.preview, CSS_TRANSFORM, transform.toString());
     }
 
-    function _transferImageToCanvas() {
+    function _transferImageToCanvas(customOrientation) {
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
+            exif = self.options.exif,
+            customOrientation = self.options.customOrientation && customOrientation,
             ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = img.width;
         canvas.height = img.height;
 
-        getExifOrientation(img, function (orientation) {
-            rotateCanvas(canvas, ctx, img, parseInt(orientation));
-        });
+        if (exif) {
+            getExifOrientation(img, function (orientation) {
+                rotateCanvas(canvas, ctx, img, parseInt(orientation));
+                if (customOrientation) {
+                    rotateCanvas(canvas, ctx, img, customOrientation);
+                }
+            });
+        } else if (customOrientation) {
+            rotateCanvas(canvas, ctx, img, customOrientation);
+        }
     }
 
     function _getHtmlResult(data) {
@@ -841,7 +850,7 @@
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
-                _transferImageToCanvas.call(self);
+                _transferImageToCanvas.call(self, options.orientation);
             }
             _updatePropertiesFromImage.call(self);
             _updateCenterPoint.call(self);
