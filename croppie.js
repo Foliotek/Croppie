@@ -215,7 +215,6 @@
             height = img.height,
             ctx = canvas.getContext('2d');
 
-        console.log(img, img.width, img.height);
         canvas.width = img.width;
         canvas.height = img.height;
 
@@ -399,11 +398,11 @@
 
     function _onZoom(ui) {
         var self = this,
-            transform = ui.transform,
-            vpRect = ui.viewportRect,
-            origin = ui.origin;
+            transform = ui ? ui.transform : Transform.parse(self.elements.preview),
+            vpRect = ui ? ui.viewportRect : self.elements.viewport.getBoundingClientRect(),
+            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview);
 
-        self._currentZoom = ui.value;
+        self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
 
         if (self.options.enforceBoundary) {
@@ -448,10 +447,9 @@
             vpHeight = viewport.height,
             centerFromBoundaryX = self.options.boundary.width / 2,
             centerFromBoundaryY = self.options.boundary.height / 2,
-            originalImgWidth = self._originalImageWidth,
-            originalImgHeight = self._originalImageHeight,
-            curImgWidth = originalImgWidth * scale,
-            curImgHeight = originalImgHeight * scale,
+            imgRect = self.elements.preview.getBoundingClientRect(),
+            curImgWidth = imgRect.width,
+            curImgHeight = imgRect.height,
             halfWidth = vpWidth / 2,
             halfHeight = vpHeight / 2;
 
@@ -974,11 +972,12 @@
         var ctx = copy.getContext('2d');
         ctx.drawImage(canvas, 0, 0);
 
-        if (deg === 90 || deg === -270) ornt = 8;
-        if (deg === -90 || deg === 270) ornt = 6;
+        if (deg === 90 || deg === -270) ornt = 6;
+        if (deg === -90 || deg === 270) ornt = 8;
         if (deg === 180 || deg === -180) ornt = 3;
 
         rotateCanvas(canvas, copy, ornt);
+        _onZoom.call(self);
     }
 
     function _destroy() {
