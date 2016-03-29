@@ -83,7 +83,7 @@ var Demo = (function() {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
-            customOrientation: true
+            enableOrientation: true
 		});
 		vanilla.bind({
             url: 'demo/demo-2.jpg',
@@ -95,6 +95,10 @@ var Demo = (function() {
 					src: src
 				});
 			});
+		});
+
+		$('.vanilla-rotate').on('click', function(ev) {
+			vanilla.rotate(parseInt($(this).data('deg')));
 		});
 	}
 

@@ -210,15 +210,17 @@
         });
     }
 
-    function rotateCanvas(canvas, ctx, img, orientation) {
+    function rotateCanvas(canvas, img, orientation) {
         var width = img.width,
-            height = img.height;
+            height = img.height,
+            ctx = canvas.getContext('2d');
 
-      canvas.width = img.width;
-      canvas.height = img.height;
+        console.log(img, img.width, img.height);
+        canvas.width = img.width;
+        canvas.height = img.height;
 
-      ctx.save();
-      switch (orientation) {
+        ctx.save();
+        switch (orientation) {
           case 2:
              ctx.translate(width, 0);
              ctx.scale(-1, 1);
@@ -274,7 +276,7 @@
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
             boundary, img, viewport, overlay, canvas;
 
-        self.options.useCanvas = self.options.customOrientation || self.options.exif && window.EXIF;
+        self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
         // Properties on class
         self.data = {};
         self.elements = {};
@@ -327,6 +329,11 @@
         if (self.options.enableZoom) {
             _initializeZoom.call(self);
         }
+    }
+
+    function _hasExif() {
+        // todo - remove options.exif after deprecation
+        return (this.options.enableExif || this.options.exif) && window.EXIF;
     }
 
     function _setZoomerVal(v) {
@@ -745,9 +752,9 @@
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
-            exif = self.options.exif,
-            customOrientation = self.options.customOrientation && customOrientation,
-            ctx = canvas.getContext('2d');
+            ctx = canvas.getContext('2d'),
+            exif = self.options.enableExif,
+            customOrientation = self.options.enableOrientation && customOrientation;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = img.width;
@@ -755,13 +762,13 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                rotateCanvas(canvas, ctx, img, parseInt(orientation));
+                rotateCanvas(canvas, img, parseInt(orientation));
                 if (customOrientation) {
-                    rotateCanvas(canvas, ctx, img, customOrientation);
+                    rotateCanvas(canvas, img, customOrientation);
                 }
             });
         } else if (customOrientation) {
-            rotateCanvas(canvas, ctx, img, customOrientation);
+            rotateCanvas(canvas, img, customOrientation);
         }
     }
 
@@ -951,6 +958,29 @@
         _updatePropertiesFromImage.call(this);
     }
 
+    function _rotate(deg) {
+        if (!this.options.useCanvas) {
+            throw 'Croppie: Cannot rotate without enableOrientation';
+        }
+
+        var self = this,
+            canvas = self.elements.canvas,
+            img = self.elements.img,
+            copy = document.createElement('canvas'),
+            ornt = 1;
+
+        copy.width = canvas.width;
+        copy.height = canvas.height;
+        var ctx = copy.getContext('2d');
+        ctx.drawImage(canvas, 0, 0);
+
+        if (deg === 90 || deg === -270) ornt = 8;
+        if (deg === -90 || deg === 270) ornt = 6;
+        if (deg === 180 || deg === -180) ornt = 3;
+
+        rotateCanvas(canvas, copy, ornt);
+    }
+
     function _destroy() {
         var self = this;
         self.element.removeChild(self.elements.boundary);
@@ -1032,8 +1062,9 @@
         showZoomer: true,
         enableZoom: true,
         mouseWheelZoom: true,
-        exif: false,
+        enableExif: false,
         enforceBoundary: true,
+        enableOrientation: false,
         update: function () { }
     };
 
@@ -1053,6 +1084,9 @@
         setZoom: function (v) {
             _setZoomerVal.call(this, v);
             dispatchChange(this.elements.zoomer);
+        },
+        rotate: function (deg) {
+            _rotate.call(this, deg);
         },
         destroy: function () {
             return _destroy.call(this);
