@@ -899,7 +899,6 @@
 
     var RESULT_DEFAULTS = {
             type: 'canvas', 
-            size: 'viewport', 
             format: 'png', 
             quality: 1
         },
@@ -909,7 +908,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
-            type = (typeof (options) === 'string' ? options : opts.type),
+            type = (typeof (options) === 'string' ? options : (opts.type || 'viewport')),
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
@@ -941,6 +940,7 @@
         data.circle = self.options.viewport.type === 'circle';
         data.url = self.data.url;
 
+        console.log(data);
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
                 resolve(_getCanvasResult.call(self, self.elements.preview, data));

@@ -59,7 +59,9 @@ var Demo = (function() {
 	}
 
 	function demoBasic() {
-		var basic = $('#demo-basic').croppie({
+		var $w = $('.basic-width'),
+			$h = $('.basic-height'),
+			basic = $('#demo-basic').croppie({
 			viewport: {
 				width: 150,
 				height: 200
@@ -70,9 +72,18 @@ var Demo = (function() {
 			points: [77,469,280,739]
 		});
 		$('.basic-result').on('click', function() {
-			basic.croppie('result', 'html').then(function (resp) {
+			var w = parseInt($w.val(), 10),
+				h = parseInt($h.val(), 10),s
+				size = 'viewport';
+			if (w || h) {
+				size = { width: w, height: h };
+			}
+			basic.croppie('result', {
+				type: 'canvas',
+				size: size
+			}).then(function (resp) {
 				popupResult({
-					html: resp.outerHTML
+					src: resp
 				});
 			});
 		});

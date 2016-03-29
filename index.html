@@ -83,42 +83,14 @@ $('.demo').croppie({
             <a name="options"></a>
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
-                <p>The demo above is powered by the following code:</p>
+                <p>You can initialize Croppie with the following code:</p>
                 
-              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), {
-    viewport: {
-        width: px,
-        height: px,
-        type: 'square|circle' //default 'square'
-    },
-    boundary: {
-        width: px,
-        height: px
-    },
-    customClass: '',
-    enableZoom: true|false, //default true // previously showZoom
-    showZoomer: true|false, //default true
-    mouseWheelZoom: true|false, //default true
-    update: function (cropper) { }
-});
-// bind an image to croppie
-c.bind({
-    src: 'path/to/image',
-    points: [x1, y1, x2, y2]
-});
-// set the zoom programatically. Restricted to the min/max values of the slider
-c.setZoom(1.5);
-// get crop points from croppie
-var data = c.get();
-// get result from croppie
-// returns Promise
-var result = c.result('html|canvas').then(function (img) {
-    //img is html positioning & sizing the image correctly if resultType is 'html'
-    //img is base64 url of cropped image if resultType is 'canvas' 
-});</code></pre>
+              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
+// call a method
+c.method(args);</code></pre>
             <p>Or you can use jquery</p>
             <pre class="language-javascript"><code class="language-javascript">$('#item').croppie(opts);
-
+// call a method via jquery
 $('#item').croppie(method, args);</code></pre>
             </div>
         </section>
@@ -245,6 +217,9 @@ $('#item').croppie(method, args);</code></pre>
                                 <li class="values">
                                     <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
                                 </li>
+                                <li class="values">
+                                    <code class="language-javascript">{width, height}</code> an object defining the width and height.  If only one dimension is specified, the other will be calculated using the viewport aspect ratio.
+                                </li>
                                 <li>
                                     <code class="language-javascript">format</code> Indicating the image format.
                                 </li>
@@ -264,7 +239,7 @@ $('#item').croppie(method, args);</code></pre>
                         </li>
                         <li>
                             <strong class="focus">rotate(degrees)</strong><em></em>
-                            <p>Rotate the image by a specified degree amount.</p>
+                            <p>Rotate the image by a specified degree amount.  Only works with <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').</p>
                             <ul class="parameter-list">
                                 <li>
                                     <code class="language-javascript">degrees</code> <span class="default">Valid Values:</span><code>90, 180, 270, -90, -180, -270</code>
@@ -318,6 +293,7 @@ basic.croppie('bind', {
 basic.croppie('result', 'html');</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
+                              <input type="number" class="basic-width" placeholder="width" /> x <input type="number" class="basic-height" placeholder="height" />
                           </div>
                         </div>
                         <div class="col-1-2">
