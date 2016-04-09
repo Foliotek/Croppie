@@ -59,7 +59,9 @@ var Demo = (function() {
 	}
 
 	function demoBasic() {
-		var basic = $('#demo-basic').croppie({
+		var $w = $('.basic-width'),
+			$h = $('.basic-height'),
+			basic = $('#demo-basic').croppie({
 			viewport: {
 				width: 150,
 				height: 200
@@ -70,9 +72,18 @@ var Demo = (function() {
 			points: [77,469,280,739]
 		});
 		$('.basic-result').on('click', function() {
-			basic.croppie('result', 'html').then(function (resp) {
+			var w = parseInt($w.val(), 10),
+				h = parseInt($h.val(), 10),s
+				size = 'viewport';
+			if (w || h) {
+				size = { width: w, height: h };
+			}
+			basic.croppie('result', {
+				type: 'canvas',
+				size: size
+			}).then(function (resp) {
 				popupResult({
-					html: resp.outerHTML
+					src: resp
 				});
 			});
 		});
@@ -82,15 +93,23 @@ var Demo = (function() {
 		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
-			showZoomer: false
+			showZoomer: false,
+            enableOrientation: true
 		});
-		vanilla.bind('demo/demo-2.jpg');
+		vanilla.bind({
+            url: 'demo/demo-2.jpg',
+            orientation: 4
+        });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result('canvas').then(function (src) {
 				popupResult({
 					src: src
 				});
 			});
+		});
+
+		$('.vanilla-rotate').on('click', function(ev) {
+			vanilla.rotate(parseInt($(this).data('deg')));
 		});
 	}
 

@@ -83,42 +83,13 @@ $('.demo').croppie({
             <a name="options"></a>
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
-                <p>The demo above is powered by the following code:</p>
-                
-              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), {
-    viewport: {
-        width: px,
-        height: px,
-        type: 'square|circle' //default 'square'
-    },
-    boundary: {
-        width: px,
-        height: px
-    },
-    customClass: '',
-    enableZoom: true|false, //default true // previously showZoom
-    showZoomer: true|false, //default true
-    mouseWheelZoom: true|false, //default true
-    update: function (cropper) { }
-});
-// bind an image to croppie
-c.bind({
-    url: 'path/to/image',
-    points: [x1, y1, x2, y2]
-});
-// set the zoom programatically. Restricted to the min/max values of the slider
-c.setZoom(1.5);
-// get crop points from croppie
-var data = c.get();
-// get result from croppie
-// returns Promise
-var result = c.result('html|canvas').then(function (img) {
-    //img is html positioning & sizing the image correctly if resultType is 'html'
-    //img is base64 url of cropped image if resultType is 'canvas' 
-});</code></pre>
+                <p>You can initialize Croppie with the following code:</p>
+              <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
+// call a method
+c.method(args);</code></pre>
             <p>Or you can use jquery</p>
             <pre class="language-javascript"><code class="language-javascript">$('#item').croppie(opts);
-
+// call a method via jquery
 $('#item').croppie(method, args);</code></pre>
             </div>
         </section>
@@ -150,7 +121,7 @@ $('#item').croppie(method, args);</code></pre>
                             <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li>
-                            <strong class="focus">exif</strong><em>boolean</em>
+                            <strong class="focus">enableExif</strong><em>boolean</em>
                             <p>Enable exif orientation reading.  Tells Croppie to read exif orientation from the image data and orient the image correctly before rendering to the page.</p>
                             <p>Requires <a href="https://github.com/exif-js/exif-js">exif.js</a></p>
                             <span class="default">Default</span><code class="language-javascript">false</code>
@@ -177,6 +148,12 @@ $('#item').croppie(method, args);</code></pre>
                             <br /><br />
                             <span class="default">Valid type values:</span><code class="language-javascript">'square' 'circle'</code>
                         </li>
+                        <li>
+                            <strong class="focus">enableOrientation</strong><em>boolean</em>
+                            <p>Enable or disable support for specifying a custom orientation when binding images (See <code class="language-javascript">bind</code> method)</p>
+                            <span class="default">Default</span>
+                            <code class="language-javascript">false</code>
+                        </li>
                     </ul>
                 </section>
                 <section>
@@ -187,13 +164,28 @@ $('#item').croppie(method, args);</code></pre>
                             <p>Get the crop points, and the zoom of the image.</p>
                         </li>
                         <li>
-                            <strong class="focus">bind({ url, points })</strong><em>Promise</em>
+                            <strong class="focus">bind({ url, points, orientation })</strong><em>Promise</em>
                             <p>Bind an image the croppie.  Returns a promise to be resolved when the image has been loaded and the croppie has been initialized.</p>
                             <span class="default">Parameters</span>
                             <br />
                             <ul class="parameter-list">
                                 <li><code class="language-javascript">url</code> URL to image</li>
                                 <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
+                                <li><code class="language-javascript">orientation</code> Custom orientation, applied after exif orientation (if enabled). Only works with <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').
+                                    <br />
+                                    Valid options are:
+                                    <ul>
+                                        <li><code class="language-javascript">1</code> unchanged</li>
+                                        <li><code class="language-javascript">2</code> flipped horizontally</li>
+                                        <li><code class="language-javascript">3</code> rotated 180 degrees</li>
+                                        <li><code class="language-javascript">4</code> flipped vertically</li>
+                                        <li><code class="language-javascript">5</code> flipped horizontally, then rotated left by 90 degrees</li>
+                                        <li><code class="language-javascript">6</code> rotated left by 90 degrees</li>
+                                        <li><code class="language-javascript">7</code> flipped horizontally, then rotated right by 90 degrees</li>
+                                        <li><code class="language-javascript">8</code> rotated right by 90 degrees</li>
+                                    </pre>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li>
@@ -224,6 +216,9 @@ $('#item').croppie(method, args);</code></pre>
                                 <li class="values">
                                     <code class="language-javascript">'original'</code> the size of the resulting image will be at the original scale of the image
                                 </li>
+                                <li class="values">
+                                    <code class="language-javascript">{width, height}</code> an object defining the width and height.  If only one dimension is specified, the other will be calculated using the viewport aspect ratio.
+                                </li>
                                 <li>
                                     <code class="language-javascript">format</code> Indicating the image format.
                                 </li>
@@ -240,6 +235,16 @@ $('#item').croppie(method, args);</code></pre>
                                     <span class="default">Default:</span><code class="language-javascript">1</code>
                                 </li>
                             </ul>
+                        </li>
+                        <li>
+                            <strong class="focus">rotate(degrees)</strong><em></em>
+                            <p>Rotate the image by a specified degree amount.  Only works with <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').</p>
+                            <ul class="parameter-list">
+                                <li>
+                                    <code class="language-javascript">degrees</code> <span class="default">Valid Values:</span><code>90, 180, 270, -90, -180, -270</code>
+                                </li>
+                            </ul>
+                        </li>
                         <li>
                             <strong class="focus">setZoom(value)</strong><em></em>
                             <p>Set the zoom of a Croppie instance.  The value passed in is still restricted to the min/max set by Croppie.</p>
@@ -287,6 +292,7 @@ basic.croppie('bind', {
 basic.croppie('result', 'html');</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
+                              <input type="number" class="basic-width" placeholder="width" /> x <input type="number" class="basic-height" placeholder="height" />
                           </div>
                         </div>
                         <div class="col-1-2">
@@ -308,13 +314,19 @@ var el = document.getElementById('vanilla-demo');
 var vanilla = new Croppie(el, {
     viewport: { width: 100, height: 100 },
     boundary: { width: 300, height: 300 },
-    showZoomer: false
+    showZoomer: false,
+    enableOrientation: true
 });
-vanilla.bind('demo/demo-2.jpg');
+vanilla.bind({
+    url: 'demo/demo-2.jpg',
+    orientation: 4
+});
 //on button click
 vanilla.result('canvas');</code></pre>
                                 <div class="actions">
                                     <button class="vanilla-result">Result</button>
+                                    <button class="vanilla-rotate" data-deg="-90">Rotate Left</button>
+                                    <button class="vanilla-rotate" data-deg="90">Rotate Right</button>
                                 </div>
                             </div>
                         </div>
@@ -327,7 +339,7 @@ vanilla.result('canvas');</code></pre>
                             <strong>Upload Example (with exif orientation compatability)</strong>
                             <pre class="language-javascript"><code class="language-javascript">
 $uploadCrop = $('#upload-demo').croppie({
-    exif: true,
+    enableExif: true,
     viewport: {
         width: 200,
         height: 200,
