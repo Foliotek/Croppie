@@ -375,13 +375,13 @@
             } else if (ev.deltaY) {
                 delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
             } else if (ev.detail) {
-                delta = ev.detail / 60; //delta min: -3 max: 3 // max x 10 x 2
+                delta = ev.detail / -60; //delta min: -3 max: 3 // max x 10 x 2
             } else {
                 delta = 0;
             }
 
             targetZoom = self._currentZoom + delta;
-
+            
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
             change();
