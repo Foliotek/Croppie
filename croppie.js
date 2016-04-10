@@ -345,7 +345,6 @@
 
     function _initRotationControls () {
         // TODO - Not a fan of these controls
-        return;
         var self = this,
             wrap, btnLeft, btnRight, iLeft, iRight;
 
