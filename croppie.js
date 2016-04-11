@@ -796,7 +796,7 @@
             canvas = self.elements.canvas,
             img = self.elements.img,
             ctx = canvas.getContext('2d'),
-            exif = self.options.enableExif,
+            exif = _hasExif.call(self),
             customOrientation = self.options.enableOrientation && customOrientation;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
