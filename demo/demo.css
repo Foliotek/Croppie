@@ -77,6 +77,14 @@ section.who {
     padding: 5px 0;
 }
 
+input[type="number"],
+input[type="text"] {
+    border: 1px solid #aaa;
+    padding: 5px;
+    font-size: 18px;
+    width: 100px;
+}
+
 button,
 a.btn {
     background-color: #189094;

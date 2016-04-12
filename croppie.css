@@ -140,23 +140,28 @@
 }
 /*******************************************/
 
-
-/* Just cross hairs for debugging - can be removed upon release */
-.croppie-container .cr-viewport.debug:before,
-.croppie-container .cr-viewport.debug:after {
-    background: white;
-    width: 1px;
-    height: 1px;
-    content: '';
+/***********************************/
+/* Rotation Tools */
+/***********************************/
+.cr-rotate-controls {
     position: absolute;
+    bottom: 5px;
+    left: 5px;
+    z-index: 1;
 }
-.croppie-container .cr-viewport.debug:before {
-	top: 0;
-    height: 100%;
-    left: 50%;
+.cr-rotate-controls button {
+    border: 0;
+    background: none;
 }
-.croppie-container .cr-viewport.debug:after {
-	top: 50%;
-	left: 0;
-	width: 100%;
+.cr-rotate-controls i:before {
+    display: inline-block;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 22px;
+}
+.cr-rotate-l i:before {
+    content: '↺';
+}
+.cr-rotate-r i:before {
+    content: '↻';
 }
