@@ -745,7 +745,7 @@
             _centerImage.call(self);
         }
 
-
+        _updateCenterPoint.call(self);
         _updateOverlay.call(self);
     }
 
@@ -903,7 +903,6 @@
                 _transferImageToCanvas.call(self, options.orientation);
             }
             _updatePropertiesFromImage.call(self);
-            _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             if (cb) {
                 cb();
