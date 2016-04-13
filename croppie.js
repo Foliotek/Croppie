@@ -900,7 +900,7 @@
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
-                _transferImageToCanvas.call(self, options.orientation);
+                _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
