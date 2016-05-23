@@ -984,7 +984,6 @@
         data.circle = self.options.viewport.type === 'circle';
         data.url = self.data.url;
 
-        console.log(data);
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
                 resolve(_getCanvasResult.call(self, self.elements.preview, data));
