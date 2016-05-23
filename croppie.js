@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2016
  * Foliotek
- * Version: 2.1.0
+ * Version: 2.1.1
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -1034,8 +1034,8 @@
         delete self.elements;
     }
 
-    if (this.jQuery) {
-        var $ = this.jQuery;
+    if (window.jQuery) {
+        var $ = window.jQuery;
         $.fn.croppie = function (opts) {
             var ot = typeof opts;
 
