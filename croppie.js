@@ -213,9 +213,9 @@
             cb(0);
         }
 
-        EXIF.getData(img, function () { 
+        EXIF.getData(img, function () {
             var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);            
+            cb(orientation);
         });
     }
 
@@ -317,6 +317,7 @@
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
         });
+        viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
         addClass(overlay, 'cr-overlay');
@@ -426,7 +427,7 @@
             }
 
             targetZoom = self._currentZoom + delta;
-            
+
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
             change();
@@ -942,8 +943,8 @@
     }
 
     var RESULT_DEFAULTS = {
-            type: 'canvas', 
-            format: 'png', 
+            type: 'canvas',
+            format: 'png',
             quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -1143,6 +1144,6 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;    
+        module.exports = Croppie;
     }
 }));
