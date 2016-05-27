@@ -583,26 +583,23 @@
             }
         }
 
-        function parseKeyDown(key) {
+        function keyDown(ev) {
             var LEFT_ARROW  = 37,
                 UP_ARROW    = 38,
                 RIGHT_ARROW = 39,
                 DOWN_ARROW  = 40;
 
-            switch (key) {
-                case LEFT_ARROW:
-                    return [1, 0];
-                case UP_ARROW:
-                    return [0, 1];
-                case RIGHT_ARROW:
-                    return [-1, 0];
-                case DOWN_ARROW:
-                    return [0, -1];
-            };
-        }
-
-        function keyDown(ev) {
-            if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+            if (ev.shiftKey && (ev.keyCode == UP_ARROW || ev.keyCode == DOWN_ARROW)) {
+                var zoom = 0.0;
+                if (ev.keyCode == UP_ARROW) {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) + parseFloat(self.elements.zoomer.step, 10)
+                }
+                else {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) - parseFloat(self.elements.zoomer.step, 10)
+                }
+                self.setZoom(zoom);
+            }
+            else if (ev.keyCode >= 37 && ev.keyCode <= 40) {
                 ev.preventDefault();
                 var movement = parseKeyDown(ev.keyCode);
 
@@ -610,6 +607,19 @@
                 document.body.style[CSS_USERSELECT] = 'none';
                 vpRect = self.elements.viewport.getBoundingClientRect();
                 keyMove(movement);
+            };
+
+            function parseKeyDown(key) {
+                switch (key) {
+                    case LEFT_ARROW:
+                        return [1, 0];
+                    case UP_ARROW:
+                        return [0, 1];
+                    case RIGHT_ARROW:
+                        return [-1, 0];
+                    case DOWN_ARROW:
+                        return [0, -1];
+                };
             };
         }
 
