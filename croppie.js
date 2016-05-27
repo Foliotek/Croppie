@@ -581,6 +581,7 @@
                 transform.y = top;
                 transform.x = left;
             }
+        }
 
         function parseKeyDown(key) {
             var LEFT_ARROW  = 37,
