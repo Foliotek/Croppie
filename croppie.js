@@ -857,6 +857,10 @@
         canvas.width = outWidth;
         canvas.height = outHeight;
 
+        if (backgroundColor) {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, outWidth, outHeight);
+        }
         ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
@@ -956,6 +960,7 @@
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
+            backgroundColor = opts.backgroundColor,
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
@@ -983,6 +988,7 @@
 
         data.circle = self.options.viewport.type === 'circle';
         data.url = self.data.url;
+        data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
