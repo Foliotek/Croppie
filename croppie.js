@@ -26,7 +26,8 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT;
+        CSS_USERSELECT,
+        transform;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -54,7 +55,7 @@
         for (var property in source) {
             if (source[property] && source[property].constructor && source[property].constructor === Object) {
                 destination[property] = destination[property] || {};
-                arguments.callee(destination[property], source[property]);
+                deepExtend(destination[property], source[property]);
             } else {
                 destination[property] = source[property];
             }
@@ -213,9 +214,9 @@
             cb(0);
         }
 
-        EXIF.getData(img, function () { 
+        EXIF.getData(img, function () {
             var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);            
+            cb(orientation);
         });
     }
 
@@ -426,7 +427,7 @@
             }
 
             targetZoom = self._currentZoom + delta;
-            
+
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
             change();
@@ -942,8 +943,8 @@
     }
 
     var RESULT_DEFAULTS = {
-            type: 'canvas', 
-            format: 'png', 
+            type: 'canvas',
+            format: 'png',
             quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -1143,6 +1144,6 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;    
+        module.exports = Croppie;
     }
 }));
