@@ -26,8 +26,7 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT,
-        transform;
+        CSS_USERSELECT;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -561,7 +560,8 @@
             originalX,
             originalY,
             originalDistance,
-            vpRect;
+            vpRect,
+            transform;
 
         function mouseDown(ev) {
             ev.preventDefault();
