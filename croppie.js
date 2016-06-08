@@ -213,9 +213,9 @@
             cb(0);
         }
 
-        EXIF.getData(img, function () { 
+        EXIF.getData(img, function () {
             var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);            
+            cb(orientation);
         });
     }
 
@@ -426,7 +426,7 @@
             }
 
             targetZoom = self._currentZoom + delta;
-            
+
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
             change();
@@ -942,8 +942,8 @@
     }
 
     var RESULT_DEFAULTS = {
-            type: 'canvas', 
-            format: 'png', 
+            type: 'canvas',
+            format: 'png',
             quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -956,6 +956,7 @@
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
+            circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
@@ -981,7 +982,7 @@
             data.quality = quality;
         }
 
-        data.circle = self.options.viewport.type === 'circle';
+        data.circle = circle;
         data.url = self.data.url;
 
         prom = new Promise(function (resolve, reject) {
@@ -1143,6 +1144,6 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;    
+        module.exports = Croppie;
     }
 }));
