@@ -213,9 +213,9 @@
             cb(0);
         }
 
-        EXIF.getData(img, function () { 
+        EXIF.getData(img, function () {
             var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);            
+            cb(orientation);
         });
     }
 
@@ -317,6 +317,7 @@
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
         });
+        viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
         addClass(overlay, 'cr-overlay');
@@ -426,7 +427,7 @@
             }
 
             targetZoom = self._currentZoom + delta;
-            
+
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
             change();
@@ -562,6 +563,82 @@
             originalDistance,
             vpRect;
 
+        function assignTransformCoordinates(deltaX, deltaY) {
+            var imgRect = self.elements.preview.getBoundingClientRect(),
+                top = transform.y + deltaY,
+                left = transform.x + deltaX;
+
+            if (self.options.enforceBoundary) {
+                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+                    transform.y = top;
+                }
+
+                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+                    transform.x = left;
+                }
+            }
+            else {
+                transform.y = top;
+                transform.x = left;
+            }
+        }
+
+        function keyDown(ev) {
+            var LEFT_ARROW  = 37,
+                UP_ARROW    = 38,
+                RIGHT_ARROW = 39,
+                DOWN_ARROW  = 40;
+
+            if (ev.shiftKey && (ev.keyCode == UP_ARROW || ev.keyCode == DOWN_ARROW)) {
+                var zoom = 0.0;
+                if (ev.keyCode == UP_ARROW) {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) + parseFloat(self.elements.zoomer.step, 10)
+                }
+                else {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) - parseFloat(self.elements.zoomer.step, 10)
+                }
+                self.setZoom(zoom);
+            }
+            else if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+                ev.preventDefault();
+                var movement = parseKeyDown(ev.keyCode);
+
+                transform = Transform.parse(self.elements.preview);
+                document.body.style[CSS_USERSELECT] = 'none';
+                vpRect = self.elements.viewport.getBoundingClientRect();
+                keyMove(movement);
+            };
+
+            function parseKeyDown(key) {
+                switch (key) {
+                    case LEFT_ARROW:
+                        return [1, 0];
+                    case UP_ARROW:
+                        return [0, 1];
+                    case RIGHT_ARROW:
+                        return [-1, 0];
+                    case DOWN_ARROW:
+                        return [0, -1];
+                };
+            };
+        }
+
+        function keyMove(movement) {
+            var deltaX = movement[0],
+                deltaY = movement[1],
+                newCss = {};
+
+            assignTransformCoordinates(deltaX, deltaY);
+
+            newCss[CSS_TRANSFORM] = transform.toString();
+            css(self.elements.preview, newCss);
+            _updateOverlay.call(self);
+            document.body.style[CSS_USERSELECT] = '';
+            _updateCenterPoint.call(self);
+            _triggerUpdate.call(self);
+            originalDistance = 0;
+        }
+
         function mouseDown(ev) {
             ev.preventDefault();
             if (isDragging) return;
@@ -597,9 +674,6 @@
 
             var deltaX = pageX - originalX,
                 deltaY = pageY - originalY,
-                imgRect = self.elements.preview.getBoundingClientRect(),
-                top = transform.y + deltaY,
-                left = transform.x + deltaX,
                 newCss = {};
 
             if (ev.type == 'touchmove') {
@@ -620,19 +694,7 @@
                 }
             }
 
-            if (self.options.enforceBoundary) {
-                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                    transform.y = top;
-                }
-
-                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-                    transform.x = left;
-                }
-            }
-            else {
-                transform.y = top;
-                transform.x = left;
-            }
+            assignTransformCoordinates(deltaX, deltaY);
 
             newCss[CSS_TRANSFORM] = transform.toString();
             css(self.elements.preview, newCss);
@@ -654,6 +716,7 @@
         }
 
         self.elements.overlay.addEventListener('mousedown', mouseDown);
+        self.elements.viewport.addEventListener('keydown', keyDown);
         self.elements.overlay.addEventListener('touchstart', mouseDown);
     }
 
@@ -942,8 +1005,8 @@
     }
 
     var RESULT_DEFAULTS = {
-            type: 'canvas', 
-            format: 'png', 
+            type: 'canvas',
+            format: 'png',
             quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -1143,6 +1206,6 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;    
+        module.exports = Croppie;
     }
 }));
