@@ -1025,6 +1025,7 @@
             format = opts.format,
             quality = opts.quality,
             backgroundColor = opts.backgroundColor,
+            circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
@@ -1050,7 +1051,7 @@
             data.quality = quality;
         }
 
-        data.circle = self.options.viewport.type === 'circle';
+        data.circle = circle;
         data.url = self.data.url;
         data.backgroundColor = backgroundColor;
 
