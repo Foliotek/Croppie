@@ -54,7 +54,7 @@
         for (var property in source) {
             if (source[property] && source[property].constructor && source[property].constructor === Object) {
                 destination[property] = destination[property] || {};
-                arguments.callee(destination[property], source[property]);
+                deepExtend(destination[property], source[property]);
             } else {
                 destination[property] = source[property];
             }
@@ -561,7 +561,8 @@
             originalX,
             originalY,
             originalDistance,
-            vpRect;
+            vpRect,
+            transform;
 
         function assignTransformCoordinates(deltaX, deltaY) {
             var imgRect = self.elements.preview.getBoundingClientRect(),
