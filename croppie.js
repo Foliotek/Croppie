@@ -920,8 +920,8 @@
         canvas.width = outWidth;
         canvas.height = outHeight;
 
-        if (backgroundColor) {
-            ctx.fillStyle = backgroundColor;
+        if (data.backgroundColor) {
+            ctx.fillStyle = data.backgroundColor;
             ctx.fillRect(0, 0, outWidth, outHeight);
         }
         ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
