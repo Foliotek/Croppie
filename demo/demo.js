@@ -101,7 +101,9 @@ var Demo = (function() {
             orientation: 4
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
-			vanilla.result('canvas').then(function (src) {
+			vanilla.result({
+				type: 'canvas'
+			}).then(function (src) {
 				popupResult({
 					src: src
 				});
