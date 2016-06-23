@@ -8,7 +8,8 @@
     "mocha": "2.4.5"
   },
   "scripts": {
-    "test": "mocha test/unit"
+    "test": "mocha test/unit",
+    "deploy": "node deploy.js"
   },
   "repository": {
     "type": "git",
