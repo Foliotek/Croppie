@@ -46,9 +46,9 @@ var Demo = (function() {
 			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
-		// mc.on('update', function () {
-		// 	console.log('update');
-		// });
+		mc.on('update', function (ev, data) {
+			console.log('update', ev, data);
+		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'canvas',

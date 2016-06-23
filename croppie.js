@@ -749,7 +749,7 @@
 
         self.options.update.call(self, data);
         if (self.$) {
-            self.$(self.element).trigger('update')
+            self.$(self.element).trigger('update', data)
         }
         else {
             var ev;
