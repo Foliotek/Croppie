@@ -34,3 +34,4 @@ Download:
 5. `git push && git push --tags`
 6. `npm publish`
 7. Draft a new release with new tag on https://github.com/Foliotek/Croppie/releases
+8. Deploy to gh-pages `npm run deploy`
