@@ -430,7 +430,7 @@
 
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
-            change();
+            change.call(self);
         }
 
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
@@ -446,10 +446,19 @@
         var self = this,
             transform = ui ? ui.transform : Transform.parse(self.elements.preview),
             vpRect = ui ? ui.viewportRect : self.elements.viewport.getBoundingClientRect(),
-            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview);
+            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview),
+            transCss = {};
+
+        function applyCss() {
+            var transCss = {};
+            transCss[CSS_TRANSFORM] = transform.toString();
+            transCss[CSS_TRANS_ORG] = origin.toString();
+            css(self.elements.preview, transCss);
+        }
 
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
+        applyCss();
 
         if (self.options.enforceBoundary) {
             var boundaries = _getVirtualBoundaries.call(self, vpRect),
@@ -476,12 +485,7 @@
                 transform.y = transBoundaries.minY;
             }
         }
-
-        var transCss = {};
-        transCss[CSS_TRANSFORM] = transform.toString();
-        transCss[CSS_TRANS_ORG] = origin.toString();
-        css(self.elements.preview, transCss);
-
+        applyCss();
         _debouncedOverlay.call(self);
         _triggerUpdate.call(self);
     }
@@ -498,7 +502,6 @@
             curImgHeight = imgRect.height,
             halfWidth = vpWidth / 2,
             halfHeight = vpHeight / 2;
-
 
         var maxX = ((halfWidth / scale) - centerFromBoundaryX) * -1;
         var minX = maxX - ((curImgWidth * (1 / scale)) - (vpWidth * (1 / scale)));
