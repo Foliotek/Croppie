@@ -739,9 +739,28 @@
     var _debouncedOverlay = debounce(_updateOverlay, 500);
 
     function _triggerUpdate() {
-        var self = this;
-        if (_isVisible.call(self)) {
-            self.options.update.call(self, self.get());
+        var self = this,
+            data = self.get(),
+            ev; 
+
+        if (!_isVisible.call(self)) {
+            return;
+        }
+
+        self.options.update.call(self, data);
+        if (self.$) {
+            self.$(self.element).trigger('update')
+        }
+        else {
+            var ev;
+            if (window.CustomEvent) {
+                ev = new CustomEvent('update', { detail: data });
+            } else {
+                ev = document.createEvent('CustomEvent');
+                ev.initCustomEvent('update', true, true, data);
+            }
+
+            self.element.dispatchEvent(ev);
         }
     }
 
@@ -1142,6 +1161,7 @@
             else {
                 return this.each(function () {
                     var i = new Croppie(this, opts);
+                    i.$ = $;
                     $(this).data('croppie', i);
                 });
             }

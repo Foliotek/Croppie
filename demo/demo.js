@@ -46,6 +46,9 @@ var Demo = (function() {
 			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
+		// mc.on('update', function () {
+		// 	console.log('update');
+		// });
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'canvas',
@@ -90,7 +93,8 @@ var Demo = (function() {
 	}
 
 	function demoVanilla() {
-		var vanilla = new Croppie(document.getElementById('vanilla-demo'), {
+		var vEl = document.getElementById('vanilla-demo'),
+			vanilla = new Croppie(vEl, {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
@@ -100,6 +104,9 @@ var Demo = (function() {
             url: 'demo/demo-2.jpg',
             orientation: 4
         });
+        // vEl.addEventListener('update', function (ev) {
+        // 	console.log('update', ev);
+        // });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
 				type: 'canvas'
