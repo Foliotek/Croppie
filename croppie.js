@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2016
  * Foliotek
- * Version: 2.1.0
+ * Version: 2.2.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -54,7 +54,7 @@
         for (var property in source) {
             if (source[property] && source[property].constructor && source[property].constructor === Object) {
                 destination[property] = destination[property] || {};
-                arguments.callee(destination[property], source[property]);
+                deepExtend(destination[property], source[property]);
             } else {
                 destination[property] = source[property];
             }
@@ -213,13 +213,13 @@
             cb(0);
         }
 
-        EXIF.getData(img, function () { 
+        EXIF.getData(img, function () {
             var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);            
+            cb(orientation);
         });
     }
 
-    function rotateCanvas(canvas, img, orientation) {
+    function drawCanvas(canvas, img, orientation) {
         var width = img.width,
             height = img.height,
             ctx = canvas.getContext('2d');
@@ -317,6 +317,7 @@
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
         });
+        viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
         addClass(overlay, 'cr-overlay');
@@ -394,7 +395,7 @@
         addClass(wrap, 'cr-slider-wrap');
         addClass(zoomer, 'cr-slider');
         zoomer.type = 'range';
-        zoomer.step = '0.01';
+        zoomer.step = '0.0001';
         zoomer.value = 1;
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
 
@@ -426,10 +427,10 @@
             }
 
             targetZoom = self._currentZoom + delta;
-            
+
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
-            change();
+            change.call(self);
         }
 
         self.elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
@@ -445,10 +446,19 @@
         var self = this,
             transform = ui ? ui.transform : Transform.parse(self.elements.preview),
             vpRect = ui ? ui.viewportRect : self.elements.viewport.getBoundingClientRect(),
-            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview);
+            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview),
+            transCss = {};
+
+        function applyCss() {
+            var transCss = {};
+            transCss[CSS_TRANSFORM] = transform.toString();
+            transCss[CSS_TRANS_ORG] = origin.toString();
+            css(self.elements.preview, transCss);
+        }
 
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
+        applyCss();
 
         if (self.options.enforceBoundary) {
             var boundaries = _getVirtualBoundaries.call(self, vpRect),
@@ -475,12 +485,7 @@
                 transform.y = transBoundaries.minY;
             }
         }
-
-        var transCss = {};
-        transCss[CSS_TRANSFORM] = transform.toString();
-        transCss[CSS_TRANS_ORG] = origin.toString();
-        css(self.elements.preview, transCss);
-
+        applyCss();
         _debouncedOverlay.call(self);
         _triggerUpdate.call(self);
     }
@@ -497,7 +502,6 @@
             curImgHeight = imgRect.height,
             halfWidth = vpWidth / 2,
             halfHeight = vpHeight / 2;
-
 
         var maxX = ((halfWidth / scale) - centerFromBoundaryX) * -1;
         var minX = maxX - ((curImgWidth * (1 / scale)) - (vpWidth * (1 / scale)));
@@ -560,7 +564,84 @@
             originalX,
             originalY,
             originalDistance,
-            vpRect;
+            vpRect,
+            transform;
+
+        function assignTransformCoordinates(deltaX, deltaY) {
+            var imgRect = self.elements.preview.getBoundingClientRect(),
+                top = transform.y + deltaY,
+                left = transform.x + deltaX;
+
+            if (self.options.enforceBoundary) {
+                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
+                    transform.y = top;
+                }
+
+                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
+                    transform.x = left;
+                }
+            }
+            else {
+                transform.y = top;
+                transform.x = left;
+            }
+        }
+
+        function keyDown(ev) {
+            var LEFT_ARROW  = 37,
+                UP_ARROW    = 38,
+                RIGHT_ARROW = 39,
+                DOWN_ARROW  = 40;
+
+            if (ev.shiftKey && (ev.keyCode == UP_ARROW || ev.keyCode == DOWN_ARROW)) {
+                var zoom = 0.0;
+                if (ev.keyCode == UP_ARROW) {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) + parseFloat(self.elements.zoomer.step, 10)
+                }
+                else {
+                    zoom = parseFloat(self.elements.zoomer.value, 10) - parseFloat(self.elements.zoomer.step, 10)
+                }
+                self.setZoom(zoom);
+            }
+            else if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+                ev.preventDefault();
+                var movement = parseKeyDown(ev.keyCode);
+
+                transform = Transform.parse(self.elements.preview);
+                document.body.style[CSS_USERSELECT] = 'none';
+                vpRect = self.elements.viewport.getBoundingClientRect();
+                keyMove(movement);
+            };
+
+            function parseKeyDown(key) {
+                switch (key) {
+                    case LEFT_ARROW:
+                        return [1, 0];
+                    case UP_ARROW:
+                        return [0, 1];
+                    case RIGHT_ARROW:
+                        return [-1, 0];
+                    case DOWN_ARROW:
+                        return [0, -1];
+                };
+            };
+        }
+
+        function keyMove(movement) {
+            var deltaX = movement[0],
+                deltaY = movement[1],
+                newCss = {};
+
+            assignTransformCoordinates(deltaX, deltaY);
+
+            newCss[CSS_TRANSFORM] = transform.toString();
+            css(self.elements.preview, newCss);
+            _updateOverlay.call(self);
+            document.body.style[CSS_USERSELECT] = '';
+            _updateCenterPoint.call(self);
+            _triggerUpdate.call(self);
+            originalDistance = 0;
+        }
 
         function mouseDown(ev) {
             ev.preventDefault();
@@ -597,9 +678,6 @@
 
             var deltaX = pageX - originalX,
                 deltaY = pageY - originalY,
-                imgRect = self.elements.preview.getBoundingClientRect(),
-                top = transform.y + deltaY,
-                left = transform.x + deltaX,
                 newCss = {};
 
             if (ev.type == 'touchmove') {
@@ -620,19 +698,7 @@
                 }
             }
 
-            if (self.options.enforceBoundary) {
-                if (vpRect.top > imgRect.top + deltaY && vpRect.bottom < imgRect.bottom + deltaY) {
-                    transform.y = top;
-                }
-
-                if (vpRect.left > imgRect.left + deltaX && vpRect.right < imgRect.right + deltaX) {
-                    transform.x = left;
-                }
-            }
-            else {
-                transform.y = top;
-                transform.x = left;
-            }
+            assignTransformCoordinates(deltaX, deltaY);
 
             newCss[CSS_TRANSFORM] = transform.toString();
             css(self.elements.preview, newCss);
@@ -654,6 +720,7 @@
         }
 
         self.elements.overlay.addEventListener('mousedown', mouseDown);
+        self.elements.viewport.addEventListener('keydown', keyDown);
         self.elements.overlay.addEventListener('touchstart', mouseDown);
     }
 
@@ -672,9 +739,28 @@
     var _debouncedOverlay = debounce(_updateOverlay, 500);
 
     function _triggerUpdate() {
-        var self = this;
-        if (_isVisible.call(self)) {
-            self.options.update.call(self, self.get());
+        var self = this,
+            data = self.get(),
+            ev; 
+
+        if (!_isVisible.call(self)) {
+            return;
+        }
+
+        self.options.update.call(self, data);
+        if (self.$) {
+            self.$(self.element).trigger('update', data)
+        }
+        else {
+            var ev;
+            if (window.CustomEvent) {
+                ev = new CustomEvent('update', { detail: data });
+            } else {
+                ev = document.createEvent('CustomEvent');
+                ev.initCustomEvent('update', true, true, data);
+            }
+
+            self.element.dispatchEvent(ev);
         }
     }
 
@@ -745,7 +831,7 @@
             _centerImage.call(self);
         }
 
-
+        _updateCenterPoint.call(self);
         _updateOverlay.call(self);
     }
 
@@ -805,13 +891,13 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                rotateCanvas(canvas, img, parseInt(orientation));
+                drawCanvas(canvas, img, parseInt(orientation));
                 if (customOrientation) {
-                    rotateCanvas(canvas, img, customOrientation);
+                    drawCanvas(canvas, img, customOrientation);
                 }
             });
         } else if (customOrientation) {
-            rotateCanvas(canvas, img, customOrientation);
+            drawCanvas(canvas, img, customOrientation);
         }
     }
 
@@ -857,6 +943,10 @@
         canvas.width = outWidth;
         canvas.height = outHeight;
 
+        if (data.backgroundColor) {
+            ctx.fillStyle = data.backgroundColor;
+            ctx.fillRect(0, 0, outWidth, outHeight);
+        }
         ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
@@ -900,10 +990,9 @@
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
-                _transferImageToCanvas.call(self, options.orientation);
+                _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
-            _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             if (cb) {
                 cb();
@@ -943,8 +1032,8 @@
     }
 
     var RESULT_DEFAULTS = {
-            type: 'canvas', 
-            format: 'png', 
+            type: 'canvas',
+            format: 'png',
             quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
@@ -957,6 +1046,8 @@
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
+            backgroundColor = opts.backgroundColor,
+            circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
@@ -982,10 +1073,10 @@
             data.quality = quality;
         }
 
-        data.circle = self.options.viewport.type === 'circle';
+        data.circle = circle;
         data.url = self.data.url;
+        data.backgroundColor = backgroundColor;
 
-        console.log(data);
         prom = new Promise(function (resolve, reject) {
             if (type === 'canvas') {
                 resolve(_getCanvasResult.call(self, self.elements.preview, data));
@@ -1021,7 +1112,7 @@
         if (deg === -90 || deg === 270) ornt = 8;
         if (deg === 180 || deg === -180) ornt = 3;
 
-        rotateCanvas(canvas, copy, ornt);
+        drawCanvas(canvas, copy, ornt);
         _onZoom.call(self);
     }
 
@@ -1035,8 +1126,8 @@
         delete self.elements;
     }
 
-    if (this.jQuery) {
-        var $ = this.jQuery;
+    if (window.jQuery) {
+        var $ = window.jQuery;
         $.fn.croppie = function (opts) {
             var ot = typeof opts;
 
@@ -1070,6 +1161,7 @@
             else {
                 return this.each(function () {
                     var i = new Croppie(this, opts);
+                    i.$ = $;
                     $(this).data('croppie', i);
                 });
             }
@@ -1145,6 +1237,6 @@
     exports.Croppie = window.Croppie = Croppie;
 
     if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;    
+        module.exports = Croppie;
     }
 }));

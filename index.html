@@ -85,7 +85,6 @@ $('.demo').croppie({
             <div class="container">
                 <p>You can initialize Croppie with the following code:</p>
                 
-});</code></pre>
               <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
 // call a method
 c.method(args);</code></pre>
@@ -291,7 +290,10 @@ basic.croppie('bind', {
     points: [77,469,280,739]
 });
 //on button click
-basic.croppie('result', 'html');</code></pre>
+basic.croppie('result', 'html').then(function(html) {
+    // html is div (overflow hidden)
+    // with img positioned inside.
+});</code></pre>
                           <div class="actions">
                               <button class="basic-result">Result</button>
                               <input type="number" class="basic-width" placeholder="width" /> x <input type="number" class="basic-height" placeholder="height" />
@@ -324,7 +326,9 @@ vanilla.bind({
     orientation: 4
 });
 //on button click
-vanilla.result('canvas');</code></pre>
+vanilla.result('canvas').then(function(base64Image) {
+    // do something with cropped base64 image here
+});</code></pre>
                                 <div class="actions">
                                     <button class="vanilla-result">Result</button>
                                     <button class="vanilla-rotate" data-deg="-90">Rotate Left</button>
