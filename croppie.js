@@ -1011,8 +1011,10 @@
             vpData = self.elements.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
             y1 = vpData.top - imgData.top,
-            x2 = x1 + vpData.width,
-            y2 = y1 + vpData.height,
+            widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2,
+            heightDiff = (vpData.height - self.elements.viewport.offsetHeight) / 2,
+            x2 = x1 + self.elements.viewport.offsetWidth + widthDiff,
+            y2 = y1 + self.elements.viewport.offsetHeight + heightDiff,
             scale = self._currentZoom;
 
         if (scale === Infinity || isNaN(scale)) {
