@@ -47,7 +47,7 @@ var Demo = (function() {
 			// mouseWheelZoom: false
 		});
 		mc.on('update', function (ev, data) {
-			console.log('update', ev, data);
+			console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
@@ -106,9 +106,9 @@ var Demo = (function() {
             orientation: 4,
             zoom: 0
         });
-        // vEl.addEventListener('update', function (ev) {
-        // 	console.log('update', ev);
-        // });
+        vEl.addEventListener('update', function (ev) {
+        	console.log('vanilla update', ev);
+        });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
 				type: 'canvas'
