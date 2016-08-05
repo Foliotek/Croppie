@@ -393,7 +393,7 @@
 
     function _hasExif() {
         // todo - remove options.exif after deprecation
-        return (this.options.enableExif || this.options.exif) && window.EXIF;
+        return this.options.enableExif && window.EXIF;
     }
 
     function _setZoomerVal(v) {

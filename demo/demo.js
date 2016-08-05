@@ -150,15 +150,15 @@ var Demo = (function() {
 
 		$uploadCrop = $('#upload-demo').croppie({
 			viewport: {
-				width: 200,
-				height: 200,
+				width: 100,
+				height: 100,
 				type: 'circle'
 			},
 			boundary: {
 				width: 300,
 				height: 300
 			},
-			exif: true
+			enableExif: true
 		});
 
 		$('#upload').on('change', function () { readFile(this); });
