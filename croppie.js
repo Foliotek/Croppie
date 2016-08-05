@@ -1141,6 +1141,9 @@
                 else if (opts === 'result') {
                     return singleInst.result.apply(singleInst, args);
                 }
+                else if (opts === 'bind') {
+                    return singleInst.bind.apply(singleInst, args);
+                }
 
                 return this.each(function () {
                     var i = $(this).data('croppie');

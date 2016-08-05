@@ -74,6 +74,7 @@ var Demo = (function() {
 			url: 'demo/cat.jpg',
 			points: [77,469,280,739]
 		});
+
 		$('.basic-result').on('click', function() {
 			var w = parseInt($w.val(), 10),
 				h = parseInt($h.val(), 10),s
@@ -130,10 +131,13 @@ var Demo = (function() {
 	            var reader = new FileReader();
 	            
 	            reader.onload = function (e) {
+					$('.upload-demo').addClass('ready');
 	            	$uploadCrop.croppie('bind', {
 	            		url: e.target.result
+	            	}).then(function(){
+	            		console.log('jQuery bind complete');
 	            	});
-	            	$('.upload-demo').addClass('ready');
+	            	
 	            }
 	            
 	            reader.readAsDataURL(input.files[0]);
