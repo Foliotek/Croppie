@@ -103,7 +103,8 @@ var Demo = (function() {
 		});
 		vanilla.bind({
             url: 'demo/demo-2.jpg',
-            orientation: 4
+            orientation: 4,
+            zoom: 0
         });
         // vEl.addEventListener('update', function (ev) {
         // 	console.log('update', ev);

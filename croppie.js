@@ -383,7 +383,10 @@
 
     function _setZoomerVal(v) {
         if (this.options.enableZoom) {
-            this.elements.zoomer.value = fix(v, 4);
+            var z = this.elements.zoomer,
+                val = fix(v, 4);
+
+            z.value = Math.max(z.min, Math.min(z.max, val));
         }
     }
 
@@ -459,6 +462,7 @@
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
         applyCss();
+
 
         if (self.options.enforceBoundary) {
             var boundaries = _getVirtualBoundaries.call(self, vpRect),
@@ -815,12 +819,16 @@
 
             zoomer.min = fix(minZoom, 4);
             zoomer.max = fix(maxZoom, 4);
-            initialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            var defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
             _setZoomerVal.call(self, initialZoom);
             dispatchChange(zoomer);
         }
-
-        self._currentZoom = transformReset.scale = initialZoom;
+        else {
+            self._currentZoom = initialZoom;
+        }
+        
+        transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
 
@@ -962,7 +970,8 @@
     function _bind(options, cb) {
         var self = this,
             url,
-            points = [];
+            points = [],
+            zoom = null;
 
         if (typeof (options) === 'string') {
             url = options;
@@ -979,6 +988,7 @@
         else {
             url = options.url;
             points = options.points || [];
+            zoom = typeof(options.zoom) === 'undefined' ? null : options.zoom;
         }
 
         self.data.bound = false;
@@ -986,6 +996,7 @@
         self.data.points = (points || self.data.points).map(function (p) {
             return parseFloat(p);
         });
+        self.data.boundZoom = zoom;
         var prom = loadImage(url, self.elements.img);
         prom.then(function () {
             if (self.options.useCanvas) {
