@@ -203,6 +203,9 @@ h2 {
     font-style: normal;
     padding: 0 10px;
 }
+.documentation i {
+    color: #666;
+}
 
 .documentation strong.focus {
     font-size: 18px;

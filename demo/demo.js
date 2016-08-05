@@ -47,7 +47,7 @@ var Demo = (function() {
 			// mouseWheelZoom: false
 		});
 		mc.on('update', function (ev, data) {
-			console.log('update', ev, data);
+			console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
@@ -74,6 +74,7 @@ var Demo = (function() {
 			url: 'demo/cat.jpg',
 			points: [77,469,280,739]
 		});
+
 		$('.basic-result').on('click', function() {
 			var w = parseInt($w.val(), 10),
 				h = parseInt($h.val(), 10),s
@@ -102,11 +103,12 @@ var Demo = (function() {
 		});
 		vanilla.bind({
             url: 'demo/demo-2.jpg',
-            orientation: 4
+            orientation: 4,
+            zoom: 0
         });
-        // vEl.addEventListener('update', function (ev) {
-        // 	console.log('update', ev);
-        // });
+        vEl.addEventListener('update', function (ev) {
+        	console.log('vanilla update', ev);
+        });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
 				type: 'canvas'
@@ -130,10 +132,13 @@ var Demo = (function() {
 	            var reader = new FileReader();
 	            
 	            reader.onload = function (e) {
+					$('.upload-demo').addClass('ready');
 	            	$uploadCrop.croppie('bind', {
 	            		url: e.target.result
+	            	}).then(function(){
+	            		console.log('jQuery bind complete');
 	            	});
-	            	$('.upload-demo').addClass('ready');
+	            	
 	            }
 	            
 	            reader.readAsDataURL(input.files[0]);
@@ -145,15 +150,15 @@ var Demo = (function() {
 
 		$uploadCrop = $('#upload-demo').croppie({
 			viewport: {
-				width: 200,
-				height: 200,
+				width: 100,
+				height: 100,
 				type: 'circle'
 			},
 			boundary: {
 				width: 300,
 				height: 300
 			},
-			exif: true
+			enableExif: true
 		});
 
 		$('#upload').on('change', function () { readFile(this); });

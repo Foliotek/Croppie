@@ -25,7 +25,7 @@
 	bottom: 0;
 	right: 0;
 	left: 0;
-	box-shadow:0 0 0 899px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.5);
 	z-index: 0;
 }
 .croppie-container .cr-vp-circle {
@@ -48,6 +48,14 @@
 }
 .croppie-result img {
 	position: absolute;
+}
+.croppie-container .cr-image,
+.croppie-container .cr-overlay, 
+.croppie-container .cr-viewport {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /*************************************/
