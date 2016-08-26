@@ -420,6 +420,10 @@
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
 
+        if (self.options.zoomerMatchBoundary) {
+            css(wrap, 'width', self.options.boundary.width+'px');
+        }
+
         self._currentZoom = 1;
 
         function change() {
@@ -1237,6 +1241,7 @@
         enableExif: false,
         enforceBoundary: true,
         enableOrientation: false,
+        zoomerMatchBoundary: false,
         update: function () { }
     };
 
