@@ -448,7 +448,7 @@
                 delta = 0;
             }
 
-            targetZoom = self._currentZoom + delta;
+            targetZoom = self._currentZoom + (self.options.mouseWheelZoomRelative ? delta * self._currentZoom : delta);
 
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
@@ -1242,6 +1242,7 @@
         enforceBoundary: true,
         enableOrientation: false,
         zoomerMatchBoundary: false,
+        mouseWheelZoomRelative: false,
         update: function () { }
     };
 
