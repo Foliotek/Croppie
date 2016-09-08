@@ -111,8 +111,9 @@ var Demo = (function() {
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
-				type: 'canvas'
-			}).then(function (src) {
+				type: 'blob'
+			}).then(function (blob) {
+				window.open(window.URL.createObjectURL(blob));
 				popupResult({
 					src: src
 				});

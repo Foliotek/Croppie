@@ -35,6 +35,22 @@
             window.CustomEvent = CustomEvent;
         }());
     }
+
+    if (!HTMLCanvasElement.prototype.toBlob) {
+        Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+            value: function (callback, type, quality) {
+                var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
+                len = binStr.length,
+                arr = new Uint8Array(len);
+
+                for (var i=0; i<len; i++ ) {
+                    arr[i] = binStr.charCodeAt(i);
+                }
+
+                callback( new Blob( [arr], {type: type || 'image/png'} ) );
+            }
+        });
+    }
     /* End Polyfills */
 
     var cssPrefixes = ['Webkit', 'Moz', 'ms'],
@@ -924,29 +940,7 @@
         }
     }
 
-    function _getHtmlResult(data) {
-        var points = data.points,
-            div = document.createElement('div'),
-            img = document.createElement('img'),
-            width = points[2] - points[0],
-            height = points[3] - points[1];
-
-        addClass(div, 'croppie-result');
-        div.appendChild(img);
-        css(img, {
-            left: (-1 * points[0]) + 'px',
-            top: (-1 * points[1]) + 'px'
-        });
-        img.src = data.url;
-        css(div, {
-            width: width + 'px',
-            height: height + 'px'
-        });
-
-        return div;
-    }
-
-    function _getCanvasResult(img, data) {
+    function _getCanvas(data) {
         var points = data.points,
             left = points[0],
             top = points[1],
@@ -970,7 +964,7 @@
             ctx.fillStyle = data.backgroundColor;
             ctx.fillRect(0, 0, outWidth, outHeight);
         }
-        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
+        ctx.drawImage(this.elements.preview, left, top, width, height, 0, 0, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
@@ -979,7 +973,42 @@
             ctx.closePath();
             ctx.fill();
         }
-        return canvas.toDataURL(data.format, data.quality);
+        return canvas;
+    }
+
+    function _getHtmlResult(data) {
+        var points = data.points,
+            div = document.createElement('div'),
+            img = document.createElement('img'),
+            width = points[2] - points[0],
+            height = points[3] - points[1];
+
+        addClass(div, 'croppie-result');
+        div.appendChild(img);
+        css(img, {
+            left: (-1 * points[0]) + 'px',
+            top: (-1 * points[1]) + 'px'
+        });
+        img.src = data.url;
+        css(div, {
+            width: width + 'px',
+            height: height + 'px'
+        });
+
+        return div;
+    }
+
+    function _getBase64Result(data) {
+        return _getCanvas.call(this, data).toDataURL(data.format, data.quality);
+    }
+
+    function _getBlobResult(data) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            _getCanvas.call(self, data).toBlob(function (blob) {
+                resolve(blob);
+            }, data.format, data.quality);
+        });
     }
 
     function _bind(options, cb) {
@@ -1070,7 +1099,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
-            type = (typeof (options) === 'string' ? options : (opts.type || 'viewport')),
+            resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
@@ -1106,11 +1135,18 @@
         data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve, reject) {
-            if (type === 'canvas') {
-                resolve(_getCanvasResult.call(self, self.elements.preview, data));
-            }
-            else {
-                resolve(_getHtmlResult.call(self, data));
+            switch(resultType)
+            {
+                case 'canvas':
+                case 'base64':
+                    resolve(_getCanvasResult.call(self, data));
+                    break;
+                case 'blob':
+                    _getBlobResult.call(self, data).then(resolve);
+                    break;
+                default: 
+                    resolve(_getHtmlResult.call(self, data));
+                    break;
             }
         });
         return prom;
