@@ -135,7 +135,7 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl) {
+    function loadImage(src, imageEl, useCanvas) {
         var img = imageEl || new Image(),
             prom;
 
@@ -146,7 +146,7 @@
             });
         } else {
             prom = new Promise(function (resolve, reject) {
-                if (src.substring(0,4).toLowerCase() === 'http') {
+                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
@@ -1015,7 +1015,7 @@
             return parseFloat(p);
         });
         self.data.boundZoom = zoom;
-        var prom = loadImage(url, self.elements.img);
+        var prom = loadImage(url, self.elements.img, self.options.useCanvas);
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
