@@ -51,11 +51,13 @@ var Demo = (function() {
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
-            	type: 'canvas',
+            	type: 'rawcanvas',
             	format: 'png'
-            }).then(function (resp) {
+            }).then(function (canvas) {
+            	log(canvas);
+
 				popupResult({
-					src: resp
+					src: canvas.toDataURL()
 				});
 			});
 		});

@@ -1135,11 +1135,13 @@
         data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve, reject) {
-            switch(resultType)
+            switch(resultType.toLowerCase())
             {
+                case 'rawcanvas': 
+                    resolve(_getCanvas.call(self, data));
                 case 'canvas':
                 case 'base64':
-                    resolve(_getCanvasResult.call(self, data));
+                    resolve(_getBase64Result.call(self, data));
                     break;
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
