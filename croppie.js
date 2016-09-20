@@ -151,7 +151,7 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl) {
+    function loadImage(src, imageEl, useCanvas) {
         var img = imageEl || new Image(),
             prom;
 
@@ -162,7 +162,7 @@
             });
         } else {
             prom = new Promise(function (resolve, reject) {
-                if (src.substring(0,4).toLowerCase() === 'http') {
+                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
@@ -831,7 +831,10 @@
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
-        imgData = img.getBoundingClientRect();
+        imgData = {
+            width   : img.naturalWidth,
+            height  : img.naturalHeight
+        };
         vpData = self.elements.viewport.getBoundingClientRect();
         boundaryData = self.elements.boundary.getBoundingClientRect();
         self._originalImageWidth = imgData.width;
@@ -1041,7 +1044,7 @@
             return parseFloat(p);
         });
         self.data.boundZoom = zoom;
-        var prom = loadImage(url, self.elements.img);
+        var prom = loadImage(url, self.elements.img, self.options.useCanvas);
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
