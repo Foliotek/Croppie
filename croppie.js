@@ -831,10 +831,7 @@
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
-        imgData = {
-            width   : img.naturalWidth,
-            height  : img.naturalHeight
-        };
+        imgData = img.getBoundingClientRect();
         vpData = self.elements.viewport.getBoundingClientRect();
         boundaryData = self.elements.boundary.getBoundingClientRect();
         self._originalImageWidth = imgData.width;
