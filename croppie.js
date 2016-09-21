@@ -378,9 +378,13 @@
             _initializeZoom.call(self);
         }
 
-        // if (self.options.enableOrientation) {
-        //     _initRotationControls.call(self);
-        // }
+        if (this.options.enableViewportResize) {
+            _initializeResize.call(this);
+        }
+
+        if (self.options.enableOrientation) {
+            _initRotationControls.call(self);
+        }
     }
 
     // function _initRotationControls () {
@@ -415,6 +419,166 @@
 
     function _hasExif() {
         return this.options.enableExif && window.EXIF;
+    }
+
+    function _initializeResize () {
+        var self = this;
+        var wrap = document.createElement('div');
+        var isDragging = false;
+        var direction;
+        var originalX;
+        var originalY;
+        var maxWidth;
+        var maxHeight;
+        var vr;
+        var hr;
+
+        addClass(wrap, 'cr-resizer');
+        css(wrap, {
+            width: this.options.viewport.width + 'px',
+            height: this.options.viewport.height + 'px'
+        });
+
+        if (this.options.resizeControls.height) {
+            vr = document.createElement('div');
+            addClass(vr, 'cr-resizer-vertical');
+            wrap.appendChild(vr);
+        }
+
+        if (this.options.resizeControls.width) {
+            hr = document.createElement('div');
+            addClass(hr, 'cr-resizer-horisontal');
+            wrap.appendChild(hr);
+        }
+
+        function mouseDown(ev) {
+            if (ev.button !== undefined && ev.button !== 0) return;
+
+            ev.preventDefault();
+            if (isDragging) {
+                return;
+            }
+
+            var viewportRect = self.elements.viewport.getBoundingClientRect();
+            var overlayRect = self.elements.overlay.getBoundingClientRect();
+
+            isDragging = true;
+            originalX = ev.pageX;
+            originalY = ev.pageY;
+            direction = ev.currentTarget.className.indexOf('vertical') !== -1 ? 'v' : 'h';
+            maxWidth = self.options.viewport.width + (overlayRect.right - viewportRect.right);
+            maxHeight = self.options.viewport.height + (overlayRect.bottom - viewportRect.bottom);
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                originalX = touches.pageX;
+                originalY = touches.pageY;
+            }
+
+            window.addEventListener('mousemove', mouseMove);
+            window.addEventListener('touchmove', mouseMove);
+            window.addEventListener('mouseup', mouseUp);
+            window.addEventListener('touchend', mouseUp);
+            document.body.style[CSS_USERSELECT] = 'none';
+        }
+
+        function mouseMove(ev) {
+            var pageX = ev.pageX;
+            var pageY = ev.pageY;
+
+            ev.preventDefault();
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                pageX = touches.pageX;
+                pageY = touches.pageY;
+            }
+
+            var deltaX = pageX - originalX;
+            var deltaY = pageY - originalY;
+
+            if (direction == 'v') {
+                var newHeight = self.options.viewport.height + deltaY;
+
+                if (newHeight <= maxHeight) {
+                    css(wrap, {
+                        height: newHeight + 'px'
+                    });
+
+                    self.options.boundary.height += deltaY;
+                    css(self.elements.boundary, {
+                        height: self.options.boundary.height + 'px'
+                    });
+
+                    self.options.viewport.height += deltaY;
+                    css(self.elements.viewport, {
+                        height: self.options.viewport.height + 'px'
+                    });
+                }
+            }
+            else {
+                var newWidth = self.options.viewport.width + deltaX;
+
+                if (newWidth <= maxWidth) {
+                    css(wrap, {
+                        width: newWidth + 'px'
+                    });
+
+                    self.options.boundary.width += deltaX;
+                    css(self.elements.boundary, {
+                        width: self.options.boundary.width + 'px'
+                    });
+
+                    self.options.viewport.width += deltaX;
+                    css(self.elements.viewport, {
+                        width: self.options.viewport.width + 'px'
+                    });
+                }
+            }
+
+            /*
+            if (ev.type == 'touchmove') {
+                if (ev.touches.length > 1) {
+                    var touch1 = ev.touches[0];
+                    var touch2 = ev.touches[1];
+                    var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
+
+                    if (!originalDistance) {
+                        originalDistance = dist / self._currentZoom;
+                    }
+
+                    var scale = dist / originalDistance;
+
+                    _setZoomerVal.call(self, scale);
+                    dispatchChange(self.elements.zoomer);
+                    return;
+                }
+            }
+            */
+
+            _updateOverlay.call(self);
+            originalY = pageY;
+            originalX = pageX;
+        }
+
+        function mouseUp() {
+            isDragging = false;
+            window.removeEventListener('mousemove', mouseMove);
+            window.removeEventListener('touchmove', mouseMove);
+            window.removeEventListener('mouseup', mouseUp);
+            window.removeEventListener('touchend', mouseUp);
+            document.body.style[CSS_USERSELECT] = '';
+        }
+
+        if (vr) {
+            vr.addEventListener('mousedown', mouseDown);
+        }
+
+        if (hr) {
+            hr.addEventListener('mousedown', mouseDown);
+        }
+
+        this.elements.boundary.appendChild(wrap);
     }
 
     function _setZoomerVal(v) {
@@ -684,6 +848,8 @@
         }
 
         function mouseDown(ev) {
+            if (ev.button !== undefined && ev.button !== 0) return;
+
             ev.preventDefault();
             if (isDragging) return;
             isDragging = true;
@@ -703,6 +869,8 @@
             window.addEventListener('touchend', mouseUp);
             document.body.style[CSS_USERSELECT] = 'none';
             vpRect = self.elements.viewport.getBoundingClientRect();
+
+            console.log(originalX, originalY, vpRect);
         }
 
         function mouseMove(ev) {
@@ -1351,9 +1519,14 @@
             leftClass: '',
             rightClass: ''
         },
+        resizeControls: {
+            width: true,
+            height: true
+        },
         customClass: '',
         showZoomer: true,
         enableZoom: true,
+        enableViewportResize: false,
         mouseWheelZoom: true,
         enableExif: false,
         enforceBoundary: true,
