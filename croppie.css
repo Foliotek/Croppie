@@ -139,6 +139,7 @@
     width: 16px;
     border-radius: 50%;
     background: #ddd;
+    margin-top:1px;
 }
 .cr-slider:focus::-ms-fill-lower {
     background: rgba(0, 0, 0, 0.5);
