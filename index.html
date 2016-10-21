@@ -44,9 +44,7 @@
                         </div>
                     </div>
                     <div class="col-1-2">
-                        <div class="demo-cropper" id="cropper-1">
-
-                        </div>
+                        <img class="demo-cropper" id="cropper-1" src="demo/demo-1.jpg" style="display: none;" />
                     </div>
                 </div>
             </div>
@@ -106,10 +104,7 @@ $('#item').croppie(method, args);</code></pre>
                             <strong class="focus">boundary</strong><em>object</em>
                             <p>The outer container of the cropper</p>
                             <span class="default">Default</span>
-                            <code class="language-javascript">{ 
-                                width: 300, 
-                                height: 300
-                            }</code>
+                            <code class="language-javascript">will default to the size of the container</code>
                         </li>
                         <li id="customClass">
                             <strong class="focus">customClass</strong><em>string</em>
@@ -337,8 +332,8 @@ vanilla.bind({
     orientation: 4
 });
 //on button click
-vanilla.result('canvas').then(function(base64Image) {
-    // do something with cropped base64 image here
+vanilla.result('blob').then(function(blob) {
+    // do something with cropped blob
 });</code></pre>
                                 <div class="actions">
                                     <button class="vanilla-result">Result</button>
@@ -379,7 +374,9 @@ $uploadCrop = $('#upload-demo').croppie({
                             <div class="upload-msg">
                                 Upload a file to start cropping
                             </div>
-                            <div id="upload-demo"></div>
+                            <div class="upload-demo-wrap">
+                                <div id="upload-demo"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

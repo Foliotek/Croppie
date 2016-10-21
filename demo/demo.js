@@ -42,20 +42,24 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			},
-			url: 'demo/demo-1.jpg',
+			boundary: {
+				width: 300,
+				height: 300
+			},
+			// url: 'demo/demo-1.jpg',
 			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
 		mc.on('update', function (ev, data) {
-			console.log('jquery update', ev, data);
+			// console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
-            	type: 'canvas',
+            	type: 'rawcanvas',
             	format: 'png'
-            }).then(function (resp) {
+            }).then(function (canvas) {
 				popupResult({
-					src: resp
+					src: canvas.toDataURL()
 				});
 			});
 		});
@@ -68,6 +72,10 @@ var Demo = (function() {
 			viewport: {
 				width: 150,
 				height: 200
+			},
+			boundary: {
+				width: 300,
+				height: 300
 			}
 		});
 		basic.croppie('bind', {
@@ -111,8 +119,9 @@ var Demo = (function() {
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
-				type: 'canvas'
-			}).then(function (src) {
+				type: 'blob'
+			}).then(function (blob) {
+				window.open(window.URL.createObjectURL(blob));
 				popupResult({
 					src: src
 				});
@@ -153,10 +162,6 @@ var Demo = (function() {
 				width: 100,
 				height: 100,
 				type: 'circle'
-			},
-			boundary: {
-				width: 300,
-				height: 300
 			},
 			enableExif: true
 		});

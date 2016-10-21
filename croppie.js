@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2016
  * Foliotek
- * Version: 2.3.0
+ * Version: 2.4.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -34,6 +34,22 @@
             CustomEvent.prototype = window.Event.prototype;
             window.CustomEvent = CustomEvent;
         }());
+    }
+
+    if (!HTMLCanvasElement.prototype.toBlob) {
+        Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+            value: function (callback, type, quality) {
+                var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
+                len = binStr.length,
+                arr = new Uint8Array(len);
+
+                for (var i=0; i<len; i++ ) {
+                    arr[i] = binStr.charCodeAt(i);
+                }
+
+                callback( new Blob( [arr], {type: type || 'image/png'} ) );
+            }
+        });
     }
     /* End Polyfills */
 
@@ -134,8 +150,12 @@
         }
     }
 
+    function num(v) {
+        return parseInt(v, 10);
+    }
+
     /* Utilities */
-    function loadImage(src, imageEl) {
+    function loadImage(src, imageEl, useCanvas) {
         var img = imageEl || new Image(),
             prom;
 
@@ -146,7 +166,7 @@
             });
         } else {
             prom = new Promise(function (resolve, reject) {
-                if (src.substring(0,4).toLowerCase() === 'http') {
+                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
@@ -191,7 +211,7 @@
             vals = [1, 0, 0, 1, 0, 0];
         }
 
-        return new Transform(parseInt(vals[4], 10), parseInt(vals[5], 10), parseFloat(vals[0]));
+        return new Transform(num(vals[4]), num(vals[5]), parseFloat(vals[0]));
     };
 
     Transform.fromString = function (v) {
@@ -297,7 +317,7 @@
         var self = this,
             contClass = 'croppie-container',
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay, canvas;
+            boundary, img, viewport, overlay, canvas, bw, bh;
 
         self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
         // Properties on class
@@ -319,9 +339,11 @@
         }
 
         addClass(boundary, 'cr-boundary');
+        bw = self.options.boundary.width;
+        bh = self.options.boundary.height;
         css(boundary, {
-            width: self.options.boundary.width + 'px',
-            height: self.options.boundary.height + 'px'
+            width: (bw + (isNaN(bw) ? '' : 'px')),
+            height: (bh + (isNaN(bh) ? '' : 'px'))
         });
 
         addClass(viewport, 'cr-viewport');
@@ -444,7 +466,7 @@
                 delta = 0;
             }
 
-            targetZoom = self._currentZoom + delta;
+            targetZoom = self._currentZoom + (delta * self._currentZoom);
 
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
@@ -514,8 +536,8 @@
             scale = self._currentZoom,
             vpWidth = viewport.width,
             vpHeight = viewport.height,
-            centerFromBoundaryX = self.options.boundary.width / 2,
-            centerFromBoundaryY = self.options.boundary.height / 2,
+            centerFromBoundaryX = self.elements.boundary.clientWidth / 2,
+            centerFromBoundaryY = self.elements.boundary.clientHeight / 2,
             imgRect = self.elements.preview.getBoundingClientRect(),
             curImgWidth = imgRect.width,
             curImgHeight = imgRect.height,
@@ -914,7 +936,7 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, parseInt(orientation));
+                drawCanvas(canvas, img, num(orientation, 10));
                 if (customOrientation) {
                     drawCanvas(canvas, img, customOrientation);
                 }
@@ -922,6 +944,63 @@
         } else if (customOrientation) {
             drawCanvas(canvas, img, customOrientation);
         }
+    }
+
+    function _getCanvas(data) {
+        var self = this,
+            points = data.points,
+            left = num(points[0]),
+            top = num(points[1]),
+            width = (points[2] - points[0]),
+            height = (points[3] - points[1]),
+            circle = data.circle,
+            canvas = document.createElement('canvas'),
+            ctx = canvas.getContext('2d'),
+            outWidth = width,
+            outHeight = height,
+            startX = 0,
+            startY = 0;
+
+        if (data.outputWidth && data.outputHeight) {
+            outWidth = data.outputWidth;
+            outHeight = data.outputHeight;
+        }
+
+        canvas.width = outWidth;
+        canvas.height = outHeight;
+
+        if (data.backgroundColor) {
+            ctx.fillStyle = data.backgroundColor;
+            ctx.fillRect(0, 0, outWidth, outHeight);
+        }
+        // start fixing data to send to draw image for enforceBoundary: false
+        if (left < 0) {
+            startX = Math.abs(left);
+            left = 0;
+        }
+        if (top < 0) {
+            startY = Math.abs(top);
+            top = 0;
+        }
+        if ((left + width) > self._originalImageWidth) {
+            width = self._originalImageWidth - left;
+            outWidth = width;
+        }
+        if ((top + height) > self._originalImageHeight) {
+            height = self._originalImageHeight - top;
+            outHeight = height;
+        }
+
+        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
+        if (circle) {
+            ctx.fillStyle = '#fff';
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.fill();
+        }
+        return canvas;
     }
 
     function _getHtmlResult(data) {
@@ -946,40 +1025,17 @@
         return div;
     }
 
-    function _getCanvasResult(img, data) {
-        var points = data.points,
-            left = points[0],
-            top = points[1],
-            width = (points[2] - points[0]),
-            height = (points[3] - points[1]),
-            circle = data.circle,
-            canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d'),
-            outWidth = width,
-            outHeight = height;
+    function _getBase64Result(data) {
+        return _getCanvas.call(this, data).toDataURL(data.format, data.quality);
+    }
 
-        if (data.outputWidth && data.outputHeight) {
-            outWidth = data.outputWidth;
-            outHeight = data.outputHeight;
-        }
-
-        canvas.width = outWidth;
-        canvas.height = outHeight;
-
-        if (data.backgroundColor) {
-            ctx.fillStyle = data.backgroundColor;
-            ctx.fillRect(0, 0, outWidth, outHeight);
-        }
-        ctx.drawImage(img, left, top, width, height, 0, 0, outWidth, outHeight);
-        if (circle) {
-            ctx.fillStyle = '#fff';
-            ctx.globalCompositeOperation = 'destination-in';
-            ctx.beginPath();
-            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-        }
-        return canvas.toDataURL(data.format, data.quality);
+    function _getBlobResult(data) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            _getCanvas.call(self, data).toBlob(function (blob) {
+                resolve(blob);
+            }, data.format, data.quality);
+        });
     }
 
     function _bind(options, cb) {
@@ -1012,7 +1068,7 @@
             return parseFloat(p);
         });
         self.data.boundZoom = zoom;
-        var prom = loadImage(url, self.elements.img);
+        var prom = loadImage(url, self.elements.img, self.options.useCanvas);
         prom.then(function () {
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
@@ -1070,7 +1126,7 @@
         var self = this,
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
-            type = (typeof (options) === 'string' ? options : (opts.type || 'viewport')),
+            resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
             size = opts.size,
             format = opts.format,
             quality = opts.quality,
@@ -1106,11 +1162,21 @@
         data.backgroundColor = backgroundColor;
 
         prom = new Promise(function (resolve, reject) {
-            if (type === 'canvas') {
-                resolve(_getCanvasResult.call(self, self.elements.preview, data));
-            }
-            else {
-                resolve(_getHtmlResult.call(self, data));
+            switch(resultType.toLowerCase())
+            {
+                case 'rawcanvas': 
+                    resolve(_getCanvas.call(self, data));
+                    break;
+                case 'canvas':
+                case 'base64':
+                    resolve(_getBase64Result.call(self, data));
+                    break;
+                case 'blob':
+                    _getBlobResult.call(self, data).then(resolve);
+                    break;
+                default: 
+                    resolve(_getHtmlResult.call(self, data));
+                    break;
             }
         });
         return prom;
@@ -1203,6 +1269,16 @@
         this.element = element;
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
+        if (this.element.tagName.toLowerCase() === 'img') {
+            var origImage = this.element;
+            addClass(origImage, 'cr-original-image');
+            var replacementDiv = document.createElement('div');
+            this.element.parentNode.appendChild(replacementDiv);
+            replacementDiv.appendChild(origImage);
+            this.element = replacementDiv;
+            this.options.url = this.options.url || origImage.src;
+        }
+        
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
@@ -1221,10 +1297,7 @@
             height: 100,
             type: 'square'
         },
-        boundary: {
-            width: 300,
-            height: 300
-        },
+        boundary: { },
         orientationControls: {
             enabled: true,
             leftClass: '',
