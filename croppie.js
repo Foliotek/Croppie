@@ -436,6 +436,10 @@
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
 
+        if (self.options.zoomerMatchBoundary) {
+            css(wrap, 'width', self.options.boundary.width+'px');
+        }
+
         self._currentZoom = 1;
 
         function change() {
@@ -460,7 +464,7 @@
                 delta = 0;
             }
 
-            targetZoom = self._currentZoom + delta;
+            targetZoom = self._currentZoom + (self.options.mouseWheelZoomRelative ? delta * self._currentZoom : delta);
 
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
@@ -1275,6 +1279,8 @@
         enableExif: false,
         enforceBoundary: true,
         enableOrientation: false,
+        zoomerMatchBoundary: false,
+        mouseWheelZoomRelative: false,
         update: function () { }
     };
 
