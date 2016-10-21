@@ -460,7 +460,7 @@
                 delta = 0;
             }
 
-            targetZoom = self._currentZoom + delta;
+            targetZoom = self._currentZoom + (delta * self._currentZoom);
 
             ev.preventDefault();
             _setZoomerVal.call(self, targetZoom);
