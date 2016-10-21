@@ -336,8 +336,8 @@
 
         addClass(boundary, 'cr-boundary');
         css(boundary, {
-            width: self.options.boundary.width + 'px',
-            height: self.options.boundary.height + 'px'
+            width: (self.options.boundary.width + (isNaN(self.options.boundary.width) ? '' : 'px')),
+            height: (self.options.boundary.height + (isNaN(self.options.boundary.height) ? '' : 'px'))
         });
 
         addClass(viewport, 'cr-viewport');
@@ -530,8 +530,8 @@
             scale = self._currentZoom,
             vpWidth = viewport.width,
             vpHeight = viewport.height,
-            centerFromBoundaryX = self.options.boundary.width / 2,
-            centerFromBoundaryY = self.options.boundary.height / 2,
+            centerFromBoundaryX = self.elements.boundary.clientWidth / 2,
+            centerFromBoundaryY = self.elements.boundary.clientHeight / 2,
             imgRect = self.elements.preview.getBoundingClientRect(),
             curImgWidth = imgRect.width,
             curImgHeight = imgRect.height,
