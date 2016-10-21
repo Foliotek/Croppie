@@ -1241,6 +1241,16 @@
         this.element = element;
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
+        if (this.element.tagName.toLowerCase() === 'img') {
+            var origImage = this.element;
+            addClass(origImage, 'cr-original-image');
+            var replacementDiv = document.createElement('div');
+            this.element.parentNode.appendChild(replacementDiv);
+            replacementDiv.appendChild(origImage);
+            this.element = replacementDiv;
+            this.options.url = this.options.url || origImage.src;
+        }
+        
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {

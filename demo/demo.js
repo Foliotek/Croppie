@@ -42,20 +42,18 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			},
-			url: 'demo/demo-1.jpg',
+			// url: 'demo/demo-1.jpg',
 			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
 		mc.on('update', function (ev, data) {
-			console.log('jquery update', ev, data);
+			// console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'rawcanvas',
             	format: 'png'
             }).then(function (canvas) {
-            	log(canvas);
-
 				popupResult({
 					src: canvas.toDataURL()
 				});

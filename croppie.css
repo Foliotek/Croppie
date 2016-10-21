@@ -9,14 +9,12 @@
 	transform-origin: 0 0;
     max-width: none;
 }
-
 .croppie-container .cr-boundary {
 	position: relative;
 	overflow: hidden;
 	margin: 0 auto;
 	z-index: 1;
 }
-
 .croppie-container .cr-viewport {
 	position: absolute;
 	border: 2px solid #fff;
@@ -27,6 +25,9 @@
 	left: 0;
     box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.5);
 	z-index: 0;
+}
+.croppie-container .cr-original-image {
+    display: none;
 }
 .croppie-container .cr-vp-circle {
 	border-radius: 50%;
