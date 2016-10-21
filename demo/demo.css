@@ -218,16 +218,21 @@ h2 {
     color: #777;
 }
 
-.upload-demo #upload-demo,
+.upload-demo .upload-demo-wrap,
 .upload-demo .upload-result,
 .upload-demo.ready .upload-msg {
     display: none;
 }
-.upload-demo.ready #upload-demo {
+.upload-demo.ready .upload-demo-wrap {
     display: block;
 }
 .upload-demo.ready .upload-result {
     display: inline-block;    
+}
+.upload-demo-wrap {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
 }
 
 .upload-msg {

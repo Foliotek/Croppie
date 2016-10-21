@@ -104,10 +104,7 @@ $('#item').croppie(method, args);</code></pre>
                             <strong class="focus">boundary</strong><em>object</em>
                             <p>The outer container of the cropper</p>
                             <span class="default">Default</span>
-                            <code class="language-javascript">{ 
-                                width: 300, 
-                                height: 300
-                            }</code>
+                            <code class="language-javascript">will default to the size of the container</code>
                         </li>
                         <li id="customClass">
                             <strong class="focus">customClass</strong><em>string</em>
@@ -377,7 +374,9 @@ $uploadCrop = $('#upload-demo').croppie({
                             <div class="upload-msg">
                                 Upload a file to start cropping
                             </div>
-                            <div id="upload-demo"></div>
+                            <div class="upload-demo-wrap">
+                                <div id="upload-demo"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

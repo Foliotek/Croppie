@@ -313,7 +313,7 @@
         var self = this,
             contClass = 'croppie-container',
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay, canvas;
+            boundary, img, viewport, overlay, canvas, bw, bh;
 
         self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
         // Properties on class
@@ -335,9 +335,11 @@
         }
 
         addClass(boundary, 'cr-boundary');
+        bw = self.options.boundary.width;
+        bh = self.options.boundary.height;
         css(boundary, {
-            width: (self.options.boundary.width + (isNaN(self.options.boundary.width) ? '' : 'px')),
-            height: (self.options.boundary.height + (isNaN(self.options.boundary.height) ? '' : 'px'))
+            width: (bw + (isNaN(bw) ? '' : 'px')),
+            height: (bh + (isNaN(bh) ? '' : 'px'))
         });
 
         addClass(viewport, 'cr-viewport');
@@ -1269,10 +1271,7 @@
             height: 100,
             type: 'square'
         },
-        boundary: {
-            width: 300,
-            height: 300
-        },
+        boundary: { },
         orientationControls: {
             enabled: true,
             leftClass: '',

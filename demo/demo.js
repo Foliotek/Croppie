@@ -42,6 +42,10 @@ var Demo = (function() {
 				height: 150,
 				type: 'circle'
 			},
+			boundary: {
+				width: 300,
+				height: 300
+			}
 			// url: 'demo/demo-1.jpg',
 			// enforceBoundary: false
 			// mouseWheelZoom: false
@@ -68,6 +72,10 @@ var Demo = (function() {
 			viewport: {
 				width: 150,
 				height: 200
+			},
+			boundary: {
+				width: 300,
+				height: 300
 			}
 		});
 		basic.croppie('bind', {
@@ -154,10 +162,6 @@ var Demo = (function() {
 				width: 100,
 				height: 100,
 				type: 'circle'
-			},
-			boundary: {
-				width: 300,
-				height: 300
 			},
 			enableExif: true
 		});

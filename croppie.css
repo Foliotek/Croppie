@@ -1,5 +1,6 @@
 .croppie-container {
-	padding: 30px;
+    width: 100%;
+    height: 100%;
 }
 .croppie-container .cr-image {
 	z-index: -1;
@@ -14,6 +15,8 @@
 	overflow: hidden;
 	margin: 0 auto;
 	z-index: 1;
+    width: 100%;
+    height: 100%;
 }
 .croppie-container .cr-viewport {
 	position: absolute;
