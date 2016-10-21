@@ -150,6 +150,10 @@
         }
     }
 
+    function num(v) {
+        return parseInt(v, 10);
+    }
+
     /* Utilities */
     function loadImage(src, imageEl, useCanvas) {
         var img = imageEl || new Image(),
@@ -207,7 +211,7 @@
             vals = [1, 0, 0, 1, 0, 0];
         }
 
-        return new Transform(parseInt(vals[4], 10), parseInt(vals[5], 10), parseFloat(vals[0]));
+        return new Transform(num(vals[4]), num(vals[5]), parseFloat(vals[0]));
     };
 
     Transform.fromString = function (v) {
@@ -932,7 +936,7 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, parseInt(orientation));
+                drawCanvas(canvas, img, num(orientation, 10));
                 if (customOrientation) {
                     drawCanvas(canvas, img, customOrientation);
                 }
@@ -943,16 +947,19 @@
     }
 
     function _getCanvas(data) {
-        var points = data.points,
-            left = points[0],
-            top = points[1],
+        var self = this,
+            points = data.points,
+            left = num(points[0]),
+            top = num(points[1]),
             width = (points[2] - points[0]),
             height = (points[3] - points[1]),
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
             outWidth = width,
-            outHeight = height;
+            outHeight = height,
+            startX = 0,
+            startY = 0;
 
         if (data.outputWidth && data.outputHeight) {
             outWidth = data.outputWidth;
@@ -966,7 +973,25 @@
             ctx.fillStyle = data.backgroundColor;
             ctx.fillRect(0, 0, outWidth, outHeight);
         }
-        ctx.drawImage(this.elements.preview, left, top, width, height, 0, 0, outWidth, outHeight);
+        // start fixing data to send to draw image for enforceBoundary: false
+        if (left < 0) {
+            startX = Math.abs(left);
+            left = 0;
+        }
+        if (top < 0) {
+            startY = Math.abs(top);
+            top = 0;
+        }
+        if ((left + width) > self._originalImageWidth) {
+            width = self._originalImageWidth - left;
+            outWidth = width;
+        }
+        if ((top + height) > self._originalImageHeight) {
+            height = self._originalImageHeight - top;
+            outHeight = height;
+        }
+
+        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
@@ -1141,6 +1166,7 @@
             {
                 case 'rawcanvas': 
                     resolve(_getCanvas.call(self, data));
+                    break;
                 case 'canvas':
                 case 'base64':
                     resolve(_getBase64Result.call(self, data));

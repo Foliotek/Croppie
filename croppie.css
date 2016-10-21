@@ -42,8 +42,7 @@
 }
 .croppie-container .cr-slider-wrap {
 	width: 75%;
-	margin: 0 auto;
-	margin-top: 25px;
+	margin: 15px auto;
 	text-align: center;
 }
 .croppie-result {

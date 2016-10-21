@@ -45,7 +45,7 @@ var Demo = (function() {
 			boundary: {
 				width: 300,
 				height: 300
-			}
+			},
 			// url: 'demo/demo-1.jpg',
 			// enforceBoundary: false
 			// mouseWheelZoom: false
