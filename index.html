@@ -52,12 +52,18 @@
         <section class="simple">
             <div class="section-header"><h2>The Basics</h2></div>
             <div class="container">
-                <pre class="language-javascript"><code class="language-javascript">&lt;div class="demo"&gt;&lt;/div&gt;
+                <pre class="language-html"><code class="language-html">&lt;div class="demo"&gt;&lt;/div&gt;
 &lt;script&gt;
 $('.demo').croppie({
     url: 'demo/demo-1.jpg',
 });
-&lt;/script&gt;</code></pre>
+&lt;/script&gt;
+&lt;!-- or even simpler --&gt;
+&lt;img class="my-image" src="demo/demo-1.jpg" /&gt;
+&lt;script&gt;
+$('.my-image').croppie();
+&lt;/script&gt;
+</code></pre>
             </div>
         </section>
         <section class="installation">
@@ -104,7 +110,7 @@ $('#item').croppie(method, args);</code></pre>
                             <strong class="focus">boundary</strong><em>object</em>
                             <p>The outer container of the cropper</p>
                             <span class="default">Default</span>
-                            <code class="language-javascript">will default to the size of the container</code>
+                            <code class="language-html">will default to the size of the container</code>
                         </li>
                         <li id="customClass">
                             <strong class="focus">customClass</strong><em>string</em>
@@ -203,10 +209,16 @@ $('#item').croppie(method, args);</code></pre>
                                     <code class="language-javascript">type</code> The type of result to return defaults to <code class="language-javascript">'canvas'</code>
                                 </li>
                                 <li class="values">
-                                    <code class="language-javascript">'canvas'</code> returns a the cropped image encoded in base64
+                                    <code class="language-javascript">'base64'</code> returns a the cropped image encoded in base64
                                 </li>
                                 <li class="values">
                                     <code class="language-javascript">'html'</code> returns html of the image positioned within an div of hidden overflow
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'blob'</code> returns a blob of the cropped image
+                                </li>
+                                <li class="values">
+                                    <code class="language-javascript">'rawcanvas'</code> returns the canvas element allowing you to manipulate prior to getting the resulted image
                                 </li>
                                 <li>
                                     <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code> 
