@@ -254,13 +254,27 @@
         });
     }
 
-    function drawCanvas(canvas, img, orientation) {
+    function drawCanvas(canvas, img, orientation, maxSize) {
         var width = img.width,
             height = img.height,
+            max_width = maxSize.width,
+            max_height = maxSize.height,
             ctx = canvas.getContext('2d');
 
-        canvas.width = img.width;
-        canvas.height = img.height;
+        if (width > height) {
+            if (width > max_width) {
+                height = Math.round(height *= max_width / width);
+                width = max_width;
+            }
+        } else {
+            if (height > max_height) {
+                width = Math.round(width *= max_height / height);
+                height = max_height;
+            }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
 
         ctx.save();
         switch (orientation) {
@@ -782,7 +796,7 @@
     function _triggerUpdate() {
         var self = this,
             data = self.get(),
-            ev; 
+            ev;
 
         if (!_isVisible.call(self)) {
             return;
@@ -864,7 +878,7 @@
         else {
             self._currentZoom = initialZoom;
         }
-        
+
         transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
@@ -936,13 +950,13 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, num(orientation, 10));
+                drawCanvas(canvas, img, num(orientation, 10), self.options.maxSize);
                 if (customOrientation) {
-                    drawCanvas(canvas, img, customOrientation);
+                    drawCanvas(canvas, img, customOrientation, self.options.maxSize);
                 }
             });
         } else if (customOrientation) {
-            drawCanvas(canvas, img, customOrientation);
+            drawCanvas(canvas, img, customOrientation, self.options.maxSize);
         }
     }
 
@@ -1164,7 +1178,7 @@
         prom = new Promise(function (resolve, reject) {
             switch(resultType.toLowerCase())
             {
-                case 'rawcanvas': 
+                case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
                 case 'canvas':
@@ -1174,7 +1188,7 @@
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
                     break;
-                default: 
+                default:
                     resolve(_getHtmlResult.call(self, data));
                     break;
             }
@@ -1206,7 +1220,7 @@
         if (deg === -90 || deg === 270) ornt = 8;
         if (deg === 180 || deg === -180) ornt = 3;
 
-        drawCanvas(canvas, copy, ornt);
+        drawCanvas(canvas, copy, ornt, self.options.maxSize);
         _onZoom.call(self);
     }
 
@@ -1278,7 +1292,7 @@
             this.element = replacementDiv;
             this.options.url = this.options.url || origImage.src;
         }
-        
+
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
@@ -1302,6 +1316,10 @@
             enabled: true,
             leftClass: '',
             rightClass: ''
+        },
+        maxSize: {
+            width: 1024,
+            height: 768
         },
         customClass: '',
         showZoomer: true,
