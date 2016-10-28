@@ -378,7 +378,7 @@
             _initializeZoom.call(self);
         }
 
-        if (this.options.enableViewportResize) {
+        if (this.options.enableResize) {
             _initializeResize.call(this);
         }
 
@@ -428,6 +428,7 @@
         var direction;
         var originalX;
         var originalY;
+        var minSize = 50;
         var maxWidth;
         var maxHeight;
         var vr;
@@ -500,7 +501,7 @@
             if (direction == 'v') {
                 var newHeight = self.options.viewport.height + deltaY;
 
-                if (newHeight <= maxHeight) {
+                if (newHeight >= minSize && newHeight <= maxHeight) {
                     css(wrap, {
                         height: newHeight + 'px'
                     });
@@ -519,7 +520,7 @@
             else {
                 var newWidth = self.options.viewport.width + deltaX;
 
-                if (newWidth <= maxWidth) {
+                if (newWidth >= minSize && newWidth <= maxWidth) {
                     css(wrap, {
                         width: newWidth + 'px'
                     });
@@ -1526,7 +1527,7 @@
         customClass: '',
         showZoomer: true,
         enableZoom: true,
-        enableViewportResize: false,
+        enableResize: false,
         mouseWheelZoom: true,
         enableExif: false,
         enforceBoundary: true,
