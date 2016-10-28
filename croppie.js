@@ -1039,8 +1039,8 @@
             minH;
 
         if (self.options.enforceBoundary) {
-            minW = vpData.width / (imgData.width / scale);
-            minH = vpData.height / (imgData.height / scale);
+            minW = vpData.width / (initial ? imgData.width : imgData.width / scale);
+            minH = vpData.height / (initial ? imgData.height : imgData.height / scale);
             minZoom = Math.max(minW, minH);
         }
 
