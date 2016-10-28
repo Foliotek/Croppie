@@ -557,6 +557,8 @@
             */
 
             _updateOverlay.call(self);
+            _updateCenterPoint.call(self);
+            _triggerUpdate.call(self);
             originalY = pageY;
             originalX = pageX;
         }
@@ -869,8 +871,6 @@
             window.addEventListener('touchend', mouseUp);
             document.body.style[CSS_USERSELECT] = 'none';
             vpRect = self.elements.viewport.getBoundingClientRect();
-
-            console.log(originalX, originalY, vpRect);
         }
 
         function mouseMove(ev) {
