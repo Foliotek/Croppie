@@ -558,6 +558,7 @@
             */
 
             _updateOverlay.call(self);
+            _updateZoomLimits.call(self);
             _updateCenterPoint.call(self);
             _triggerUpdate.call(self);
             originalY = pageY;
@@ -979,20 +980,13 @@
 
     function _updatePropertiesFromImage() {
         var self = this,
-            minZoom = 0,
-            maxZoom = 1.5,
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
-            zoomer = self.elements.zoomer,
+            imgData = self.elements.preview.getBoundingClientRect(),
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
-            isVisible = _isVisible.call(self),
-            imgData,
-            vpData,
-            boundaryData,
-            minW,
-            minH;
+            isVisible = _isVisible.call(self);
 
         if (!isVisible || self.data.bound) {
             // if the croppie isn't visible or it doesn't need binding
@@ -1005,29 +999,11 @@
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
-        imgData = img.getBoundingClientRect();
-        vpData = self.elements.viewport.getBoundingClientRect();
-        boundaryData = self.elements.boundary.getBoundingClientRect();
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
         if (self.options.enableZoom) {
-            if (self.options.enforceBoundary) {
-                minW = vpData.width / imgData.width;
-                minH = vpData.height / imgData.height;
-                minZoom = Math.max(minW, minH);
-            }
-
-            if (minZoom >= maxZoom) {
-                maxZoom = minZoom + 1;
-            }
-
-            zoomer.min = fix(minZoom, 4);
-            zoomer.max = fix(maxZoom, 4);
-            var defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
-            initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
-            _setZoomerVal.call(self, initialZoom);
-            dispatchChange(zoomer);
+            _updateZoomLimits.call(self, true);
         }
         else {
             self._currentZoom = initialZoom;
@@ -1046,6 +1022,42 @@
 
         _updateCenterPoint.call(self);
         _updateOverlay.call(self);
+    }
+
+    function _updateZoomLimits (initial) {
+        var self = this,
+            minZoom = 0,
+            maxZoom = 1.5,
+            initialZoom,
+            defaultInitialZoom,
+            zoomer = self.elements.zoomer,
+            scale = parseFloat(zoomer.value),
+            boundaryData = self.elements.boundary.getBoundingClientRect(),
+            imgData = self.elements.preview.getBoundingClientRect(),
+            vpData = self.elements.viewport.getBoundingClientRect(),
+            minW,
+            minH;
+
+        if (self.options.enforceBoundary) {
+            minW = vpData.width / (imgData.width / scale);
+            minH = vpData.height / (imgData.height / scale);
+            minZoom = Math.max(minW, minH);
+        }
+
+        if (minZoom >= maxZoom) {
+            maxZoom = minZoom + 1;
+        }
+
+        zoomer.min = fix(minZoom, 4);
+        zoomer.max = fix(maxZoom, 4);
+
+        if (initial) {
+            defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
+            _setZoomerVal.call(self, initialZoom);
+        }
+
+        dispatchChange(zoomer);
     }
 
     function _bindPoints(points) {
