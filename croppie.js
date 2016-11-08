@@ -460,15 +460,14 @@
                 return;
             }
 
-            var viewportRect = self.elements.viewport.getBoundingClientRect();
             var overlayRect = self.elements.overlay.getBoundingClientRect();
 
             isDragging = true;
             originalX = ev.pageX;
             originalY = ev.pageY;
             direction = ev.currentTarget.className.indexOf('vertical') !== -1 ? 'v' : 'h';
-            maxWidth = self.options.viewport.width + (overlayRect.right - viewportRect.right);
-            maxHeight = self.options.viewport.height + (overlayRect.bottom - viewportRect.bottom);
+            maxWidth = overlayRect.width;
+            maxHeight = overlayRect.height;
 
             if (ev.touches) {
                 var touches = ev.touches[0];
