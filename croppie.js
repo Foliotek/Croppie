@@ -40,8 +40,8 @@
         Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
             value: function (callback, type, quality) {
                 var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
-                len = binStr.length,
-                arr = new Uint8Array(len);
+                    len = binStr.length,
+                    arr = new Uint8Array(len);
 
                 for (var i=0; i<len; i++ ) {
                     arr[i] = binStr.charCodeAt(i);
@@ -57,7 +57,9 @@
         emptyStyles = document.createElement('div').style,
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
-        CSS_USERSELECT;
+        CSS_USERSELECT,
+        ZOOM_MAX,
+        ZOOM_DELTA;
 
     function vendorPrefix(prop) {
         if (prop in emptyStyles) {
@@ -264,49 +266,49 @@
 
         ctx.save();
         switch (orientation) {
-          case 2:
-             ctx.translate(width, 0);
-             ctx.scale(-1, 1);
-             break;
+            case 2:
+                ctx.translate(width, 0);
+                ctx.scale(-1, 1);
+                break;
 
-          case 3:
-              ctx.translate(width, height);
-              ctx.rotate(180*Math.PI/180);
-              break;
+            case 3:
+                ctx.translate(width, height);
+                ctx.rotate(180*Math.PI/180);
+                break;
 
-          case 4:
-              ctx.translate(0, height);
-              ctx.scale(1, -1);
-              break;
+            case 4:
+                ctx.translate(0, height);
+                ctx.scale(1, -1);
+                break;
 
-          case 5:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(90*Math.PI/180);
-              ctx.scale(1, -1);
-              break;
+            case 5:
+                canvas.width = height;
+                canvas.height = width;
+                ctx.rotate(90*Math.PI/180);
+                ctx.scale(1, -1);
+                break;
 
-          case 6:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(90*Math.PI/180);
-              ctx.translate(0, -height);
-              break;
+            case 6:
+                canvas.width = height;
+                canvas.height = width;
+                ctx.rotate(90*Math.PI/180);
+                ctx.translate(0, -height);
+                break;
 
-          case 7:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.rotate(-90*Math.PI/180);
-              ctx.translate(-width, height);
-              ctx.scale(1, -1);
-              break;
+            case 7:
+                canvas.width = height;
+                canvas.height = width;
+                ctx.rotate(-90*Math.PI/180);
+                ctx.translate(-width, height);
+                ctx.scale(1, -1);
+                break;
 
-          case 8:
-              canvas.width = height;
-              canvas.height = width;
-              ctx.translate(0, width);
-              ctx.rotate(-90*Math.PI/180);
-              break;
+            case 8:
+                canvas.width = height;
+                canvas.height = width;
+                ctx.translate(0, width);
+                ctx.rotate(-90*Math.PI/180);
+                break;
         }
         ctx.drawImage(img, 0,0, width, height);
         ctx.restore();
@@ -368,6 +370,10 @@
         if (self.options.customClass) {
             addClass(self.element, self.options.customClass);
         }
+
+        // Set Zoom Options
+        ZOOM_MAX = self.options.zoom_max;
+        ZOOM_DELTA = self.options.zoom_delta;
 
         // Initialize drag & zoom
         _initDraggable.call(this);
@@ -782,7 +788,7 @@
     function _triggerUpdate() {
         var self = this,
             data = self.get(),
-            ev; 
+            ev;
 
         if (!_isVisible.call(self)) {
             return;
@@ -812,7 +818,7 @@
     function _updatePropertiesFromImage() {
         var self = this,
             minZoom = 0,
-            maxZoom = 1.5,
+            maxZoom = ZOOM_MAX,
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
@@ -864,7 +870,7 @@
         else {
             self._currentZoom = initialZoom;
         }
-        
+
         transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
@@ -1164,7 +1170,7 @@
         prom = new Promise(function (resolve, reject) {
             switch(resultType.toLowerCase())
             {
-                case 'rawcanvas': 
+                case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
                 case 'canvas':
@@ -1174,7 +1180,7 @@
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
                     break;
-                default: 
+                default:
                     resolve(_getHtmlResult.call(self, data));
                     break;
             }
@@ -1208,6 +1214,178 @@
 
         drawCanvas(canvas, copy, ornt);
         _onZoom.call(self);
+    }
+
+    function _resetImage() {
+        var self = this,
+            imgDim = self.elements.preview,
+            boundaryData = self.elements.boundary.getBoundingClientRect(),
+            zoomer = self.elements.zoomer,
+            initialZoom = Math.max((boundaryData.width / imgDim.width), (boundaryData.height / imgDim.height));
+
+        _setZoomerVal.call(self, initialZoom);
+        dispatchChange(zoomer);
+
+        _centerImageHorzVert.call(self);
+    }
+
+    function _centerImageHorzVert() {
+        var self = this,
+            imgDim = self.elements.preview,
+            vpDim = self.elements.viewport.getBoundingClientRect(),
+            imgX = -Math.round( (imgDim.width - vpDim.width) / 2 ),
+            imgY = -Math.round( (imgDim.height - vpDim.height) / 2 ),
+            transform = new Transform(imgX, imgY, self._currentZoom);
+
+        var newCss = {};
+        newCss[CSS_TRANSFORM] = transform.toString();
+        newCss[CSS_TRANS_ORG] = (imgDim.width / 2) + 'px ' + (imgDim.height / 2) + 'px';
+        css(self.elements.preview, newCss);
+
+        _updateCenterPoint.call(this);
+        _updateOverlay.call(this);
+    }
+
+    /**
+     * shifting to any directions
+     *
+     * @param direction
+     * @private
+     */
+    function _shift(direction) {
+        var self = this,
+            UP_BUTTON    = "up",
+            RIGHT_BUTTON = "right",
+            DOWN_BUTTON  = "down",
+            LEFT_BUTTON  = "left",
+            originalDistance,
+            vpRect,
+            imgRect,
+            transform,
+            delta;
+
+        imgRect = self.elements.preview.getBoundingClientRect();
+        vpRect = self.elements.viewport.getBoundingClientRect();
+        var movement = parseButtonDown(direction);
+
+        transform = Transform.parse(self.elements.preview);
+        document.body.style[CSS_USERSELECT] = 'none';
+        buttonMove(movement);
+
+        function assignTransformCoordinates(deltaX, deltaY) {
+            var top = transform.y + deltaY,
+                left = transform.x + deltaX;
+
+            transform.y = top;
+            transform.x = left;
+        }
+
+        function parseButtonDown(direction) {
+            delta = parseInt(imgRect.width / 20, 10);
+            var diff = 0;
+
+            switch (direction) {
+                case LEFT_BUTTON:
+                    diff = Math.round( Math.abs( imgRect.left - vpRect.left ) );
+                    if(delta > diff) {
+                        delta = diff;
+                    }
+                    return [delta, 0];
+                case UP_BUTTON:
+                    diff = Math.round( Math.abs( imgRect.top - vpRect.top ) );
+                    if(delta > diff) {
+                        delta = diff;
+                    }
+                    return [0, delta];
+                case RIGHT_BUTTON:
+                    diff = Math.round( Math.abs( imgRect.right - vpRect.right ) );
+                    if(delta > diff) {
+                        delta = diff;
+                    }
+                    return [-delta, 0];
+                case DOWN_BUTTON:
+                    diff = Math.round( Math.abs( imgRect.bottom - vpRect.bottom ) );
+                    if(delta > diff) {
+                        delta = diff;
+                    }
+                    return [0, -delta];
+            }
+        }
+
+        function buttonMove(movement) {
+            var deltaX = movement[0],
+                deltaY = movement[1],
+                newCss = {};
+
+            assignTransformCoordinates(deltaX, deltaY);
+
+            newCss[CSS_TRANSFORM] = transform.toString();
+            css(self.elements.preview, newCss);
+            _updateOverlay.call(self);
+            document.body.style[CSS_USERSELECT] = '';
+            _updateCenterPoint.call(self);
+            _triggerUpdate.call(self);
+            originalDistance = 0;
+        }
+    }
+
+    /**
+     * changes zoom scale by delta
+     * zoom is calculated by formula: ZOOM_MAX * ZOOM_DELTA^rate
+     *
+     * @param delta number to add to the current multiplier rate number
+     *
+     **/
+    function _zoomBy(delta) {
+        var self = this,
+            closest_rate = find_closest_zoom_rate(self._currentZoom),
+            next_rate = closest_rate + delta,
+            next_zoom = ZOOM_MAX * Math.pow(ZOOM_DELTA, next_rate);
+
+        if (delta > 0 && next_zoom < self._currentZoom) {
+            next_zoom *= ZOOM_DELTA;
+        }
+
+        if (delta < 0 && next_zoom > self._currentZoom) {
+            next_zoom /= ZOOM_DELTA;
+        }
+
+        _setZoomerVal.call(self,next_zoom);
+        dispatchChange(self.elements.zoomer);
+
+
+        /**
+         * finds closest multiplier rate for value
+         * basing on zoom_base and zoom_delta values from settings
+         *
+         * @param value zoom value to examine
+         *
+         **/
+        function find_closest_zoom_rate(value) {
+            if (value === self.options.zoom_max) {
+                return 0;
+            }
+
+            function div(val1, val2) {
+                return val1 / val2;
+            }
+
+            function mul(val1, val2) {
+                return val1 * val2;
+            }
+
+            var func = (value > ZOOM_MAX) ? mul : div,
+                sgn = (value > ZOOM_MAX) ? 1 : -1,
+                mltplr = ZOOM_DELTA,
+                rate = 1;
+
+            while (Math.abs(func(self.options.zoom_max, Math.pow(mltplr, rate)) - value) > Math.abs(func(ZOOM_MAX, Math.pow(mltplr, rate + 1)) - value)) {
+                rate += 1;
+            }
+
+            return sgn * rate;
+        }
+
     }
 
     function _destroy() {
@@ -1278,7 +1456,7 @@
             this.element = replacementDiv;
             this.options.url = this.options.url || origImage.src;
         }
-        
+
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
@@ -1304,6 +1482,8 @@
             rightClass: ''
         },
         customClass: '',
+        zoom_max: 1,
+        zoom_delta: 1.1,
         showZoomer: true,
         enableZoom: true,
         mouseWheelZoom: true,
@@ -1335,6 +1515,18 @@
         },
         destroy: function () {
             return _destroy.call(this);
+        },
+        resetImage: function () {
+            _resetImage.call(this);
+        },
+        centerImage: function () {
+            _centerImageHorzVert.call(this);
+        },
+        shift: function (direction) {
+            _shift.call(this, direction);
+        },
+        zoomBy: function (delta) {
+            _zoomBy.call(this, delta);
         }
     });
 
