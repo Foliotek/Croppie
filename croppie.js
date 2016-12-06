@@ -166,7 +166,7 @@
             });
         } else {
             prom = new Promise(function (resolve, reject) {
-                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
+                if (useCanvas && (src.substring(0,4).toLowerCase() === 'http' || src.substring(0,2).toLowerCase() === '//')) {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
@@ -782,7 +782,7 @@
     function _triggerUpdate() {
         var self = this,
             data = self.get(),
-            ev; 
+            ev;
 
         if (!_isVisible.call(self)) {
             return;
@@ -864,7 +864,7 @@
         else {
             self._currentZoom = initialZoom;
         }
-        
+
         transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
@@ -1164,7 +1164,7 @@
         prom = new Promise(function (resolve, reject) {
             switch(resultType.toLowerCase())
             {
-                case 'rawcanvas': 
+                case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
                 case 'canvas':
@@ -1174,7 +1174,7 @@
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
                     break;
-                default: 
+                default:
                     resolve(_getHtmlResult.call(self, data));
                     break;
             }
@@ -1278,7 +1278,7 @@
             this.element = replacementDiv;
             this.options.url = this.options.url || origImage.src;
         }
-        
+
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
