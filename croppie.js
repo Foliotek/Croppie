@@ -154,34 +154,28 @@
         return parseInt(v, 10);
     }
 
-    /* Utilities */
+/* Utilities */
     function loadImage(src, imageEl, useCanvas) {
-        var img = imageEl || new Image(),
-            prom;
+        var img = imageEl || new Image();
+        img.style.opacity = 0;
 
-        if (img.src === src) {
-            // If image source hasn't changed, return a promise that resolves immediately
-            prom = new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
+            if (img.src === src) {
+                // If image source hasn't changed resolve immediately
                 resolve(img);
-            });
-        } else {
-            prom = new Promise(function (resolve, reject) {
-                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
+            } else {
+                if (useCanvas && src.substring(0, 4).toLowerCase() === 'http') {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
                     setTimeout(function () {
                         resolve(img);
                     }, 1);
-                };
-            });
+                }
+            }
 
             img.src = src;
-        }
-
-        img.style.opacity = 0;
-
-        return prom;
+        });
     }
 
     /* CSS Transform Prototype */
@@ -782,7 +776,7 @@
     function _triggerUpdate() {
         var self = this,
             data = self.get(),
-            ev; 
+            ev;
 
         if (!_isVisible.call(self)) {
             return;
@@ -864,7 +858,7 @@
         else {
             self._currentZoom = initialZoom;
         }
-        
+
         transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
@@ -1164,7 +1158,7 @@
         prom = new Promise(function (resolve, reject) {
             switch(resultType.toLowerCase())
             {
-                case 'rawcanvas': 
+                case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
                 case 'canvas':
@@ -1174,7 +1168,7 @@
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
                     break;
-                default: 
+                default:
                     resolve(_getHtmlResult.call(self, data));
                     break;
             }
@@ -1278,7 +1272,7 @@
             this.element = replacementDiv;
             this.options.url = this.options.url || origImage.src;
         }
-        
+
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
