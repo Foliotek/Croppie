@@ -1062,19 +1062,27 @@
             return parseFloat(p);
         });
         self.data.boundZoom = zoom;
-        var prom = loadImage(url, self.elements.img, self.options.useCanvas);
-        prom.then(function () {
+
+        return loadImage(url, self.elements.img, self.options.useCanvas).then(function (img) {
+            if(self.options.relative){
+                // de-relative points
+                var points = self.data.points;
+                self.data.points = [
+                    points[0] * img.naturalWidth / 100,
+                    points[1] * img.naturalHeight / 100,
+                    points[2] * img.naturalWidth / 100,
+                    points[3] * img.naturalHeight / 100
+                ];
+            }
+
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
                 _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
-            if (cb) {
-                cb();
-            }
+            cb && cb();
         });
-        return prom;
     }
 
     function fix(v, decimalPoints) {
@@ -1312,7 +1320,18 @@
             return _bind.call(this, options, cb);
         },
         get: function () {
-            return _get.call(this);
+            var data = _get.call(this);
+            var points = data.points;
+            if(this.options.relative){
+                //
+                // Relativize points
+                //
+                points[0] /= this.elements.img.naturalWidth / 100;
+                points[1] /= this.elements.img.naturalHeight / 100;
+                points[2] /= this.elements.img.naturalWidth / 100;
+                points[3] /= this.elements.img.naturalHeight / 100;
+            }
+            return data;
         },
         result: function (type) {
             return _result.call(this, type);
