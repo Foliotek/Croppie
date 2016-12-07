@@ -154,7 +154,7 @@
         return parseInt(v, 10);
     }
 
-/* Utilities */
+    /* Utilities */
     function loadImage(src, imageEl, useCanvas) {
         var img = imageEl || new Image();
         img.style.opacity = 0;
