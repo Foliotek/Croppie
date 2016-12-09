@@ -1058,21 +1058,45 @@
 
         self.data.bound = false;
         self.data.url = url || self.data.url;
-        self.data.points = (points || self.data.points).map(function (p) {
-            return parseFloat(p);
-        });
         self.data.boundZoom = zoom;
 
         return loadImage(url, self.elements.img, self.options.useCanvas).then(function (img) {
-            if(self.options.relative){
-                // de-relative points
-                var points = self.data.points;
-                self.data.points = [
-                    points[0] * img.naturalWidth / 100,
-                    points[1] * img.naturalHeight / 100,
-                    points[2] * img.naturalWidth / 100,
-                    points[3] * img.naturalHeight / 100
-                ];
+            if(!points.length){
+                var iWidth = img.naturalWidth;
+                var iHeight = img.naturalHeight;
+
+                var rect = self.elements.viewport.getBoundingClientRect();
+                var aspectRatio = rect.width / rect.height;
+                var width, height;
+
+                if( iWidth / iHeight > aspectRatio){
+                    height = iHeight;
+                    width = height * aspectRatio;
+                }else{
+                    width = iWidth;
+                    height = width / aspectRatio;
+                }
+
+                var x0 = (iWidth - width) / 2;
+                var y0 = (iHeight - height) / 2;
+                var x1 = x0 + width;
+                var y1 = y0 + height;
+
+                self.data.points = [x0, y0, x1, y1];
+            } else {
+                if(self.options.relative){
+                    // de-relative points
+                    points = [
+                        points[0] * img.naturalWidth / 100,
+                        points[1] * img.naturalHeight / 100,
+                        points[2] * img.naturalWidth / 100,
+                        points[3] * img.naturalHeight / 100
+                    ];
+                }
+
+                self.data.points = points.map(function (p) {
+                    return parseFloat(p);
+                });
             }
 
             if (self.options.useCanvas) {
