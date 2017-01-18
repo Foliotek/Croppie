@@ -166,7 +166,7 @@
             });
         } else {
             prom = new Promise(function (resolve, reject) {
-                if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
+                if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
                     img.setAttribute('crossOrigin', 'anonymous');
                 } else {
                     img.setAttribute('crossOrigin', '');
