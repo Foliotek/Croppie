@@ -168,6 +168,8 @@
             prom = new Promise(function (resolve, reject) {
                 if (useCanvas && src.substring(0,4).toLowerCase() === 'http') {
                     img.setAttribute('crossOrigin', 'anonymous');
+                } else {
+                    img.setAttribute('crossOrigin', '');
                 }
                 img.onload = function () {
                     setTimeout(function () {
