@@ -163,18 +163,19 @@
             if (img.src === src) {
                 // If image source hasn't changed resolve immediately
                 resolve(img);
-            });
-        } else {
-            img.removeAttribute('crossOrigin');
-            if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
-                img.setAttribute('crossOrigin', 'anonymous');
+            } 
+            else {
+                img.removeAttribute('crossOrigin');
+                if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
+                    img.setAttribute('crossOrigin', 'anonymous');
+                }
+                img.onload = function () {
+                    setTimeout(function () {
+                        resolve(img);
+                    }, 1);
+                }
+                img.src = src;
             }
-            img.onload = function () {
-                setTimeout(function () {
-                    resolve(img);
-                }, 1);
-            }
-            img.src = src;
         });
     }
 
