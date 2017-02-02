@@ -249,13 +249,27 @@
         });
     }
 
-    function drawCanvas(canvas, img, orientation) {
+    function drawCanvas(canvas, img, orientation, maxSize) {
         var width = img.width,
             height = img.height,
+            max_width = maxSize.width,
+            max_height = maxSize.height,
             ctx = canvas.getContext('2d');
 
-        canvas.width = img.width;
-        canvas.height = img.height;
+        if (width > height) {
+            if (width > max_width) {
+                height = Math.round(height *= max_width / width);
+                width = max_width;
+            }
+        } else {
+            if (height > max_height) {
+                width = Math.round(width *= max_height / height);
+                height = max_height;
+            }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
 
         ctx.save();
         switch (orientation) {
@@ -931,13 +945,13 @@
 
         if (exif) {
             getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, num(orientation, 10));
+                drawCanvas(canvas, img, num(orientation, 10), self.options.maxSize);
                 if (customOrientation) {
-                    drawCanvas(canvas, img, customOrientation);
+                    drawCanvas(canvas, img, customOrientation, self.options.maxSize);
                 }
             });
         } else if (customOrientation) {
-            drawCanvas(canvas, img, customOrientation);
+            drawCanvas(canvas, img, customOrientation, self.options.maxSize);
         }
     }
 
@@ -1233,7 +1247,7 @@
         if (deg === -90 || deg === 270) ornt = 8;
         if (deg === 180 || deg === -180) ornt = 3;
 
-        drawCanvas(canvas, copy, ornt);
+        drawCanvas(canvas, copy, ornt, self.options.maxSize);
         _onZoom.call(self);
     }
 
@@ -1329,6 +1343,10 @@
             enabled: true,
             leftClass: '',
             rightClass: ''
+        },
+        maxSize: {
+            width: 1024,
+            height: 768
         },
         customClass: '',
         showZoomer: true,
