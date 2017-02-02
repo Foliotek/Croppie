@@ -784,8 +784,8 @@
         }
 
         self.options.update.call(self, data);
-        if (self.$) {
-            self.$(self.element).trigger('update', data)
+        if (self.$ && typeof Prototype == 'undefined') {
+            self.$(self.element).trigger('update', data); 
         }
         else {
             var ev;
