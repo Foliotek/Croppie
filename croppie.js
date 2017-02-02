@@ -155,7 +155,7 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl, useCanvas) {
+    function loadImage(src, imageEl) {
         var img = imageEl || new Image();
         img.style.opacity = 0;
 
@@ -166,7 +166,7 @@
             } 
             else {
                 img.removeAttribute('crossOrigin');
-                if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
+                if (src.match(/^https?:\/\/|^\/\//)) {
                     img.setAttribute('crossOrigin', 'anonymous');
                 }
                 img.onload = function () {
@@ -1069,7 +1069,7 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, self.elements.img, self.options.useCanvas).then(function (img) {
+        return loadImage(url, self.elements.img).then(function (img) {
             if(!points.length){
                 var iWidth = img.naturalWidth;
                 var iHeight = img.naturalHeight;
