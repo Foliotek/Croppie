@@ -372,7 +372,6 @@
             addClass(self.element, self.options.customClass);
         }
 
-        // Initialize drag & zoom
         _initDraggable.call(this);
 
         if (self.options.enableZoom) {
@@ -384,40 +383,37 @@
         // }
     }
 
-    function _initRotationControls () {
-        // TODO - Not a fan of these controls
-        return;
-        var self = this,
-            wrap, btnLeft, btnRight, iLeft, iRight;
+    // function _initRotationControls () {
+    //     var self = this,
+    //         wrap, btnLeft, btnRight, iLeft, iRight;
 
-        wrap = document.createElement('div');
-        self.elements.orientationBtnLeft = btnLeft = document.createElement('button');
-        self.elements.orientationBtnRight = btnRight = document.createElement('button');
+    //     wrap = document.createElement('div');
+    //     self.elements.orientationBtnLeft = btnLeft = document.createElement('button');
+    //     self.elements.orientationBtnRight = btnRight = document.createElement('button');
 
-        wrap.appendChild(btnLeft);
-        wrap.appendChild(btnRight);
+    //     wrap.appendChild(btnLeft);
+    //     wrap.appendChild(btnRight);
 
-        iLeft = document.createElement('i');
-        iRight = document.createElement('i');
-        btnLeft.appendChild(iLeft);
-        btnRight.appendChild(iRight);
+    //     iLeft = document.createElement('i');
+    //     iRight = document.createElement('i');
+    //     btnLeft.appendChild(iLeft);
+    //     btnRight.appendChild(iRight);
 
-        addClass(wrap, 'cr-rotate-controls');
-        addClass(btnLeft, 'cr-rotate-l');
-        addClass(btnRight, 'cr-rotate-r');
+    //     addClass(wrap, 'cr-rotate-controls');
+    //     addClass(btnLeft, 'cr-rotate-l');
+    //     addClass(btnRight, 'cr-rotate-r');
 
-        self.elements.boundary.appendChild(wrap);
+    //     self.elements.boundary.appendChild(wrap);
 
-        btnLeft.addEventListener('click', function () {
-            self.rotate(-90);
-        });
-        btnRight.addEventListener('click', function () {
-            self.rotate(90);
-        });
-    }
+    //     btnLeft.addEventListener('click', function () {
+    //         self.rotate(-90);
+    //     });
+    //     btnRight.addEventListener('click', function () {
+    //         self.rotate(90);
+    //     });
+    // }
 
     function _hasExif() {
-        // todo - remove options.exif after deprecation
         return this.options.enableExif && window.EXIF;
     }
 
@@ -1359,7 +1355,7 @@
         get: function () {
             var data = _get.call(this);
             var points = data.points;
-            if(this.options.relative){
+            if (this.options.relative) {
                 //
                 // Relativize points
                 //
