@@ -179,9 +179,16 @@
         });
     }
 
+
     /* CSS Transform Prototype */
-    var _TRANSLATE = 'translate3d',
-        _TRANSLATE_SUFFIX = ', 0px';
+    var TRANSLATE_OPTS = {
+        'translate3d': {
+            suffix: ', 0px'
+        },
+        'translate': {
+            suffix: ''
+        }
+    };
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -211,16 +218,17 @@
 
     Transform.fromString = function (v) {
         var values = v.split(') '),
-            translate = values[0].substring(_TRANSLATE.length + 1).split(','),
+            translate = values[0].substring(Croppie.globals.translate.length + 1).split(','),
             scale = values.length > 1 ? values[1].substring(6) : 1,
             x = translate.length > 1 ? translate[0] : 0,
             y = translate.length > 1 ? translate[1] : 0;
-
+        log(values);
         return new Transform(x, y, scale);
     };
 
     Transform.prototype.toString = function () {
-        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
+        var suffix = TRANSLATE_OPTS[Croppie.globals.translate].suffix || '';
+        return Croppie.globals.translate + '(' + this.x + 'px, ' + this.y + 'px' + suffix + ') scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
@@ -1338,6 +1346,10 @@
         enforceBoundary: true,
         enableOrientation: false,
         update: function () { }
+    };
+
+    Croppie.globals = {
+        translate: 'translate3d'
     };
 
     deepExtend(Croppie.prototype, {
