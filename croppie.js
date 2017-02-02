@@ -222,7 +222,7 @@
             scale = values.length > 1 ? values[1].substring(6) : 1,
             x = translate.length > 1 ? translate[0] : 0,
             y = translate.length > 1 ? translate[1] : 0;
-        log(values);
+
         return new Transform(x, y, scale);
     };
 
@@ -950,23 +950,30 @@
             points = data.points,
             left = num(points[0]),
             top = num(points[1]),
-            width = (points[2] - points[0]),
-            height = (points[3] - points[1]),
+            right = num(points[2]),
+            bottom = num(points[3]),
+            width = right-left,
+            height = bottom-top,
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
             outWidth = width,
             outHeight = height,
             startX = 0,
-            startY = 0;
+            startY = 0,
+            canvasWidth = outWidth,
+            canvasHeight = outHeight,
+            customDimensions = (data.outputWidth && data.outputHeight),
+            outputRatio = 1;
 
-        if (data.outputWidth && data.outputHeight) {
-            outWidth = data.outputWidth;
-            outHeight = data.outputHeight;
+        if (customDimensions) {
+            canvasWidth = data.outputWidth;
+            canvasHeight = data.outputHeight;
+            outputRatio = canvasWidth / outWidth;
         }
 
-        canvas.width = outWidth;
-        canvas.height = outHeight;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
 
         if (data.backgroundColor) {
             ctx.fillStyle = data.backgroundColor;
@@ -981,13 +988,20 @@
             startY = Math.abs(top);
             top = 0;
         }
-        if ((left + width) > self._originalImageWidth) {
+        if (right > self._originalImageWidth) {
             width = self._originalImageWidth - left;
             outWidth = width;
         }
-        if ((top + height) > self._originalImageHeight) {
+        if (bottom > self._originalImageHeight) {
             height = self._originalImageHeight - top;
             outHeight = height;
+        }
+
+        if (outputRatio !== 1) {
+            startX *= outputRatio;
+            startY *= outputRatio;
+            outWidth *= outputRatio;
+            outHeight *= outputRatio;
         }
 
         ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
