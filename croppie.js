@@ -156,33 +156,26 @@
 
     /* Utilities */
     function loadImage(src, imageEl, useCanvas) {
-        var img = imageEl || new Image(),
-            prom;
+        var img = imageEl || new Image();
+        img.style.opacity = 0;
 
-        if (img.src === src) {
-            // If image source hasn't changed, return a promise that resolves immediately
-            prom = new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
+            if (img.src === src) {
+                // If image source hasn't changed resolve immediately
                 resolve(img);
             });
         } else {
             img.removeAttribute('crossOrigin');
-            prom = new Promise(function (resolve, reject) {
-                if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                }
-                img.onload = function () {
-                    setTimeout(function () {
-                        resolve(img);
-                    }, 1);
-                };
-            });
-
+            if (useCanvas && src.match(/^https?:\/\/|^\/\//)) {
+                img.setAttribute('crossOrigin', 'anonymous');
+            }
+            img.onload = function () {
+                setTimeout(function () {
+                    resolve(img);
+                }, 1);
+            }
             img.src = src;
-        }
-
-        img.style.opacity = 0;
-
-        return prom;
+        });
     }
 
     /* CSS Transform Prototype */
@@ -783,7 +776,7 @@
     function _triggerUpdate() {
         var self = this,
             data = self.get(),
-            ev; 
+            ev;
 
         if (!_isVisible.call(self)) {
             return;
@@ -865,7 +858,7 @@
         else {
             self._currentZoom = initialZoom;
         }
-        
+
         transformReset.scale = self._currentZoom;
         cssReset[CSS_TRANSFORM] = transformReset.toString();
         css(img, cssReset);
@@ -1065,23 +1058,55 @@
 
         self.data.bound = false;
         self.data.url = url || self.data.url;
-        self.data.points = (points || self.data.points).map(function (p) {
-            return parseFloat(p);
-        });
         self.data.boundZoom = zoom;
-        var prom = loadImage(url, self.elements.img, self.options.useCanvas);
-        prom.then(function () {
+
+        return loadImage(url, self.elements.img, self.options.useCanvas).then(function (img) {
+            if(!points.length){
+                var iWidth = img.naturalWidth;
+                var iHeight = img.naturalHeight;
+
+                var rect = self.elements.viewport.getBoundingClientRect();
+                var aspectRatio = rect.width / rect.height;
+                var width, height;
+
+                if( iWidth / iHeight > aspectRatio){
+                    height = iHeight;
+                    width = height * aspectRatio;
+                }else{
+                    width = iWidth;
+                    height = width / aspectRatio;
+                }
+
+                var x0 = (iWidth - width) / 2;
+                var y0 = (iHeight - height) / 2;
+                var x1 = x0 + width;
+                var y1 = y0 + height;
+
+                self.data.points = [x0, y0, x1, y1];
+            } else {
+                if(self.options.relative){
+                    // de-relative points
+                    points = [
+                        points[0] * img.naturalWidth / 100,
+                        points[1] * img.naturalHeight / 100,
+                        points[2] * img.naturalWidth / 100,
+                        points[3] * img.naturalHeight / 100
+                    ];
+                }
+
+                self.data.points = points.map(function (p) {
+                    return parseFloat(p);
+                });
+            }
+
             if (self.options.useCanvas) {
                 self.elements.img.exifdata = null;
                 _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
-            if (cb) {
-                cb();
-            }
+            cb && cb();
         });
-        return prom;
     }
 
     function fix(v, decimalPoints) {
@@ -1165,7 +1190,7 @@
         prom = new Promise(function (resolve, reject) {
             switch(resultType.toLowerCase())
             {
-                case 'rawcanvas': 
+                case 'rawcanvas':
                     resolve(_getCanvas.call(self, data));
                     break;
                 case 'canvas':
@@ -1175,7 +1200,7 @@
                 case 'blob':
                     _getBlobResult.call(self, data).then(resolve);
                     break;
-                default: 
+                default:
                     resolve(_getHtmlResult.call(self, data));
                     break;
             }
@@ -1279,7 +1304,7 @@
             this.element = replacementDiv;
             this.options.url = this.options.url || origImage.src;
         }
-        
+
         _create.call(this);
         if (this.options.url) {
             var bindOpts = {
@@ -1319,7 +1344,18 @@
             return _bind.call(this, options, cb);
         },
         get: function () {
-            return _get.call(this);
+            var data = _get.call(this);
+            var points = data.points;
+            if(this.options.relative){
+                //
+                // Relativize points
+                //
+                points[0] /= this.elements.img.naturalWidth / 100;
+                points[1] /= this.elements.img.naturalHeight / 100;
+                points[2] /= this.elements.img.naturalWidth / 100;
+                points[3] /= this.elements.img.naturalHeight / 100;
+            }
+            return data;
         },
         result: function (type) {
             return _result.call(this, type);
