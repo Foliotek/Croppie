@@ -180,8 +180,7 @@
     }
 
     /* CSS Transform Prototype */
-    var _TRANSLATE = 'translate3d',
-        _TRANSLATE_SUFFIX = ', 0px';
+    var _TRANSLATE = 'translate'
     var Transform = function (x, y, scale) {
         this.x = parseFloat(x);
         this.y = parseFloat(y);
@@ -220,7 +219,7 @@
     };
 
     Transform.prototype.toString = function () {
-        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px' + _TRANSLATE_SUFFIX + ') scale(' + this.scale + ')';
+        return _TRANSLATE + '(' + this.x + 'px, ' + this.y + 'px) scale(' + this.scale + ')';
     };
 
     var TransformOrigin = function (el) {
