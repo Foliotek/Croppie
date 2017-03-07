@@ -1,6 +1,6 @@
 {
   "name": "croppie",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "devDependencies": {
@@ -25,7 +25,7 @@
     "Dustin Smith <thedustinsmith@gmail.com>",
     "Ethan Calvert <calvert1591@gmail.com>"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Foliotek/Croppie/issues"
   },

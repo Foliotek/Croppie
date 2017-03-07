@@ -15,6 +15,14 @@ Download:
 <script src="croppie.js"></script>
 ```
 
+## CDN
+cdnjs.com provides croppie via cdn https://cdnjs.com/libraries/croppie
+```
+https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.css
+https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
+```
+
+
 ## Documentation
 [Documentation](http://foliotek.github.io/Croppie#documentation)
 

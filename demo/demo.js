@@ -40,14 +40,14 @@ var Demo = (function() {
 			viewport: {
 				width: 150,
 				height: 150,
-				type: 'circle'
+				type: 'square'
 			},
 			boundary: {
 				width: 300,
 				height: 300
 			},
 			// url: 'demo/demo-1.jpg',
-			// enforceBoundary: false
+			enforceBoundary: false
 			// mouseWheelZoom: false
 		});
 		mc.on('update', function (ev, data) {
@@ -56,6 +56,7 @@ var Demo = (function() {
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
             	type: 'rawcanvas',
+            	// size: { width: 300, height: 300 },
             	format: 'png'
             }).then(function (canvas) {
 				popupResult({
