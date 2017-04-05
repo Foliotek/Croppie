@@ -85,6 +85,9 @@
     width: 300px;
 /*required for proper track sizing in FF*/
     max-width: 100%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: transparent;
 }
 
 .cr-slider::-webkit-slider-runnable-track {
