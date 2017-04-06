@@ -1163,7 +1163,8 @@
     var RESULT_DEFAULTS = {
             type: 'canvas',
             format: 'png',
-            quality: 1
+            quality: 1,
+            size: 'viewport'
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
 
