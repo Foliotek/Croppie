@@ -979,22 +979,25 @@
             ctx.fillStyle = data.backgroundColor;
             ctx.fillRect(0, 0, outWidth, outHeight);
         }
+
         // start fixing data to send to draw image for enforceBoundary: false
-        if (left < 0) {
-            startX = Math.abs(left);
-            left = 0;
-        }
-        if (top < 0) {
-            startY = Math.abs(top);
-            top = 0;
-        }
-        if (right > self._originalImageWidth) {
-            width = self._originalImageWidth - left;
-            outWidth = width;
-        }
-        if (bottom > self._originalImageHeight) {
-            height = self._originalImageHeight - top;
-            outHeight = height;
+        if (!self.options.enforceBoundary) {
+            if (left < 0) {
+                startX = Math.abs(left);
+                left = 0;
+            }
+            if (top < 0) {
+                startY = Math.abs(top);
+                top = 0;
+            }
+            if (right > self._originalImageWidth) {
+                width = self._originalImageWidth - left;
+                outWidth = width;
+            }
+            if (bottom > self._originalImageHeight) {
+                height = self._originalImageHeight - top;
+                outHeight = height;
+            }
         }
 
         if (outputRatio !== 1) {
@@ -1163,8 +1166,7 @@
     var RESULT_DEFAULTS = {
             type: 'canvas',
             format: 'png',
-            quality: 1,
-            size: 'viewport'
+            quality: 1
         },
         RESULT_FORMATS = ['jpeg', 'webp', 'png'];
 
