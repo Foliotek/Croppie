@@ -1175,7 +1175,7 @@
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
             resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
-            size = opts.size,
+            size = opts.size || 'viewport',
             format = opts.format,
             quality = opts.quality,
             backgroundColor = opts.backgroundColor,
