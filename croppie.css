@@ -46,6 +46,7 @@
     z-index: 1;
     position: absolute;
     cursor: move;
+    touch-action: none;
 }
 
 .croppie-container .cr-slider-wrap {
