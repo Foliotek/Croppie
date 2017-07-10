@@ -378,12 +378,12 @@
             _initializeZoom.call(self);
         }
 
-        if (this.options.enableResize) {
-            _initializeResize.call(this);
-        }
+        // if (self.options.enableOrientation) {
+        //     _initRotationControls.call(self);
+        // }
 
-        if (self.options.enableOrientation) {
-            _initRotationControls.call(self);
+        if (self.options.enableResize) {
+            _initializeResize.call(self);
         }
     }
 
@@ -535,26 +535,6 @@
                     });
                 }
             }
-
-            /*
-            if (ev.type == 'touchmove') {
-                if (ev.touches.length > 1) {
-                    var touch1 = ev.touches[0];
-                    var touch2 = ev.touches[1];
-                    var dist = Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
-
-                    if (!originalDistance) {
-                        originalDistance = dist / self._currentZoom;
-                    }
-
-                    var scale = dist / originalDistance;
-
-                    _setZoomerVal.call(self, scale);
-                    dispatchChange(self.elements.zoomer);
-                    return;
-                }
-            }
-            */
 
             _updateOverlay.call(self);
             _updateZoomLimits.call(self);
