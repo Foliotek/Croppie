@@ -462,6 +462,7 @@
         var minSize = 50;
         var maxWidth;
         var maxHeight;
+        var sizeInfo;
         var vr;
         var hr;
 
@@ -470,6 +471,15 @@
             width: this.options.viewport.width + 'px',
             height: this.options.viewport.height + 'px'
         });
+
+        if (this.options.resizeControls.sizeInfo) {
+            sizeInfo = document.createElement('span');
+            addClass(sizeInfo, 'cr-resizer-info');
+            css(sizeInfo, {
+                display: 'none',
+            });
+            wrap.appendChild(sizeInfo);
+        }
 
         if (this.options.resizeControls.height) {
             vr = document.createElement('div');
@@ -504,6 +514,17 @@
                 var touches = ev.touches[0];
                 originalX = touches.pageX;
                 originalY = touches.pageY;
+            }
+
+            if (sizeInfo) {
+                sizeInfo.innerHTML = (
+                    fix(self.options.viewport.width) +
+                    '&times;' +
+                    fix(self.options.viewport.height)
+                );
+                css(sizeInfo, {
+                    display: 'block',
+                });
             }
 
             window.addEventListener('mousemove', mouseMove);
@@ -561,6 +582,14 @@
                 });
             }
 
+            if (sizeInfo) {
+                sizeInfo.innerHTML = (
+                    fix(self.options.viewport.width) +
+                    '&times;' +
+                    fix(self.options.viewport.height)
+                );
+            }
+
             _updateOverlay.call(self);
             _updateZoomLimits.call(self);
             _updateCenterPoint.call(self);
@@ -571,6 +600,13 @@
 
         function mouseUp() {
             isDragging = false;
+
+            if (sizeInfo) {
+                css(sizeInfo, {
+                    display: 'none',
+                });
+            }
+
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
@@ -1520,7 +1556,8 @@
         },
         resizeControls: {
             width: true,
-            height: true
+            height: true,
+            sizeInfo: false,
         },
         customClass: '',
         showZoomer: true,
