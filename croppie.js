@@ -1158,8 +1158,8 @@
             outWidth *= outputRatio;
             outHeight *= outputRatio;
         }
-
-        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
+        
+        ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
@@ -1238,15 +1238,15 @@
             if(!points.length){
                 var iWidth = img.naturalWidth;
                 var iHeight = img.naturalHeight;
-
                 var rect = self.elements.viewport.getBoundingClientRect();
                 var aspectRatio = rect.width / rect.height;
                 var width, height;
 
-                if( iWidth / iHeight > aspectRatio){
+                if (iWidth / iHeight > aspectRatio) {
                     height = iHeight;
                     width = height * aspectRatio;
-                }else{
+                }
+                else {
                     width = iWidth;
                     height = width / aspectRatio;
                 }
@@ -1258,8 +1258,7 @@
 
                 self.data.points = [x0, y0, x1, y1];
             } else {
-                if(self.options.relative){
-                    // de-relative points
+                if (self.options.relative) {
                     points = [
                         points[0] * img.naturalWidth / 100,
                         points[1] * img.naturalHeight / 100,
@@ -1293,7 +1292,7 @@
             vpData = self.elements.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
             y1 = vpData.top - imgData.top,
-            widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2,
+            widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2, //border
             heightDiff = (vpData.height - self.elements.viewport.offsetHeight) / 2,
             x2 = x1 + self.elements.viewport.offsetWidth + widthDiff,
             y2 = y1 + self.elements.viewport.offsetHeight + heightDiff,
