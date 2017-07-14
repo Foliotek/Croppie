@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2017
  * Foliotek
- * Version: 2.4.1
+ * Version: 2.5.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -334,7 +334,7 @@
         var self = this,
             contClass = 'croppie-container',
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay, canvas, bw, bh;
+            boundary, img, viewport, overlay, bw, bh;
 
         self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
         // Properties on class
@@ -639,8 +639,7 @@
         var self = this,
             transform = ui ? ui.transform : Transform.parse(self.elements.preview),
             vpRect = ui ? ui.viewportRect : self.elements.viewport.getBoundingClientRect(),
-            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview),
-            transCss = {};
+            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview);
 
         function applyCss() {
             var transCss = {};
@@ -1401,7 +1400,6 @@
 
         var self = this,
             canvas = self.elements.canvas,
-            img = self.elements.img,
             copy = document.createElement('canvas'),
             ornt = 1;
 
