@@ -358,6 +358,37 @@ vanilla.result('blob').then(function(blob) {
                         </div>
                     </div>
                 </div>
+                <div class="demo-wrap">
+                    <div class="container">
+                        <div class="grid">
+                            <div class="col-1-2">
+                                <strong>Resizer Example</strong>
+                                <pre class="language-javascript"><code class="language-javascript">
+var el = document.getElementById('resizer-demo');
+var resize = new Croppie(el, {
+    viewport: { width: 100, height: 100 },
+    boundary: { width: 300, height: 300 },
+    showZoomer: false,
+    enableResize: true,
+    enableOrientation: true
+});
+resize.bind({
+    url: 'demo/demo-2.jpg',
+});
+//on button click
+resize.result('blob').then(function(blob) {
+    // do something with cropped blob
+});</code></pre>
+                                <div class="actions">
+                                    <button class="resizer-result">Result</button>
+                                </div>
+                            </div>
+                            <div class="col-1-2">
+                                <div id="resizer-demo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="demo-wrap upload-demo">
                     <div class="container">
                     <div class="grid">
@@ -455,7 +486,7 @@ $('#hidden-demo').croppie('bind')</code></pre>
             </div>
         </section>
         <footer>
-            Copyright &copy; 2016 | Foliotek
+            Copyright &copy; <span id="year">2017</span> | Foliotek
         </footer>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
@@ -466,6 +497,7 @@ $('#hidden-demo').croppie('bind')</code></pre>
         <script src="demo/demo.js"></script>
         <script src="bower_components/exif-js/exif.js"></script>
         <script>
+            document.getElementById('year').innerHTML = (new Date).getFullYear();
             Demo.init();
         </script>
         <script>

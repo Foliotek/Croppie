@@ -1,8 +1,8 @@
 /*************************
  * Croppie
- * Copyright 2016
+ * Copyright 2017
  * Foliotek
- * Version: 2.4.1
+ * Version: 2.5.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -155,30 +155,51 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl) {
+    function loadImage(src, imageEl, doExif) {
         var img = imageEl || new Image();
         img.style.opacity = 0;
 
         return new Promise(function (resolve) {
-            if (img.src === src) {
-                // If image source hasn't changed resolve immediately
-                resolve(img);
-            } 
-            else {
-                img.removeAttribute('crossOrigin');
-                if (src.match(/^https?:\/\/|^\/\//)) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                }
-                img.onload = function () {
-                    setTimeout(function () {
-                        resolve(img);
-                    }, 1);
-                }
-                img.src = src;
+            function _resolve() {
+                setTimeout(function(){
+                    resolve(img);
+                }, 1);
             }
+
+            if (img.src === src) {// If image source hasn't changed resolve immediately
+                _resolve();
+                return;
+            } 
+
+            img.exifdata = null;
+            img.removeAttribute('crossOrigin');
+            if (src.match(/^https?:\/\/|^\/\//)) {
+                img.setAttribute('crossOrigin', 'anonymous');
+            }
+            img.onload = function () {
+                if (doExif) {
+                    EXIF.getData(img, function () {
+                        _resolve();
+                    });    
+                }
+                else {
+                    _resolve();
+                }
+            };
+            img.src = src;
         });
     }
 
+    function naturalImageDimensions(img) {
+        var w = img.naturalWidth;
+        var h = img.naturalHeight;
+        if (img.exifdata && img.exifdata.Orientation >= 5) {
+            var x= w;
+            w = h;
+            h = x;
+        }
+        return { width: w, height: h };
+    }
 
     /* CSS Transform Prototype */
     var TRANSLATE_OPTS = {
@@ -246,15 +267,8 @@
         return this.x + 'px ' + this.y + 'px';
     };
 
-    function getExifOrientation (img, cb) {
-        if (!window.EXIF) {
-            cb(0);
-        }
-
-        EXIF.getData(img, function () {
-            var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);
-        });
+    function getExifOrientation (img) {
+        return img.exifdata.Orientation;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -320,14 +334,13 @@
         var self = this,
             contClass = 'croppie-container',
             customViewportClass = self.options.viewport.type ? 'cr-vp-' + self.options.viewport.type : null,
-            boundary, img, viewport, overlay, canvas, bw, bh;
+            boundary, img, viewport, overlay, bw, bh;
 
         self.options.useCanvas = self.options.enableOrientation || _hasExif.call(self);
         // Properties on class
         self.data = {};
         self.elements = {};
 
-        // Generating Markup
         boundary = self.elements.boundary = document.createElement('div');
         viewport = self.elements.viewport = document.createElement('div');
         img = self.elements.img = document.createElement('img');
@@ -381,6 +394,10 @@
         // if (self.options.enableOrientation) {
         //     _initRotationControls.call(self);
         // }
+
+        if (self.options.enableResize) {
+            _initializeResize.call(self);
+        }
     }
 
     // function _initRotationControls () {
@@ -415,6 +432,143 @@
 
     function _hasExif() {
         return this.options.enableExif && window.EXIF;
+    }
+
+    function _initializeResize () {
+        var self = this;
+        var wrap = document.createElement('div');
+        var isDragging = false;
+        var direction;
+        var originalX;
+        var originalY;
+        var minSize = 50;
+        var maxWidth;
+        var maxHeight;
+        var vr;
+        var hr;
+
+        addClass(wrap, 'cr-resizer');
+        css(wrap, {
+            width: this.options.viewport.width + 'px',
+            height: this.options.viewport.height + 'px'
+        });
+
+        if (this.options.resizeControls.height) {
+            vr = document.createElement('div');
+            addClass(vr, 'cr-resizer-vertical');
+            wrap.appendChild(vr);
+        }
+
+        if (this.options.resizeControls.width) {
+            hr = document.createElement('div');
+            addClass(hr, 'cr-resizer-horisontal');
+            wrap.appendChild(hr);
+        }
+
+        function mouseDown(ev) {
+            if (ev.button !== undefined && ev.button !== 0) return;
+
+            ev.preventDefault();
+            if (isDragging) {
+                return;
+            }
+
+            var overlayRect = self.elements.overlay.getBoundingClientRect();
+
+            isDragging = true;
+            originalX = ev.pageX;
+            originalY = ev.pageY;
+            direction = ev.currentTarget.className.indexOf('vertical') !== -1 ? 'v' : 'h';
+            maxWidth = overlayRect.width;
+            maxHeight = overlayRect.height;
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                originalX = touches.pageX;
+                originalY = touches.pageY;
+            }
+
+            window.addEventListener('mousemove', mouseMove);
+            window.addEventListener('touchmove', mouseMove);
+            window.addEventListener('mouseup', mouseUp);
+            window.addEventListener('touchend', mouseUp);
+            document.body.style[CSS_USERSELECT] = 'none';
+        }
+
+        function mouseMove(ev) {
+            var pageX = ev.pageX;
+            var pageY = ev.pageY;
+
+            ev.preventDefault();
+
+            if (ev.touches) {
+                var touches = ev.touches[0];
+                pageX = touches.pageX;
+                pageY = touches.pageY;
+            }
+
+            var deltaX = pageX - originalX;
+            var deltaY = pageY - originalY;
+            var newHeight = self.options.viewport.height + deltaY;
+            var newWidth = self.options.viewport.width + deltaX;
+
+            if (direction === 'v' && newHeight >= minSize && newHeight <= maxHeight) {
+                css(wrap, {
+                    height: newHeight + 'px'
+                });
+
+                self.options.boundary.height += deltaY;
+                css(self.elements.boundary, {
+                    height: self.options.boundary.height + 'px'
+                });
+
+                self.options.viewport.height += deltaY;
+                css(self.elements.viewport, {
+                    height: self.options.viewport.height + 'px'
+                });
+            }
+            else if (direction === 'h' && newWidth >= minSize && newWidth <= maxWidth) {
+                css(wrap, {
+                    width: newWidth + 'px'
+                });
+
+                self.options.boundary.width += deltaX;
+                css(self.elements.boundary, {
+                    width: self.options.boundary.width + 'px'
+                });
+
+                self.options.viewport.width += deltaX;
+                css(self.elements.viewport, {
+                    width: self.options.viewport.width + 'px'
+                }); 
+            }
+
+            _updateOverlay.call(self);
+            _updateZoomLimits.call(self);
+            _updateCenterPoint.call(self);
+            _triggerUpdate.call(self);
+            originalY = pageY;
+            originalX = pageX;
+        }
+
+        function mouseUp() {
+            isDragging = false;
+            window.removeEventListener('mousemove', mouseMove);
+            window.removeEventListener('touchmove', mouseMove);
+            window.removeEventListener('mouseup', mouseUp);
+            window.removeEventListener('touchend', mouseUp);
+            document.body.style[CSS_USERSELECT] = '';
+        }
+
+        if (vr) {
+            vr.addEventListener('mousedown', mouseDown);
+        }
+
+        if (hr) {
+            hr.addEventListener('mousedown', mouseDown);
+        }
+
+        this.elements.boundary.appendChild(wrap);
     }
 
     function _setZoomerVal(v) {
@@ -485,8 +639,7 @@
         var self = this,
             transform = ui ? ui.transform : Transform.parse(self.elements.preview),
             vpRect = ui ? ui.viewportRect : self.elements.viewport.getBoundingClientRect(),
-            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview),
-            transCss = {};
+            origin = ui ? ui.origin : new TransformOrigin(self.elements.preview);
 
         function applyCss() {
             var transCss = {};
@@ -498,7 +651,6 @@
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
         applyCss();
-
 
         if (self.options.enforceBoundary) {
             var boundaries = _getVirtualBoundaries.call(self, vpRect),
@@ -643,7 +795,7 @@
                 }
                 self.setZoom(zoom);
             }
-            else if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+            else if (self.options.enableKeyMovement && (ev.keyCode >= 37 && ev.keyCode <= 40)) {
                 ev.preventDefault();
                 var movement = parseKeyDown(ev.keyCode);
 
@@ -684,6 +836,8 @@
         }
 
         function mouseDown(ev) {
+            if (ev.button !== undefined && ev.button !== 0) return;
+
             ev.preventDefault();
             if (isDragging) return;
             isDragging = true;
@@ -810,20 +964,13 @@
 
     function _updatePropertiesFromImage() {
         var self = this,
-            minZoom = 0,
-            maxZoom = 1.5,
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
-            zoomer = self.elements.zoomer,
+            imgData = self.elements.preview.getBoundingClientRect(),
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
-            isVisible = _isVisible.call(self),
-            imgData,
-            vpData,
-            boundaryData,
-            minW,
-            minH;
+            isVisible = _isVisible.call(self);
 
         if (!isVisible || self.data.bound) {
             // if the croppie isn't visible or it doesn't need binding
@@ -836,29 +983,11 @@
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
-        imgData = img.getBoundingClientRect();
-        vpData = self.elements.viewport.getBoundingClientRect();
-        boundaryData = self.elements.boundary.getBoundingClientRect();
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
 
         if (self.options.enableZoom) {
-            if (self.options.enforceBoundary) {
-                minW = vpData.width / imgData.width;
-                minH = vpData.height / imgData.height;
-                minZoom = Math.max(minW, minH);
-            }
-
-            if (minZoom >= maxZoom) {
-                maxZoom = minZoom + 1;
-            }
-
-            zoomer.min = fix(minZoom, 4);
-            zoomer.max = fix(maxZoom, 4);
-            var defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
-            initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
-            _setZoomerVal.call(self, initialZoom);
-            dispatchChange(zoomer);
+            _updateZoomLimits.call(self, true);
         }
         else {
             self._currentZoom = initialZoom;
@@ -877,6 +1006,42 @@
 
         _updateCenterPoint.call(self);
         _updateOverlay.call(self);
+    }
+
+    function _updateZoomLimits (initial) {
+        var self = this,
+            minZoom = 0,
+            maxZoom = 1.5,
+            initialZoom,
+            defaultInitialZoom,
+            zoomer = self.elements.zoomer,
+            scale = parseFloat(zoomer.value),
+            boundaryData = self.elements.boundary.getBoundingClientRect(),
+            imgData = self.elements.preview.getBoundingClientRect(),
+            vpData = self.elements.viewport.getBoundingClientRect(),
+            minW,
+            minH;
+
+        if (self.options.enforceBoundary) {
+            minW = vpData.width / (initial ? imgData.width : imgData.width / scale);
+            minH = vpData.height / (initial ? imgData.height : imgData.height / scale);
+            minZoom = Math.max(minW, minH);
+        }
+
+        if (minZoom >= maxZoom) {
+            maxZoom = minZoom + 1;
+        }
+
+        zoomer.min = fix(minZoom, 4);
+        zoomer.max = fix(maxZoom, 4);
+
+        if (initial) {
+            defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
+            _setZoomerVal.call(self, initialZoom);
+        }
+
+        dispatchChange(zoomer);
     }
 
     function _bindPoints(points) {
@@ -933,14 +1098,11 @@
         canvas.width = img.width;
         canvas.height = img.height;
 
-        if (exif) {
-            getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, num(orientation, 10));
-                if (customOrientation) {
-                    drawCanvas(canvas, img, customOrientation);
-                }
-            });
-        } else if (customOrientation) {
+        if (exif && !customOrientation) {
+            var orientation = getExifOrientation(img);
+            drawCanvas(canvas, img, num(orientation || 0, 10));
+        } 
+        else if (customOrientation) {
             drawCanvas(canvas, img, customOrientation);
         }
     }
@@ -979,22 +1141,25 @@
             ctx.fillStyle = data.backgroundColor;
             ctx.fillRect(0, 0, outWidth, outHeight);
         }
+
         // start fixing data to send to draw image for enforceBoundary: false
-        if (left < 0) {
-            startX = Math.abs(left);
-            left = 0;
-        }
-        if (top < 0) {
-            startY = Math.abs(top);
-            top = 0;
-        }
-        if (right > self._originalImageWidth) {
-            width = self._originalImageWidth - left;
-            outWidth = width;
-        }
-        if (bottom > self._originalImageHeight) {
-            height = self._originalImageHeight - top;
-            outHeight = height;
+        if (!self.options.enforceBoundary) {
+            if (left < 0) {
+                startX = Math.abs(left);
+                left = 0;
+            }
+            if (top < 0) {
+                startY = Math.abs(top);
+                top = 0;
+            }
+            if (right > self._originalImageWidth) {
+                width = self._originalImageWidth - left;
+                outWidth = width;
+            }
+            if (bottom > self._originalImageHeight) {
+                height = self._originalImageHeight - top;
+                outHeight = height;
+            }
         }
 
         if (outputRatio !== 1) {
@@ -1004,7 +1169,7 @@
             outHeight *= outputRatio;
         }
 
-        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
+        ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
@@ -1055,7 +1220,8 @@
         var self = this,
             url,
             points = [],
-            zoom = null;
+            zoom = null,
+            hasExif = _hasExif.call(self);;
 
         if (typeof (options) === 'string') {
             url = options;
@@ -1079,47 +1245,43 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, self.elements.img).then(function (img) {
-            if(!points.length){
-                var iWidth = img.naturalWidth;
-                var iHeight = img.naturalHeight;
-
+        return loadImage(url, self.elements.img, hasExif).then(function (img) {
+            if (!points.length) {
+                var natDim = naturalImageDimensions(img);
                 var rect = self.elements.viewport.getBoundingClientRect();
                 var aspectRatio = rect.width / rect.height;
+                var imgAspectRatio = natDim.width / natDim.height;
                 var width, height;
 
-                if( iWidth / iHeight > aspectRatio){
-                    height = iHeight;
+                if (imgAspectRatio > aspectRatio) {
+                    height = natDim.height;
                     width = height * aspectRatio;
-                }else{
-                    width = iWidth;
+                }
+                else {
+                    width = natDim.width;
                     height = width / aspectRatio;
                 }
 
-                var x0 = (iWidth - width) / 2;
-                var y0 = (iHeight - height) / 2;
+                var x0 = (natDim.width - width) / 2;
+                var y0 = (natDim.height - height) / 2;
                 var x1 = x0 + width;
                 var y1 = y0 + height;
 
                 self.data.points = [x0, y0, x1, y1];
-            } else {
-                if(self.options.relative){
-                    // de-relative points
-                    points = [
-                        points[0] * img.naturalWidth / 100,
-                        points[1] * img.naturalHeight / 100,
-                        points[2] * img.naturalWidth / 100,
-                        points[3] * img.naturalHeight / 100
-                    ];
-                }
-
-                self.data.points = points.map(function (p) {
-                    return parseFloat(p);
-                });
+            } 
+            else if (self.options.relative) {
+                points = [
+                    points[0] * img.naturalWidth / 100,
+                    points[1] * img.naturalHeight / 100,
+                    points[2] * img.naturalWidth / 100,
+                    points[3] * img.naturalHeight / 100
+                ];
             }
 
+            self.data.points = points.map(function (p) {
+                return parseFloat(p);
+            });
             if (self.options.useCanvas) {
-                self.elements.img.exifdata = null;
                 _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
@@ -1138,7 +1300,7 @@
             vpData = self.elements.viewport.getBoundingClientRect(),
             x1 = vpData.left - imgData.left,
             y1 = vpData.top - imgData.top,
-            widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2,
+            widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2, //border
             heightDiff = (vpData.height - self.elements.viewport.offsetHeight) / 2,
             x2 = x1 + self.elements.viewport.offsetWidth + widthDiff,
             y2 = y1 + self.elements.viewport.offsetHeight + heightDiff,
@@ -1172,7 +1334,7 @@
             data = _get.call(self),
             opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
             resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
-            size = opts.size,
+            size = opts.size || 'viewport',
             format = opts.format,
             quality = opts.quality,
             backgroundColor = opts.backgroundColor,
@@ -1238,7 +1400,6 @@
 
         var self = this,
             canvas = self.elements.canvas,
-            img = self.elements.img,
             copy = document.createElement('canvas'),
             ornt = 1;
 
@@ -1253,6 +1414,7 @@
 
         drawCanvas(canvas, copy, ornt);
         _onZoom.call(self);
+        copy = null;
     }
 
     function _destroy() {
@@ -1348,13 +1510,19 @@
             leftClass: '',
             rightClass: ''
         },
+        resizeControls: {
+            width: true,
+            height: true
+        },
         customClass: '',
         showZoomer: true,
         enableZoom: true,
+        enableResize: false,
         mouseWheelZoom: true,
         enableExif: false,
         enforceBoundary: true,
         enableOrientation: false,
+        enableKeyMovement: true,
         update: function () { }
     };
 
@@ -1370,9 +1538,6 @@
             var data = _get.call(this);
             var points = data.points;
             if (this.options.relative) {
-                //
-                // Relativize points
-                //
                 points[0] /= this.elements.img.naturalWidth / 100;
                 points[1] /= this.elements.img.naturalHeight / 100;
                 points[2] /= this.elements.img.naturalWidth / 100;
