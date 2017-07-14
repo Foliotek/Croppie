@@ -643,7 +643,7 @@
                 }
                 self.setZoom(zoom);
             }
-            else if (ev.keyCode >= 37 && ev.keyCode <= 40) {
+            else if (self.options.enableKeyMovement && (ev.keyCode >= 37 && ev.keyCode <= 40)) {
                 ev.preventDefault();
                 var movement = parseKeyDown(ev.keyCode);
 
@@ -1358,6 +1358,7 @@
         enableExif: false,
         enforceBoundary: true,
         enableOrientation: false,
+        enableKeyMovement: true,
         update: function () { }
     };
 
