@@ -155,30 +155,51 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl) {
+    function loadImage(src, imageEl, doExif) {
         var img = imageEl || new Image();
         img.style.opacity = 0;
 
         return new Promise(function (resolve) {
-            if (img.src === src) {
-                // If image source hasn't changed resolve immediately
-                resolve(img);
-            } 
-            else {
-                img.removeAttribute('crossOrigin');
-                if (src.match(/^https?:\/\/|^\/\//)) {
-                    img.setAttribute('crossOrigin', 'anonymous');
-                }
-                img.onload = function () {
-                    setTimeout(function () {
-                        resolve(img);
-                    }, 1);
-                }
-                img.src = src;
+            function _resolve() {
+                setTimeout(function(){
+                    resolve(img);
+                }, 1);
             }
+
+            if (img.src === src) {// If image source hasn't changed resolve immediately
+                _resolve();
+                return;
+            } 
+
+            img.exifdata = null;
+            img.removeAttribute('crossOrigin');
+            if (src.match(/^https?:\/\/|^\/\//)) {
+                img.setAttribute('crossOrigin', 'anonymous');
+            }
+            img.onload = function () {
+                if (doExif) {
+                    EXIF.getData(img, function () {
+                        _resolve();
+                    });    
+                }
+                else {
+                    _resolve();
+                }
+            };
+            img.src = src;
         });
     }
 
+    function naturalImageDimensions(img) {
+        var w = img.naturalWidth;
+        var h = img.naturalHeight;
+        if (img.exifdata && img.exifdata.Orientation >= 5) {
+            var x= w;
+            w = h;
+            h = x;
+        }
+        return { width: w, height: h };
+    }
 
     /* CSS Transform Prototype */
     var TRANSLATE_OPTS = {
@@ -246,15 +267,8 @@
         return this.x + 'px ' + this.y + 'px';
     };
 
-    function getExifOrientation (img, cb) {
-        if (!window.EXIF) {
-            cb(0);
-        }
-
-        EXIF.getData(img, function () {
-            var orientation = EXIF.getTag(this, 'Orientation');
-            cb(orientation);
-        });
+    function getExifOrientation (img) {
+        return img.exifdata.Orientation;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -1085,14 +1099,11 @@
         canvas.width = img.width;
         canvas.height = img.height;
 
-        if (exif) {
-            getExifOrientation(img, function (orientation) {
-                drawCanvas(canvas, img, num(orientation, 10));
-                if (customOrientation) {
-                    drawCanvas(canvas, img, customOrientation);
-                }
-            });
-        } else if (customOrientation) {
+        if (exif && !customOrientation) {
+            var orientation = getExifOrientation(img);
+            drawCanvas(canvas, img, num(orientation || 0, 10));
+        } 
+        else if (customOrientation) {
             drawCanvas(canvas, img, customOrientation);
         }
     }
@@ -1158,7 +1169,7 @@
             outWidth *= outputRatio;
             outHeight *= outputRatio;
         }
-        
+
         ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
@@ -1210,7 +1221,8 @@
         var self = this,
             url,
             points = [],
-            zoom = null;
+            zoom = null,
+            hasExif = _hasExif.call(self);;
 
         if (typeof (options) === 'string') {
             url = options;
@@ -1234,46 +1246,43 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, self.elements.img).then(function (img) {
-            if(!points.length){
-                var iWidth = img.naturalWidth;
-                var iHeight = img.naturalHeight;
+        return loadImage(url, self.elements.img, hasExif).then(function (img) {
+            if (!points.length) {
+                var natDim = naturalImageDimensions(img);
                 var rect = self.elements.viewport.getBoundingClientRect();
                 var aspectRatio = rect.width / rect.height;
+                var imgAspectRatio = natDim.width / natDim.height;
                 var width, height;
 
-                if (iWidth / iHeight > aspectRatio) {
-                    height = iHeight;
+                if (imgAspectRatio > aspectRatio) {
+                    height = natDim.height;
                     width = height * aspectRatio;
                 }
                 else {
-                    width = iWidth;
+                    width = natDim.width;
                     height = width / aspectRatio;
                 }
 
-                var x0 = (iWidth - width) / 2;
-                var y0 = (iHeight - height) / 2;
+                var x0 = (natDim.width - width) / 2;
+                var y0 = (natDim.height - height) / 2;
                 var x1 = x0 + width;
                 var y1 = y0 + height;
 
                 self.data.points = [x0, y0, x1, y1];
-            } else {
-                if (self.options.relative) {
-                    points = [
-                        points[0] * img.naturalWidth / 100,
-                        points[1] * img.naturalHeight / 100,
-                        points[2] * img.naturalWidth / 100,
-                        points[3] * img.naturalHeight / 100
-                    ];
-                }
-
-                self.data.points = points.map(function (p) {
-                    return parseFloat(p);
-                });
+            } 
+            else if (self.options.relative) {
+                points = [
+                    points[0] * img.naturalWidth / 100,
+                    points[1] * img.naturalHeight / 100,
+                    points[2] * img.naturalWidth / 100,
+                    points[3] * img.naturalHeight / 100
+                ];
             }
 
+            self.data.points = points.map(function (p) {
+                return parseFloat(p);
+            });
             if (self.options.useCanvas) {
-                self.elements.img.exifdata = null;
                 _transferImageToCanvas.call(self, options.orientation || 1);
             }
             _updatePropertiesFromImage.call(self);
@@ -1407,6 +1416,7 @@
 
         drawCanvas(canvas, copy, ornt);
         _onZoom.call(self);
+        copy = null;
     }
 
     function _destroy() {
