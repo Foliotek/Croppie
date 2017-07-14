@@ -154,9 +154,9 @@ var Demo = (function() {
 			resize.result({
 				type: 'blob'
 			}).then(function (blob) {
-				window.open(window.URL.createObjectURL(blob));
+				// window.open(window.URL.createObjectURL(blob));
 				popupResult({
-					src: src
+					src: window.URL.createObjectURL(blob)
 				});
 			});
 		});

@@ -1,6 +1,6 @@
 /*************************
  * Croppie
- * Copyright 2016
+ * Copyright 2017
  * Foliotek
  * Version: 2.4.1
  *************************/
@@ -327,7 +327,6 @@
         self.data = {};
         self.elements = {};
 
-        // Generating Markup
         boundary = self.elements.boundary = document.createElement('div');
         viewport = self.elements.viewport = document.createElement('div');
         img = self.elements.img = document.createElement('img');
@@ -496,44 +495,38 @@
 
             var deltaX = pageX - originalX;
             var deltaY = pageY - originalY;
+            var newHeight = self.options.viewport.height + deltaY;
+            var newWidth = self.options.viewport.width + deltaX;
 
-            if (direction == 'v') {
-                var newHeight = self.options.viewport.height + deltaY;
+            if (direction === 'v' && newHeight >= minSize && newHeight <= maxHeight) {
+                css(wrap, {
+                    height: newHeight + 'px'
+                });
 
-                if (newHeight >= minSize && newHeight <= maxHeight) {
-                    css(wrap, {
-                        height: newHeight + 'px'
-                    });
+                self.options.boundary.height += deltaY;
+                css(self.elements.boundary, {
+                    height: self.options.boundary.height + 'px'
+                });
 
-                    self.options.boundary.height += deltaY;
-                    css(self.elements.boundary, {
-                        height: self.options.boundary.height + 'px'
-                    });
-
-                    self.options.viewport.height += deltaY;
-                    css(self.elements.viewport, {
-                        height: self.options.viewport.height + 'px'
-                    });
-                }
+                self.options.viewport.height += deltaY;
+                css(self.elements.viewport, {
+                    height: self.options.viewport.height + 'px'
+                });
             }
-            else {
-                var newWidth = self.options.viewport.width + deltaX;
+            else if (direction === 'h' && newWidth >= minSize && newWidth <= maxWidth) {
+                css(wrap, {
+                    width: newWidth + 'px'
+                });
 
-                if (newWidth >= minSize && newWidth <= maxWidth) {
-                    css(wrap, {
-                        width: newWidth + 'px'
-                    });
+                self.options.boundary.width += deltaX;
+                css(self.elements.boundary, {
+                    width: self.options.boundary.width + 'px'
+                });
 
-                    self.options.boundary.width += deltaX;
-                    css(self.elements.boundary, {
-                        width: self.options.boundary.width + 'px'
-                    });
-
-                    self.options.viewport.width += deltaX;
-                    css(self.elements.viewport, {
-                        width: self.options.viewport.width + 'px'
-                    });
-                }
+                self.options.viewport.width += deltaX;
+                css(self.elements.viewport, {
+                    width: self.options.viewport.width + 'px'
+                }); 
             }
 
             _updateOverlay.call(self);
@@ -645,7 +638,6 @@
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
         applyCss();
-
 
         if (self.options.enforceBoundary) {
             var boundaries = _getVirtualBoundaries.call(self, vpRect),
@@ -1539,9 +1531,6 @@
             var data = _get.call(this);
             var points = data.points;
             if (this.options.relative) {
-                //
-                // Relativize points
-                //
                 points[0] /= this.elements.img.naturalWidth / 100;
                 points[1] /= this.elements.img.naturalHeight / 100;
                 points[2] /= this.elements.img.naturalWidth / 100;
