@@ -122,9 +122,8 @@ var Demo = (function() {
 			vanilla.result({
 				type: 'blob'
 			}).then(function (blob) {
-				window.open(window.URL.createObjectURL(blob));
 				popupResult({
-					src: src
+					src: window.URL.createObjectURL(blob)
 				});
 			});
 		});
@@ -154,7 +153,6 @@ var Demo = (function() {
 			resize.result({
 				type: 'blob'
 			}).then(function (blob) {
-				// window.open(window.URL.createObjectURL(blob));
 				popupResult({
 					src: window.URL.createObjectURL(blob)
 				});
