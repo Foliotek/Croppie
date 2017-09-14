@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2017
  * Foliotek
- * Version: 2.5.0
+ * Version: 2.5.1
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -1126,12 +1126,14 @@
             canvasWidth = outWidth,
             canvasHeight = outHeight,
             customDimensions = (data.outputWidth && data.outputHeight),
-            outputRatio = 1;
+            outputWidthRatio = 1;
+            outputHeightRatio = 1;
 
         if (customDimensions) {
             canvasWidth = data.outputWidth;
             canvasHeight = data.outputHeight;
-            outputRatio = canvasWidth / outWidth;
+            outputWidthRatio = canvasWidth / outWidth;
+            outputHeightRatio = canvasHeight / outWHeight;
         }
 
         canvas.width = canvasWidth;
@@ -1163,10 +1165,10 @@
         }
 
         if (outputRatio !== 1) {
-            startX *= outputRatio;
-            startY *= outputRatio;
-            outWidth *= outputRatio;
-            outHeight *= outputRatio;
+            startX *= outputWidthRatio;
+            startY *= outputHeightRatio;
+            outWidth *= outputWidthRatio;
+            outHeight *= outputHeightRatio;
         }
 
         ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
