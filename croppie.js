@@ -1164,7 +1164,7 @@
             }
         }
 
-        if (outputRatio !== 1) {
+        if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
             startX *= outputWidthRatio;
             startY *= outputHeightRatio;
             outWidth *= outputWidthRatio;
