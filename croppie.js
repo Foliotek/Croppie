@@ -361,6 +361,7 @@
         }
 
         addClass(boundary, 'cr-boundary');
+        boundary.setAttribute('aria-dropeffect', 'none');
         bw = self.options.boundary.width;
         bh = self.options.boundary.height;
         css(boundary, {
@@ -379,7 +380,7 @@
         viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
-        setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false', 'aria-dropeffect': 'move' });
+        setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
         addClass(overlay, 'cr-overlay');
 
         self.element.appendChild(boundary);
@@ -598,8 +599,7 @@
         zoomer.step = '0.0001';
         zoomer.value = 1;
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
-        zoomer.setAttribute('aria-label', 'zoom');
-        
+
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
 
@@ -788,6 +788,11 @@
             }
         }
 
+        function toggleGrabState(isDragging) {
+          self.elements.preview.setAttribute('aria-grabbed', isDragging);
+          self.elements.boundary.setAttribute('aria-dropeffect', isDragging? 'move': 'none');
+        }
+
         function keyDown(ev) {
             var LEFT_ARROW  = 37,
                 UP_ARROW    = 38,
@@ -858,7 +863,7 @@
                 originalX = touches.pageX;
                 originalY = touches.pageY;
             }
-            self.elements.preview.setAttribute('aria-grabbed', isDragging);
+            toggleGrabState(isDragging);
             transform = Transform.parse(self.elements.preview);
             window.addEventListener('mousemove', mouseMove);
             window.addEventListener('touchmove', mouseMove);
@@ -912,7 +917,7 @@
 
         function mouseUp() {
             isDragging = false;
-            self.elements.preview.setAttribute('aria-grabbed', isDragging);
+            toggleGrabState(isDragging);
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
