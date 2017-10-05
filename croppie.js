@@ -633,6 +633,56 @@
             self.elements.boundary.addEventListener('mousewheel', scroll);
             self.elements.boundary.addEventListener('DOMMouseScroll', scroll);
         }
+
+        if (self.options.showZoomButtons) {
+            _addZoomButtons();
+        }
+
+        function add(ev) {
+            var delta = parseInt(ev.target.value) / 1000;
+            var targetZoom = self._currentZoom + delta;
+
+            ev.preventDefault();
+            _setZoomerVal.call(self, targetZoom);
+            change.call(self);
+        }
+
+        function _addZoomButtons() {
+            var plus1 = self.elements.plus1 = document.createElement('input'),
+                plus10 = self.elements.plus10 = document.createElement('input'),
+                plus100 = self.elements.plus100 = document.createElement('input'),
+                minus1 = self.elements.minus1 = document.createElement('input'),
+                minus10 = self.elements.minus10 = document.createElement('input'),
+                minus100 = self.elements.minus100 = document.createElement('input');
+
+            plus1.type = 'button';
+            plus10.type = 'button';
+            plus100.type = 'button';
+            minus1.type = 'button';
+            minus10.type = 'button';
+            minus100.type = 'button';
+            plus1.value = '+1';
+            plus10.value = '+10';
+            plus100.value = '+100';
+            minus1.value = '-1';
+            minus10.value = '-10';
+            minus100.value = '-100';
+
+            var wrap = self.elements.zoomerWrap;
+            wrap.appendChild(minus100);
+            wrap.appendChild(minus10);
+            wrap.appendChild(minus1);
+            wrap.appendChild(plus1);
+            wrap.appendChild(plus10);
+            wrap.appendChild(plus100);
+
+            self.elements.plus1.addEventListener('click', add);
+            self.elements.plus10.addEventListener('click', add);
+            self.elements.plus100.addEventListener('click', add);
+            self.elements.minus1.addEventListener('click', add);
+            self.elements.minus10.addEventListener('click', add);
+            self.elements.minus100.addEventListener('click', add);
+        }
     }
 
     function _onZoom(ui) {
