@@ -967,7 +967,6 @@
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
-            imgData = self.elements.preview.getBoundingClientRect(),
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self);
@@ -982,6 +981,8 @@
         cssReset[CSS_TRANS_ORG] = originReset.toString();
         cssReset['opacity'] = 1;
         css(img, cssReset);
+
+        imgData = self.elements.preview.getBoundingClientRect();
 
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
