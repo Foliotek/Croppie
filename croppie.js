@@ -659,7 +659,7 @@
 
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
-        self.elements.zoomer.setAttribute('aria-valuenow', ui.value);
+        self.elements.zoomer.setAttribute('aria-valuenow', self._currentZoom);
         applyCss();
 
         if (self.options.enforceBoundary) {
