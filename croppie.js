@@ -967,6 +967,7 @@
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
+            imgData = null,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self);
