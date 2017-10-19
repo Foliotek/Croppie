@@ -1142,12 +1142,14 @@
             canvasWidth = outWidth,
             canvasHeight = outHeight,
             customDimensions = (data.outputWidth && data.outputHeight),
-            outputRatio = 1;
+            outputWidthRatio = 1;
+            outputHeightRatio = 1;
 
         if (customDimensions) {
             canvasWidth = data.outputWidth;
             canvasHeight = data.outputHeight;
-            outputRatio = canvasWidth / outWidth;
+            outputWidthRatio = canvasWidth / outWidth;
+            outputHeightRatio = canvasHeight / outWHeight;
         }
 
         canvas.width = canvasWidth;
@@ -1178,11 +1180,11 @@
             }
         }
 
-        if (outputRatio !== 1) {
-            startX *= outputRatio;
-            startY *= outputRatio;
-            outWidth *= outputRatio;
-            outHeight *= outputRatio;
+        if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
+            startX *= outputWidthRatio;
+            startY *= outputHeightRatio;
+            outWidth *= outputWidthRatio;
+            outHeight *= outputHeightRatio;
         }
 
         ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
