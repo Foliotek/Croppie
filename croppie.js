@@ -1159,8 +1159,9 @@
 
         if (data.backgroundColor) {
             ctx.fillStyle = data.backgroundColor;
-            ctx.fillRect(0, 0, outWidth, outHeight);
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
+
 
         // start fixing data to send to draw image for enforceBoundary: false
         if (!self.options.enforceBoundary) {
@@ -1181,6 +1182,10 @@
                 outHeight = height;
             }
         }
+        else{
+           width=Math.min(width, self._originalImageWidth);
+           height=Math.min(height, self._originalImageHeight)
+        }
 
         if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
             startX *= outputWidthRatio;
@@ -1188,8 +1193,7 @@
             outWidth *= outputWidthRatio;
             outHeight *= outputHeightRatio;
         }
-
-        ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
+        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
