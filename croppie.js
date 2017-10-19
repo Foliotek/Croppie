@@ -1151,7 +1151,7 @@
             canvasWidth = data.outputWidth;
             canvasHeight = data.outputHeight;
             outputWidthRatio = canvasWidth / outWidth;
-            outputHeightRatio = canvasHeight / outWHeight;
+            outputHeightRatio = canvasHeight / outHeight;
         }
 
         canvas.width = canvasWidth;
