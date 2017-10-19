@@ -150,6 +150,12 @@
         }
     }
 
+    function setAttributes(el, attrs) {
+        for (var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
+    }
+
     function num(v) {
         return parseInt(v, 10);
     }
@@ -169,7 +175,7 @@
             if (img.src === src) {// If image source hasn't changed resolve immediately
                 _resolve();
                 return;
-            } 
+            }
 
             img.exifdata = null;
             img.removeAttribute('crossOrigin');
@@ -180,7 +186,7 @@
                 if (doExif) {
                     EXIF.getData(img, function () {
                         _resolve();
-                    });    
+                    });
                 }
                 else {
                     _resolve();
@@ -355,6 +361,7 @@
         }
 
         addClass(boundary, 'cr-boundary');
+        boundary.setAttribute('aria-dropeffect', 'none');
         bw = self.options.boundary.width;
         bh = self.options.boundary.height;
         css(boundary, {
@@ -373,6 +380,7 @@
         viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
+        setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
         addClass(overlay, 'cr-overlay');
 
         self.element.appendChild(boundary);
@@ -540,7 +548,7 @@
                 self.options.viewport.width += deltaX;
                 css(self.elements.viewport, {
                     width: self.options.viewport.width + 'px'
-                }); 
+                });
             }
 
             _updateOverlay.call(self);
@@ -591,6 +599,7 @@
         zoomer.step = '0.0001';
         zoomer.value = 1;
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
+        zoomer.setAttribute('aria-label', 'zoom');
 
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
@@ -650,6 +659,7 @@
 
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
+        self.elements.zoomer.setAttribute('aria-valuenow', self._currentZoom);
         applyCss();
 
         if (self.options.enforceBoundary) {
@@ -779,6 +789,11 @@
             }
         }
 
+        function toggleGrabState(isDragging) {
+          self.elements.preview.setAttribute('aria-grabbed', isDragging);
+          self.elements.boundary.setAttribute('aria-dropeffect', isDragging? 'move': 'none');
+        }
+
         function keyDown(ev) {
             var LEFT_ARROW  = 37,
                 UP_ARROW    = 38,
@@ -849,7 +864,7 @@
                 originalX = touches.pageX;
                 originalY = touches.pageY;
             }
-
+            toggleGrabState(isDragging);
             transform = Transform.parse(self.elements.preview);
             window.addEventListener('mousemove', mouseMove);
             window.addEventListener('touchmove', mouseMove);
@@ -903,6 +918,7 @@
 
         function mouseUp() {
             isDragging = false;
+            toggleGrabState(isDragging);
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
@@ -943,7 +959,7 @@
 
         self.options.update.call(self, data);
         if (self.$ && typeof Prototype == 'undefined') {
-            self.$(self.element).trigger('update', data); 
+            self.$(self.element).trigger('update', data);
         }
         else {
             var ev;
@@ -1101,7 +1117,7 @@
         if (exif && !customOrientation) {
             var orientation = getExifOrientation(img);
             drawCanvas(canvas, img, num(orientation || 0, 10));
-        } 
+        }
         else if (customOrientation) {
             drawCanvas(canvas, img, customOrientation);
         }
@@ -1270,7 +1286,7 @@
                 var y1 = y0 + height;
 
                 self.data.points = [x0, y0, x1, y1];
-            } 
+            }
             else if (self.options.relative) {
                 points = [
                     points[0] * img.naturalWidth / 100,
@@ -1481,6 +1497,7 @@
         if (this.element.tagName.toLowerCase() === 'img') {
             var origImage = this.element;
             addClass(origImage, 'cr-original-image');
+            setAttributes(origImage, {'aria-hidden' : 'true', 'alt' : '' });
             var replacementDiv = document.createElement('div');
             this.element.parentNode.appendChild(replacementDiv);
             replacementDiv.appendChild(origImage);
