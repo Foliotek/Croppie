@@ -1137,22 +1137,22 @@
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
-            outWidth = width,
-            outHeight = height,
+            // outWidth = width,
+            // outHeight = height,
             startX = 0,
             startY = 0,
-            canvasWidth = outWidth,
-            canvasHeight = outHeight,
+            canvasWidth = data.outputWidth || width,
+            canvasHeight = data.outputHeight || height,
             customDimensions = (data.outputWidth && data.outputHeight),
             outputWidthRatio = 1;
             outputHeightRatio = 1;
 
-        if (customDimensions) {
-            canvasWidth = data.outputWidth;
-            canvasHeight = data.outputHeight;
-            outputWidthRatio = canvasWidth / outWidth;
-            outputHeightRatio = canvasHeight / outHeight;
-        }
+        // if (customDimensions) {
+        //     canvasWidth = data.outputWidth;
+        //     canvasHeight = data.outputHeight;
+        //     outputWidthRatio = canvasWidth / outWidth;
+        //     outputHeightRatio = canvasHeight / outHeight;
+        // }
 
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
@@ -1162,38 +1162,46 @@
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
-
         // start fixing data to send to draw image for enforceBoundary: false
-        if (!self.options.enforceBoundary) {
-            if (left < 0) {
-                startX = Math.abs(left);
-                left = 0;
-            }
-            if (top < 0) {
-                startY = Math.abs(top);
-                top = 0;
-            }
-            if (right > self._originalImageWidth) {
-                width = self._originalImageWidth - left;
-                outWidth = width;
-            }
-            if (bottom > self._originalImageHeight) {
-                height = self._originalImageHeight - top;
-                outHeight = height;
-            }
-        }
-        else{
+        // if (!self.options.enforceBoundary) {
+        //     if (left < 0) {
+        //         startX = Math.abs(left);
+        //         left = 0;
+        //     }
+        //     if (top < 0) {
+        //         startY = Math.abs(top);
+        //         top = 0;
+        //     }
+        //     if (right > self._originalImageWidth) {
+        //         width = self._originalImageWidth - left;
+        //         canvasWidth = width;
+        //     }
+        //     if (bottom > self._originalImageHeight) {
+        //         height = self._originalImageHeight - top;
+        //         canvasHeight = height;
+        //     }
+        // }
+        // else{
            width=Math.min(width, self._originalImageWidth);
            height=Math.min(height, self._originalImageHeight)
-        }
+        // }
 
-        if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
-            startX *= outputWidthRatio;
-            startY *= outputHeightRatio;
-            outWidth *= outputWidthRatio;
-            outHeight *= outputHeightRatio;
-        }
-        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, outWidth, outHeight);
+        // if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
+        //     startX *= outputWidthRatio;
+        //     startY *= outputHeightRatio;
+        //     outWidth *= outputWidthRatio;
+        //     outHeight *= outputHeightRatio;
+        // }
+        
+        console.table({
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            canvasWidth: canvasWidth,
+            canvasHeight: canvasHeight,
+        })
+        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
