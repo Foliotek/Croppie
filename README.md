@@ -30,7 +30,7 @@ https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
 * https://github.com/wem/croppie-dart
 * https://github.com/allenRoyston/ngCroppie
 * https://github.com/lpsBetty/angular-croppie
-
+* https://github.com/dima-kov/django-croppie
 
 ## Contributing
 #### Static Server
