@@ -31,6 +31,7 @@ https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
 * https://github.com/allenRoyston/ngCroppie
 * https://github.com/lpsBetty/angular-croppie
 * https://github.com/dima-kov/django-croppie
+* https://github.com/jofftiquez/vue-croppie
 
 ## Contributing
 #### Static Server
