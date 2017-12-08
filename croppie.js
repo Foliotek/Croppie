@@ -1054,7 +1054,6 @@
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
 
-        log(scale, zoomer.min, zoomer.max);
         if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
@@ -1478,6 +1477,9 @@
     }
 
     function Croppie(element, opts) {
+        if (element.className.indexOf('croppie-container') > -1) {
+            throw new Error("Croppie: Can't initialize croppie more than once");
+        }
         this.element = element;
         this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
 
