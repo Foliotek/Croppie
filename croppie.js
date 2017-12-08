@@ -935,6 +935,7 @@
     }
 
     function _updateOverlay() {
+        if (!this.elements) return; // since this is debounced, it can be fired after destroy
         var self = this,
             boundRect = self.elements.boundary.getBoundingClientRect(),
             imgData = self.elements.preview.getBoundingClientRect();
@@ -1053,7 +1054,11 @@
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
 
-        if (initial) {
+        log(scale, zoomer.min, zoomer.max);
+        if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
+            _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
+        }
+        else if (initial) {
             defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
             _setZoomerVal.call(self, initialZoom);
@@ -1137,8 +1142,6 @@
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
-            // outWidth = width,
-            // outHeight = height,
             startX = 0,
             startY = 0,
             canvasWidth = data.outputWidth || width,
@@ -1146,13 +1149,6 @@
             customDimensions = (data.outputWidth && data.outputHeight),
             outputWidthRatio = 1;
             outputHeightRatio = 1;
-
-        // if (customDimensions) {
-        //     canvasWidth = data.outputWidth;
-        //     canvasHeight = data.outputHeight;
-        //     outputWidthRatio = canvasWidth / outWidth;
-        //     outputHeightRatio = canvasHeight / outHeight;
-        // }
 
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
@@ -1162,37 +1158,9 @@
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
-        // start fixing data to send to draw image for enforceBoundary: false
-        // if (!self.options.enforceBoundary) {
-        //     if (left < 0) {
-        //         startX = Math.abs(left);
-        //         left = 0;
-        //     }
-        //     if (top < 0) {
-        //         startY = Math.abs(top);
-        //         top = 0;
-        //     }
-        //     if (right > self._originalImageWidth) {
-        //         width = self._originalImageWidth - left;
-        //         canvasWidth = width;
-        //     }
-        //     if (bottom > self._originalImageHeight) {
-        //         height = self._originalImageHeight - top;
-        //         canvasHeight = height;
-        //     }
-        // }
-        // else{
-           width=Math.min(width, self._originalImageWidth);
-           height=Math.min(height, self._originalImageHeight)
-        // }
-
-        // if (outputWidthRatio !== 1 || outputHeightRatio !== 1) {
-        //     startX *= outputWidthRatio;
-        //     startY *= outputHeightRatio;
-        //     outWidth *= outputWidthRatio;
-        //     outHeight *= outputHeightRatio;
-        // }
-        
+        width=Math.min(width, self._originalImageWidth);
+        height=Math.min(height, self._originalImageHeight)
+    
         console.table({
             left: left,
             right: right,
@@ -1206,7 +1174,7 @@
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
             ctx.beginPath();
-            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.fill();
         }
@@ -1350,7 +1318,8 @@
 
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
-            zoom: scale
+            zoom: scale,
+            orientation: self.data.orientation
         };
     }
 
@@ -1374,6 +1343,8 @@
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
+
+        console.log('result opts', opts);
 
         if (size === 'viewport') {
             data.outputWidth = vpRect.width;
@@ -1443,8 +1414,10 @@
         if (deg === 90 || deg === -270) ornt = 6;
         if (deg === -90 || deg === 270) ornt = 8;
         if (deg === 180 || deg === -180) ornt = 3;
-
+        
+        self.data.orientation = ornt;
         drawCanvas(canvas, copy, ornt);
+        _updateZoomLimits.call(self);
         _onZoom.call(self);
         copy = null;
     }

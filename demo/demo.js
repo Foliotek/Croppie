@@ -93,7 +93,11 @@ var Demo = (function() {
 			}
 			basic.croppie('result', {
 				type: 'canvas',
-				size: size
+				size: size,
+				resultSize: {
+					width: 50,
+					height: 50
+				}
 			}).then(function (resp) {
 				popupResult({
 					src: resp
@@ -105,7 +109,7 @@ var Demo = (function() {
 	function demoVanilla() {
 		var vEl = document.getElementById('vanilla-demo'),
 			vanilla = new Croppie(vEl, {
-			viewport: { width: 100, height: 100 },
+			viewport: { width: 200, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableOrientation: true
