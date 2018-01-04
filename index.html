@@ -140,8 +140,8 @@ $('#item').croppie(method, args);</code></pre>
                             <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li id="mouseWheelZoom">
-                            <strong class="focus">mouseWheelZoom</strong><em>boolean</em>
-                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance</p>
+                            <strong class="focus">mouseWheelZoom</strong><em>object</em>
+                            <p>Enable or disable the ability to use the mouse wheel to zoom in and out on a croppie instance. If <code class="language-javascript">'ctrl'</code> is passed mouse wheel will only work while control keyboard is pressed</p>
                             <span class="default">Default</span><code class="language-javascript">true</code>
                         </li>
                         <li id="showZoomer">
@@ -370,7 +370,8 @@ var resize = new Croppie(el, {
     boundary: { width: 300, height: 300 },
     showZoomer: false,
     enableResize: true,
-    enableOrientation: true
+    enableOrientation: true,
+    mouseWheelZoom: 'ctrl'
 });
 resize.bind({
     url: 'demo/demo-2.jpg',
