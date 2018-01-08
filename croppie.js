@@ -55,6 +55,8 @@
 
     var cssPrefixes = ['Webkit', 'Moz', 'ms'],
         emptyStyles = document.createElement('div').style,
+        EXIF_NORM = [1,8,3,6],
+        EXIF_FLIP = [2,7,4,5],
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
         CSS_USERSELECT;
@@ -79,6 +81,14 @@
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
 
+    function getExifOffset(ornt, rotate) {
+        var arr = EXIF_NORM.indexOf(ornt) > -1 ? EXIF_NORM : EXIF_FLIP,
+            index = arr.indexOf(ornt),
+            offset = (rotate / 90) % arr.length;// 180 = 2%4 = 2 shift exif by 2 indexes
+
+        return arr[(arr.length + index + (offset % arr.length)) % arr.length];
+    }
+
     // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
     function deepExtend(destination, source) {
         destination = destination || {};
@@ -91,6 +101,10 @@
             }
         }
         return destination;
+    }
+
+    function clone(object) {
+        return deepExtend({}, object);
     }
 
     function debounce(func, wait, immediate) {
@@ -161,27 +175,23 @@
     }
 
     /* Utilities */
-    function loadImage(src, imageEl, doExif) {
-        var img = imageEl || new Image();
+    function loadImage(src, doExif) {
+        var img = new Image();
         img.style.opacity = 0;
 
         return new Promise(function (resolve) {
             function _resolve() {
-                setTimeout(function(){
+                img.style.opacity = 1;
+                setTimeout(function () {
                     resolve(img);
                 }, 1);
             }
 
-            if (img.src === src) {// If image source hasn't changed resolve immediately
-                _resolve();
-                return;
-            }
-
-            img.exifdata = null;
             img.removeAttribute('crossOrigin');
             if (src.match(/^https?:\/\/|^\/\//)) {
                 img.setAttribute('crossOrigin', 'anonymous');
             }
+
             img.onload = function () {
                 if (doExif) {
                     EXIF.getData(img, function () {
@@ -196,10 +206,11 @@
         });
     }
 
-    function naturalImageDimensions(img) {
+    function naturalImageDimensions(img, ornt) {
         var w = img.naturalWidth;
         var h = img.naturalHeight;
-        if (img.exifdata && img.exifdata.Orientation >= 5) {
+        var orient = ornt || getExifOrientation(img);
+        if (orient && orient >= 5) {
             var x= w;
             w = h;
             h = x;
@@ -274,7 +285,7 @@
     };
 
     function getExifOrientation (img) {
-        return img.exifdata.Orientation;
+        return img.exifdata ? img.exifdata.Orientation : 1;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -989,8 +1000,7 @@
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self);
 
-        if (!isVisible || self.data.bound) {
-            // if the croppie isn't visible or it doesn't need binding
+        if (!isVisible || self.data.bound) {// if the croppie isn't visible or it doesn't need binding
             return;
         }
 
@@ -1004,6 +1014,7 @@
 
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
+        self.data.orientation = getExifOrientation(self.elements.img);
 
         if (self.options.enableZoom) {
             _updateZoomLimits.call(self, true);
@@ -1036,14 +1047,13 @@
             zoomer = self.elements.zoomer,
             scale = parseFloat(zoomer.value),
             boundaryData = self.elements.boundary.getBoundingClientRect(),
-            imgData = self.elements.preview.getBoundingClientRect(),
+            imgData = naturalImageDimensions(self.elements.img, self.data.orientation),
             vpData = self.elements.viewport.getBoundingClientRect(),
             minW,
             minH;
-
         if (self.options.enforceBoundary) {
-            minW = vpData.width / (initial ? imgData.width : imgData.width / scale);
-            minH = vpData.height / (initial ? imgData.height : imgData.height / scale);
+            minW = vpData.width / imgData.width;
+            minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
         }
 
@@ -1053,7 +1063,7 @@
 
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
-
+        
         if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
@@ -1160,14 +1170,7 @@
         width=Math.min(width, self._originalImageWidth);
         height=Math.min(height, self._originalImageHeight)
     
-        console.table({
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            canvasWidth: canvasWidth,
-            canvasHeight: canvasHeight,
-        })
+        console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
         ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
@@ -1215,12 +1218,20 @@
         });
     }
 
+    function _replaceImage(img) {
+        if (this.elements.img.parentNode) {
+            this.elements.img.parentNode.replaceChild(img, this.elements.img);
+            this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
+        }
+        this.elements.img = img;
+    }
+
     function _bind(options, cb) {
         var self = this,
             url,
             points = [],
             zoom = null,
-            hasExif = _hasExif.call(self);;
+            hasExif = _hasExif.call(self);
 
         if (typeof (options) === 'string') {
             url = options;
@@ -1244,7 +1255,8 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, self.elements.img, hasExif).then(function (img) {
+        return loadImage(url, hasExif).then(function (img) {
+            _replaceImage.call(self, img);
             if (!points.length) {
                 var natDim = naturalImageDimensions(img);
                 var rect = self.elements.viewport.getBoundingClientRect();
@@ -1258,14 +1270,13 @@
                 }
                 else {
                     width = natDim.width;
-                    height = width / aspectRatio;
+                    height = natDim.height / aspectRatio;
                 }
 
                 var x0 = (natDim.width - width) / 2;
                 var y0 = (natDim.height - height) / 2;
                 var x1 = x0 + width;
                 var y1 = y0 + height;
-
                 self.data.points = [x0, y0, x1, y1];
             }
             else if (self.options.relative) {
@@ -1286,6 +1297,8 @@
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             cb && cb();
+        }).catch(function (err) {
+            console.error("Croppie:" + err);
         });
     }
 
@@ -1332,7 +1345,7 @@
     function _result(options) {
         var self = this,
             data = _get.call(self),
-            opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
+            opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
             resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
             size = opts.size || 'viewport',
             format = opts.format,
@@ -1342,8 +1355,6 @@
             vpRect = self.elements.viewport.getBoundingClientRect(),
             ratio = vpRect.width / vpRect.height,
             prom;
-
-        console.log('result opts', opts);
 
         if (size === 'viewport') {
             data.outputWidth = vpRect.width;
@@ -1402,20 +1413,10 @@
 
         var self = this,
             canvas = self.elements.canvas,
-            copy = document.createElement('canvas'),
-            ornt = 1;
+            ornt;
 
-        copy.width = canvas.width;
-        copy.height = canvas.height;
-        var ctx = copy.getContext('2d');
-        ctx.drawImage(canvas, 0, 0);
-
-        if (deg === 90 || deg === -270) ornt = 6;
-        if (deg === -90 || deg === 270) ornt = 8;
-        if (deg === 180 || deg === -180) ornt = 3;
-        
-        self.data.orientation = ornt;
-        drawCanvas(canvas, copy, ornt);
+        self.data.orientation = getExifOffset(self.data.orientation, deg);
+        drawCanvas(canvas, self.elements.img, self.data.orientation);
         _updateZoomLimits.call(self);
         _onZoom.call(self);
         copy = null;
@@ -1481,7 +1482,7 @@
             throw new Error("Croppie: Can't initialize croppie more than once");
         }
         this.element = element;
-        this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
+        this.options = deepExtend(clone(Croppie.defaults), opts);
 
         if (this.element.tagName.toLowerCase() === 'img') {
             var origImage = this.element;

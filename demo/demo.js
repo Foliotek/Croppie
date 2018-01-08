@@ -55,8 +55,9 @@ var Demo = (function() {
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
-            	type: 'rawcanvas',
-            	// size: { width: 300, height: 300 },
+				type: 'rawcanvas',
+				circle: true,
+				// size: { width: 300, height: 300 },
             	format: 'png'
             }).then(function (canvas) {
 				popupResult({
@@ -120,7 +121,7 @@ var Demo = (function() {
             zoom: 0
         });
         vEl.addEventListener('update', function (ev) {
-        	console.log('vanilla update', ev);
+        	// console.log('vanilla update', ev);
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
