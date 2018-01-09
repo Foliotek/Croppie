@@ -453,6 +453,29 @@ $('#hidden-demo').croppie('bind')</code></pre>
                 </div>
         </section>
 
+        <section class="important-notes">
+            <a id="important-notes" name="important-notes"></a>
+            <div class="section-header"><h2>Important Notes</h2></div>
+            <div class="container">
+                <article>
+                    <a id="cors" name="cors"></a>
+                    <h3>Image Hosting & Cross Origin Errors</h3>
+                    <p>Croppie uses <code class="language-javascript">canvas.drawImage(...)</code> to manipulate images.  Thus, images must obey the CORS policy.  More info can be found <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image">here</a>.</p>
+                </article>
+                <article>
+                    <a id="visibility" name="visibility"></a>
+                    <h3>Visibility and Binding</h3>
+                    <p>Croppie is dependent on it's container being visible when the <a href="#bind">bind</a> method is called.  This can be an issue when your croppie component is inside a modal that isn't shown. Let's take the bootstrap modal for example..</p>
+                    <pre class="language-javascript"><code class="language-javascript">
+var myCroppie = $('#my-croppie').croppie(opts);
+$('#my-modal').on('shown.bs.modal', function(){ 
+    myCroppie.bind(bindOpts);
+});
+                    </code></pre>
+                    <p>If you are having issues getting the correct crop result, and your croppie instance is shown inside of a modal, try taking your croppie out of the modal and see if your issues persist.  If they don't, then make sure that your bind method is called after the modal is done animating.</p>
+                </article>
+            </div>
+        </section>
 
         <section class="browsers">
             <a id="browsers" name="browsers"></a>
