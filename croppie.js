@@ -1029,7 +1029,7 @@
     function _updateZoomLimits (initial) {
         var self = this,
             minZoom = 0,
-            maxZoom = 1.5,
+            maxZoom = self.options.maxZoom || 1.5,
             initialZoom,
             defaultInitialZoom,
             zoomer = self.elements.zoomer,
