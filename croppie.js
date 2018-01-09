@@ -1407,8 +1407,8 @@
     }
 
     function _rotate(deg) {
-        if (!this.options.useCanvas) {
-            throw 'Croppie: Cannot rotate without enableOrientation';
+        if (!this.options.useCanvas || !this.options.enableOrientation) {
+            throw 'Croppie: Cannot rotate without enableOrientation && EXIF.js included';
         }
 
         var self = this,
