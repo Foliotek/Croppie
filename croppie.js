@@ -1170,7 +1170,7 @@
         width=Math.min(width, self._originalImageWidth);
         height=Math.min(height, self._originalImageHeight)
     
-        console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
+        // console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
         ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
