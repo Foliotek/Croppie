@@ -469,7 +469,7 @@ $('#hidden-demo').croppie('bind')</code></pre>
                     <pre class="language-javascript"><code class="language-javascript">
 var myCroppie = $('#my-croppie').croppie(opts);
 $('#my-modal').on('shown.bs.modal', function(){ 
-    myCroppie.bind(bindOpts);
+    myCroppie.croppie('bind', bindOpts);
 });
                     </code></pre>
                     <p>If you are having issues getting the correct crop result, and your croppie instance is shown inside of a modal, try taking your croppie out of the modal and see if your issues persist.  If they don't, then make sure that your bind method is called after the modal is done animating.</p>
