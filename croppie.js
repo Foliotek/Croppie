@@ -961,12 +961,12 @@
 
         self.options.update.call(self, data);
         if (self.$ && typeof Prototype == 'undefined') {
-            self.$(self.element).trigger('update', data);
+            self.$(self.element).trigger('update.croppie', data);
         }
         else {
             var ev;
             if (window.CustomEvent) {
-                ev = new CustomEvent('update.croppie', { detail: data });
+                ev = new CustomEvent('update', { detail: data });
             } else {
                 ev = document.createEvent('CustomEvent');
                 ev.initCustomEvent('update', true, true, data);
