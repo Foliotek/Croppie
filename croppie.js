@@ -966,7 +966,7 @@
         else {
             var ev;
             if (window.CustomEvent) {
-                ev = new CustomEvent('update', { detail: data });
+                ev = new CustomEvent('update.croppie', { detail: data });
             } else {
                 ev = document.createEvent('CustomEvent');
                 ev.initCustomEvent('update', true, true, data);

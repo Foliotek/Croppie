@@ -50,7 +50,7 @@ var Demo = (function() {
 			enforceBoundary: false
 			// mouseWheelZoom: false
 		});
-		mc.on('update', function (ev, data) {
+		mc.on('update.croppie', function (ev, data) {
 			// console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
