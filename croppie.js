@@ -581,10 +581,12 @@
 
         if (vr) {
             vr.addEventListener('mousedown', mouseDown);
+            vr.addEventListener('touchstart', mouseDown);
         }
 
         if (hr) {
             hr.addEventListener('mousedown', mouseDown);
+            hr.addEventListener('touchstart', mouseDown);
         }
 
         this.elements.boundary.appendChild(wrap);
@@ -1041,7 +1043,7 @@
     function _updateZoomLimits (initial) {
         var self = this,
             minZoom = 0,
-            maxZoom = 1.5,
+            maxZoom = self.options.maxZoom || 1.5,
             initialZoom,
             defaultInitialZoom,
             zoomer = self.elements.zoomer,
