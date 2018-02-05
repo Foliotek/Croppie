@@ -234,13 +234,13 @@ var Demo = (function() {
 	}
 
 	function bindNavigation () {
-		var $body = $('body');
+		var $html = $('html');
 		$('nav a').on('click', function (ev) {
 			var lnk = $(ev.currentTarget),
 				href = lnk.attr('href'),
 				targetTop = $('a[name=' + href.substring(1) + ']').offset().top;
 
-			$body.animate({ scrollTop: targetTop });
+			$html.animate({ scrollTop: targetTop });
 			ev.preventDefault();
 		});
 	}
