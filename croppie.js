@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2017
  * Foliotek
- * Version: 2.5.1
+ * Version: 2.5.2
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -631,7 +631,9 @@
         function scroll(ev) {
             var delta, targetZoom;
 
-            if (ev.wheelDelta) {
+            if(self.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey != true){ 
+              return 0; 
+            } else if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
                 delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
