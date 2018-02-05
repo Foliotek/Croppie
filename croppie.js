@@ -973,7 +973,7 @@
 
         self.options.update.call(self, data);
         if (self.$ && typeof Prototype == 'undefined') {
-            self.$(self.element).trigger('update', data);
+            self.$(self.element).trigger('update.croppie', data);
         }
         else {
             var ev;
