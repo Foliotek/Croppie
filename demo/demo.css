@@ -32,11 +32,17 @@ h1 {
     padding-top: 30px;
     margin: 15px 0;
 }
-
+h3 {
+    font-size: 18px;
+    font-weight: 400;
+    border-bottom: 1px solid #0C4648;
+    margin: 15px 0 10px;
+}
 nav {
     position: absolute;
     top: 0;
     right: 0;
+    padding:15px;
 }
 
 nav a {
@@ -171,12 +177,6 @@ h2 {
     margin: 0 0 5px 0;
 }
 
-.documentation h3 {
-    font-size: 18px;
-    font-weight: 400;
-    border-bottom: 1px solid #0C4648;
-    margin: 15px 0 10px;
-}
 .documentation ul {
     list-style: none;
     padding: 0;
@@ -216,6 +216,10 @@ h2 {
     padding-right: 10px;
     font-weight: 600;
     color: #777;
+}
+
+.important-notes article {
+    margin-bottom: 2em;
 }
 
 .upload-demo .upload-demo-wrap,

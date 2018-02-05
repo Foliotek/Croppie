@@ -50,13 +50,14 @@ var Demo = (function() {
 			enforceBoundary: false
 			// mouseWheelZoom: false
 		});
-		mc.on('update', function (ev, data) {
+		mc.on('update.croppie', function (ev, data) {
 			// console.log('jquery update', ev, data);
 		});
 		$('.js-main-image').on('click', function (ev) {
             mc.croppie('result', {
-            	type: 'rawcanvas',
-            	// size: { width: 300, height: 300 },
+				type: 'rawcanvas',
+				circle: true,
+				// size: { width: 300, height: 300 },
             	format: 'png'
             }).then(function (canvas) {
 				popupResult({
@@ -93,7 +94,11 @@ var Demo = (function() {
 			}
 			basic.croppie('result', {
 				type: 'canvas',
-				size: size
+				size: size,
+				resultSize: {
+					width: 50,
+					height: 50
+				}
 			}).then(function (resp) {
 				popupResult({
 					src: resp
@@ -105,7 +110,7 @@ var Demo = (function() {
 	function demoVanilla() {
 		var vEl = document.getElementById('vanilla-demo'),
 			vanilla = new Croppie(vEl, {
-			viewport: { width: 100, height: 100 },
+			viewport: { width: 200, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableOrientation: true
@@ -116,7 +121,7 @@ var Demo = (function() {
             zoom: 0
         });
         vEl.addEventListener('update', function (ev) {
-        	console.log('vanilla update', ev);
+        	// console.log('vanilla update', ev);
         });
 		document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
 			vanilla.result({
@@ -140,7 +145,8 @@ var Demo = (function() {
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableResize: true,
-            enableOrientation: true
+            enableOrientation: true,
+            mouseWheelZoom: 'ctrl'
 		});
 		resize.bind({
             url: 'demo/demo-2.jpg',
@@ -228,13 +234,13 @@ var Demo = (function() {
 	}
 
 	function bindNavigation () {
-		var $body = $('body');
+		var $html = $('html');
 		$('nav a').on('click', function (ev) {
 			var lnk = $(ev.currentTarget),
 				href = lnk.attr('href'),
 				targetTop = $('a[name=' + href.substring(1) + ']').offset().top;
 
-			$body.animate({ scrollTop: targetTop });
+			$html.animate({ scrollTop: targetTop });
 			ev.preventDefault();
 		});
 	}

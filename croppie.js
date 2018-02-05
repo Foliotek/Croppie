@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2017
  * Foliotek
- * Version: 2.5.0
+ * Version: 2.6.0
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -55,6 +55,8 @@
 
     var cssPrefixes = ['Webkit', 'Moz', 'ms'],
         emptyStyles = document.createElement('div').style,
+        EXIF_NORM = [1,8,3,6],
+        EXIF_FLIP = [2,7,4,5],
         CSS_TRANS_ORG,
         CSS_TRANSFORM,
         CSS_USERSELECT;
@@ -79,6 +81,14 @@
     CSS_TRANS_ORG = vendorPrefix('transformOrigin');
     CSS_USERSELECT = vendorPrefix('userSelect');
 
+    function getExifOffset(ornt, rotate) {
+        var arr = EXIF_NORM.indexOf(ornt) > -1 ? EXIF_NORM : EXIF_FLIP,
+            index = arr.indexOf(ornt),
+            offset = (rotate / 90) % arr.length;// 180 = 2%4 = 2 shift exif by 2 indexes
+
+        return arr[(arr.length + index + (offset % arr.length)) % arr.length];
+    }
+
     // Credits to : Andrew Dupont - http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
     function deepExtend(destination, source) {
         destination = destination || {};
@@ -91,6 +101,10 @@
             }
         }
         return destination;
+    }
+
+    function clone(object) {
+        return deepExtend({}, object);
     }
 
     function debounce(func, wait, immediate) {
@@ -150,37 +164,39 @@
         }
     }
 
+    function setAttributes(el, attrs) {
+        for (var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
+    }
+
     function num(v) {
         return parseInt(v, 10);
     }
 
     /* Utilities */
-    function loadImage(src, imageEl, doExif) {
-        var img = imageEl || new Image();
+    function loadImage(src, doExif) {
+        var img = new Image();
         img.style.opacity = 0;
 
         return new Promise(function (resolve) {
             function _resolve() {
-                setTimeout(function(){
+                img.style.opacity = 1;
+                setTimeout(function () {
                     resolve(img);
                 }, 1);
             }
 
-            if (img.src === src) {// If image source hasn't changed resolve immediately
-                _resolve();
-                return;
-            } 
-
-            img.exifdata = null;
             img.removeAttribute('crossOrigin');
             if (src.match(/^https?:\/\/|^\/\//)) {
                 img.setAttribute('crossOrigin', 'anonymous');
             }
+
             img.onload = function () {
                 if (doExif) {
                     EXIF.getData(img, function () {
                         _resolve();
-                    });    
+                    });
                 }
                 else {
                     _resolve();
@@ -190,10 +206,11 @@
         });
     }
 
-    function naturalImageDimensions(img) {
+    function naturalImageDimensions(img, ornt) {
         var w = img.naturalWidth;
         var h = img.naturalHeight;
-        if (img.exifdata && img.exifdata.Orientation >= 5) {
+        var orient = ornt || getExifOrientation(img);
+        if (orient && orient >= 5) {
             var x= w;
             w = h;
             h = x;
@@ -268,7 +285,7 @@
     };
 
     function getExifOrientation (img) {
-        return img.exifdata.Orientation;
+        return img.exifdata ? img.exifdata.Orientation : 1;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -355,6 +372,7 @@
         }
 
         addClass(boundary, 'cr-boundary');
+        boundary.setAttribute('aria-dropeffect', 'none');
         bw = self.options.boundary.width;
         bh = self.options.boundary.height;
         css(boundary, {
@@ -373,6 +391,7 @@
         viewport.setAttribute('tabindex', 0);
 
         addClass(self.elements.preview, 'cr-image');
+        setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
         addClass(overlay, 'cr-overlay');
 
         self.element.appendChild(boundary);
@@ -540,7 +559,7 @@
                 self.options.viewport.width += deltaX;
                 css(self.elements.viewport, {
                     width: self.options.viewport.width + 'px'
-                }); 
+                });
             }
 
             _updateOverlay.call(self);
@@ -562,10 +581,12 @@
 
         if (vr) {
             vr.addEventListener('mousedown', mouseDown);
+            vr.addEventListener('touchstart', mouseDown);
         }
 
         if (hr) {
             hr.addEventListener('mousedown', mouseDown);
+            hr.addEventListener('touchstart', mouseDown);
         }
 
         this.elements.boundary.appendChild(wrap);
@@ -591,6 +612,7 @@
         zoomer.step = '0.0001';
         zoomer.value = 1;
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
+        zoomer.setAttribute('aria-label', 'zoom');
 
         self.element.appendChild(wrap);
         wrap.appendChild(zoomer);
@@ -609,7 +631,9 @@
         function scroll(ev) {
             var delta, targetZoom;
 
-            if (ev.wheelDelta) {
+            if(self.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey != true){ 
+              return 0; 
+            } else if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
                 delta = ev.deltaY / 1060; //deltaY min: -53 max: 53 // max x 10 x 2
@@ -650,6 +674,7 @@
 
         self._currentZoom = ui ? ui.value : self._currentZoom;
         transform.scale = self._currentZoom;
+        self.elements.zoomer.setAttribute('aria-valuenow', self._currentZoom);
         applyCss();
 
         if (self.options.enforceBoundary) {
@@ -779,6 +804,11 @@
             }
         }
 
+        function toggleGrabState(isDragging) {
+          self.elements.preview.setAttribute('aria-grabbed', isDragging);
+          self.elements.boundary.setAttribute('aria-dropeffect', isDragging? 'move': 'none');
+        }
+
         function keyDown(ev) {
             var LEFT_ARROW  = 37,
                 UP_ARROW    = 38,
@@ -849,7 +879,7 @@
                 originalX = touches.pageX;
                 originalY = touches.pageY;
             }
-
+            toggleGrabState(isDragging);
             transform = Transform.parse(self.elements.preview);
             window.addEventListener('mousemove', mouseMove);
             window.addEventListener('touchmove', mouseMove);
@@ -903,6 +933,7 @@
 
         function mouseUp() {
             isDragging = false;
+            toggleGrabState(isDragging);
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('touchmove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
@@ -919,6 +950,7 @@
     }
 
     function _updateOverlay() {
+        if (!this.elements) return; // since this is debounced, it can be fired after destroy
         var self = this,
             boundRect = self.elements.boundary.getBoundingClientRect(),
             imgData = self.elements.preview.getBoundingClientRect();
@@ -943,7 +975,7 @@
 
         self.options.update.call(self, data);
         if (self.$ && typeof Prototype == 'undefined') {
-            self.$(self.element).trigger('update', data); 
+            self.$(self.element).trigger('update.croppie', data);
         }
         else {
             var ev;
@@ -967,13 +999,12 @@
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
-            imgData = self.elements.preview.getBoundingClientRect(),
+            imgData = null,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self);
 
-        if (!isVisible || self.data.bound) {
-            // if the croppie isn't visible or it doesn't need binding
+        if (!isVisible || self.data.bound) {// if the croppie isn't visible or it doesn't need binding
             return;
         }
 
@@ -983,8 +1014,11 @@
         cssReset['opacity'] = 1;
         css(img, cssReset);
 
+        imgData = self.elements.preview.getBoundingClientRect();
+
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
+        self.data.orientation = getExifOrientation(self.elements.img);
 
         if (self.options.enableZoom) {
             _updateZoomLimits.call(self, true);
@@ -1011,20 +1045,19 @@
     function _updateZoomLimits (initial) {
         var self = this,
             minZoom = 0,
-            maxZoom = 1.5,
+            maxZoom = self.options.maxZoom || 1.5,
             initialZoom,
             defaultInitialZoom,
             zoomer = self.elements.zoomer,
             scale = parseFloat(zoomer.value),
             boundaryData = self.elements.boundary.getBoundingClientRect(),
-            imgData = self.elements.preview.getBoundingClientRect(),
+            imgData = naturalImageDimensions(self.elements.img, self.data.orientation),
             vpData = self.elements.viewport.getBoundingClientRect(),
             minW,
             minH;
-
         if (self.options.enforceBoundary) {
-            minW = vpData.width / (initial ? imgData.width : imgData.width / scale);
-            minH = vpData.height / (initial ? imgData.height : imgData.height / scale);
+            minW = vpData.width / imgData.width;
+            minH = vpData.height / imgData.height;
             minZoom = Math.max(minW, minH);
         }
 
@@ -1034,8 +1067,11 @@
 
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
-
-        if (initial) {
+        
+        if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
+            _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
+        }
+        else if (initial) {
             defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
             _setZoomerVal.call(self, initialZoom);
@@ -1101,7 +1137,7 @@
         if (exif && !customOrientation) {
             var orientation = getExifOrientation(img);
             drawCanvas(canvas, img, num(orientation || 0, 10));
-        } 
+        }
         else if (customOrientation) {
             drawCanvas(canvas, img, customOrientation);
         }
@@ -1119,62 +1155,32 @@
             circle = data.circle,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d'),
-            outWidth = width,
-            outHeight = height,
             startX = 0,
             startY = 0,
-            canvasWidth = outWidth,
-            canvasHeight = outHeight,
+            canvasWidth = data.outputWidth || width,
+            canvasHeight = data.outputHeight || height,
             customDimensions = (data.outputWidth && data.outputHeight),
-            outputRatio = 1;
-
-        if (customDimensions) {
-            canvasWidth = data.outputWidth;
-            canvasHeight = data.outputHeight;
-            outputRatio = canvasWidth / outWidth;
-        }
+            outputWidthRatio = 1;
+            outputHeightRatio = 1;
 
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
         if (data.backgroundColor) {
             ctx.fillStyle = data.backgroundColor;
-            ctx.fillRect(0, 0, outWidth, outHeight);
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
-        // start fixing data to send to draw image for enforceBoundary: false
-        if (!self.options.enforceBoundary) {
-            if (left < 0) {
-                startX = Math.abs(left);
-                left = 0;
-            }
-            if (top < 0) {
-                startY = Math.abs(top);
-                top = 0;
-            }
-            if (right > self._originalImageWidth) {
-                width = self._originalImageWidth - left;
-                outWidth = width;
-            }
-            if (bottom > self._originalImageHeight) {
-                height = self._originalImageHeight - top;
-                outHeight = height;
-            }
-        }
-
-        if (outputRatio !== 1) {
-            startX *= outputRatio;
-            startY *= outputRatio;
-            outWidth *= outputRatio;
-            outHeight *= outputRatio;
-        }
-
-        ctx.drawImage(this.elements.preview, left, top, Math.min(width, self._originalImageWidth), Math.min(height, self._originalImageHeight), startX, startY, outWidth, outHeight);
+        width=Math.min(width, self._originalImageWidth);
+        height=Math.min(height, self._originalImageHeight)
+    
+        // console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
+        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
             ctx.beginPath();
-            ctx.arc(outWidth / 2, outHeight / 2, outWidth / 2, 0, Math.PI * 2, true);
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.fill();
         }
@@ -1216,12 +1222,20 @@
         });
     }
 
+    function _replaceImage(img) {
+        if (this.elements.img.parentNode) {
+            this.elements.img.parentNode.replaceChild(img, this.elements.img);
+            this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
+        }
+        this.elements.img = img;
+    }
+
     function _bind(options, cb) {
         var self = this,
             url,
             points = [],
             zoom = null,
-            hasExif = _hasExif.call(self);;
+            hasExif = _hasExif.call(self);
 
         if (typeof (options) === 'string') {
             url = options;
@@ -1245,7 +1259,8 @@
         self.data.url = url || self.data.url;
         self.data.boundZoom = zoom;
 
-        return loadImage(url, self.elements.img, hasExif).then(function (img) {
+        return loadImage(url, hasExif).then(function (img) {
+            _replaceImage.call(self, img);
             if (!points.length) {
                 var natDim = naturalImageDimensions(img);
                 var rect = self.elements.viewport.getBoundingClientRect();
@@ -1259,16 +1274,15 @@
                 }
                 else {
                     width = natDim.width;
-                    height = width / aspectRatio;
+                    height = natDim.height / aspectRatio;
                 }
 
                 var x0 = (natDim.width - width) / 2;
                 var y0 = (natDim.height - height) / 2;
                 var x1 = x0 + width;
                 var y1 = y0 + height;
-
                 self.data.points = [x0, y0, x1, y1];
-            } 
+            }
             else if (self.options.relative) {
                 points = [
                     points[0] * img.naturalWidth / 100,
@@ -1287,6 +1301,8 @@
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             cb && cb();
+        }).catch(function (err) {
+            console.error("Croppie:" + err);
         });
     }
 
@@ -1318,7 +1334,8 @@
 
         return {
             points: [fix(x1), fix(y1), fix(x2), fix(y2)],
-            zoom: scale
+            zoom: scale,
+            orientation: self.data.orientation
         };
     }
 
@@ -1332,7 +1349,7 @@
     function _result(options) {
         var self = this,
             data = _get.call(self),
-            opts = deepExtend(RESULT_DEFAULTS, deepExtend({}, options)),
+            opts = deepExtend(clone(RESULT_DEFAULTS), clone(options)),
             resultType = (typeof (options) === 'string' ? options : (opts.type || 'base64')),
             size = opts.size || 'viewport',
             format = opts.format,
@@ -1394,25 +1411,17 @@
     }
 
     function _rotate(deg) {
-        if (!this.options.useCanvas) {
-            throw 'Croppie: Cannot rotate without enableOrientation';
+        if (!this.options.useCanvas || !this.options.enableOrientation) {
+            throw 'Croppie: Cannot rotate without enableOrientation && EXIF.js included';
         }
 
         var self = this,
             canvas = self.elements.canvas,
-            copy = document.createElement('canvas'),
-            ornt = 1;
+            ornt;
 
-        copy.width = canvas.width;
-        copy.height = canvas.height;
-        var ctx = copy.getContext('2d');
-        ctx.drawImage(canvas, 0, 0);
-
-        if (deg === 90 || deg === -270) ornt = 6;
-        if (deg === -90 || deg === 270) ornt = 8;
-        if (deg === 180 || deg === -180) ornt = 3;
-
-        drawCanvas(canvas, copy, ornt);
+        self.data.orientation = getExifOffset(self.data.orientation, deg);
+        drawCanvas(canvas, self.elements.img, self.data.orientation);
+        _updateZoomLimits.call(self);
         _onZoom.call(self);
         copy = null;
     }
@@ -1473,12 +1482,16 @@
     }
 
     function Croppie(element, opts) {
+        if (element.className.indexOf('croppie-container') > -1) {
+            throw new Error("Croppie: Can't initialize croppie more than once");
+        }
         this.element = element;
-        this.options = deepExtend(deepExtend({}, Croppie.defaults), opts);
+        this.options = deepExtend(clone(Croppie.defaults), opts);
 
         if (this.element.tagName.toLowerCase() === 'img') {
             var origImage = this.element;
             addClass(origImage, 'cr-original-image');
+            setAttributes(origImage, {'aria-hidden' : 'true', 'alt' : '' });
             var replacementDiv = document.createElement('div');
             this.element.parentNode.appendChild(replacementDiv);
             replacementDiv.appendChild(origImage);
@@ -1564,8 +1577,4 @@
     });
 
     exports.Croppie = window.Croppie = Croppie;
-
-    if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;
-    }
 }));
