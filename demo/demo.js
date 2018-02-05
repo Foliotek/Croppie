@@ -145,7 +145,8 @@ var Demo = (function() {
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableResize: true,
-            enableOrientation: true
+            enableOrientation: true,
+            mouseWheelZoom: 'ctrl'
 		});
 		resize.bind({
             url: 'demo/demo-2.jpg',
