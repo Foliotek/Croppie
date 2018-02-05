@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2017
  * Foliotek
- * Version: 2.6.0
+ * Version: 2.6.1
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -178,7 +178,6 @@
     function loadImage(src, doExif) {
         var img = new Image();
         img.style.opacity = 0;
-
         return new Promise(function (resolve) {
             function _resolve() {
                 img.style.opacity = 1;
@@ -1224,6 +1223,7 @@
 
     function _replaceImage(img) {
         if (this.elements.img.parentNode) {
+            Array.prototype.forEach.call(this.elements.img.classList, function(c) { img.classList.add(c); });
             this.elements.img.parentNode.replaceChild(img, this.elements.img);
             this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
         }
