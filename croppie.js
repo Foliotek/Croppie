@@ -1575,8 +1575,4 @@
     });
 
     exports.Croppie = window.Croppie = Croppie;
-
-    if (typeof module === 'object' && !!module.exports) {
-        module.exports = Croppie;
-    }
 }));
