@@ -40,14 +40,14 @@ var Demo = (function() {
 			viewport: {
 				width: 150,
 				height: 150,
-				type: 'square'
+				type: 'circle'
 			},
 			boundary: {
 				width: 300,
 				height: 300
 			},
 			// url: 'demo/demo-1.jpg',
-			enforceBoundary: false
+			// enforceBoundary: false
 			// mouseWheelZoom: false
 		});
 		mc.on('update.croppie', function (ev, data) {
