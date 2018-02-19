@@ -13,9 +13,9 @@
         factory(exports);
     } else {
         // Browser globals
-        factory((root.commonJsStrict = {}));
+        factory((root.Croppie = {}));
     }
-}(this, function (exports) {
+}(typeof self !== 'undefined' ? self : this, function (exports) {
 
     /* Polyfills */
     if (typeof Promise !== 'function') {
@@ -1571,5 +1571,5 @@
         }
     });
 
-    exports.Croppie = window.Croppie = Croppie;
+    exports = Croppie;
 }));
