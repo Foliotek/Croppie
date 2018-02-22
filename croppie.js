@@ -1170,8 +1170,10 @@
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
-        width=Math.min(width, self._originalImageWidth);
-        height=Math.min(height, self._originalImageHeight)
+        if (self.options.enforceBoundary !== false) {
+            width = Math.min(width, self._originalImageWidth);
+            height = Math.min(height, self._originalImageHeight);
+        }
     
         // console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
         ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
