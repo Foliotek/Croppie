@@ -1,15 +1,17 @@
 {
   "name": "croppie",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "devDependencies": {
     "gh-pages": "^0.11.0",
-    "mocha": "2.4.5"
+    "mocha": "2.4.5",
+    "uglify-js": "3.3.15"
   },
   "scripts": {
     "test": "mocha test/unit",
-    "deploy": "node deploy.js"
+    "deploy": "node deploy.js",
+    "uglify": "uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js"
   },
   "repository": {
     "type": "git",
