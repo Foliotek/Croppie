@@ -284,7 +284,7 @@
     };
 
     function getExifOrientation (img) {
-        return img.exifdata ? img.exifdata.Orientation : 1;
+        return img.exifdata && img.exifdata.Orientation ? num(img.exifdata.Orientation) : 1;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -1125,21 +1125,14 @@
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
-            ctx = canvas.getContext('2d'),
-            exif = _hasExif.call(self),
-            customOrientation = self.options.enableOrientation && customOrientation;
+            ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = img.width;
         canvas.height = img.height;
 
-        if (exif && !customOrientation) {
-            var orientation = getExifOrientation(img);
-            drawCanvas(canvas, img, num(orientation || 0, 10));
-        }
-        else if (customOrientation) {
-            drawCanvas(canvas, img, customOrientation);
-        }
+        var orientation = self.options.enableOrientation && customOrientation || getExifOrientation(img);
+        drawCanvas(canvas, img, orientation);
     }
 
     function _getCanvas(data) {
@@ -1298,7 +1291,7 @@
                 return parseFloat(p);
             });
             if (self.options.useCanvas) {
-                _transferImageToCanvas.call(self, options.orientation || 1);
+                _transferImageToCanvas.call(self, options.orientation);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
