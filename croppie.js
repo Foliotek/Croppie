@@ -1417,7 +1417,6 @@
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
         _updateZoomLimits.call(self);
-        _onZoom.call(self);
         copy = null;
     }
 
