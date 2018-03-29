@@ -747,7 +747,7 @@
         };
     }
 
-    function _updateCenterPoint() {
+    function _updateCenterPoint(rotate) {
         var self = this,
             scale = self._currentZoom,
             data = self.elements.preview.getBoundingClientRect(),
@@ -759,14 +759,27 @@
             center = {},
             adj = {};
 
-        center.y = top / scale;
-        center.x = left / scale;
+        if (rotate) {
+            var cx = pc.x;
+            var cy = pc.y;
+            var tx = transform.x;
+            var ty = transform.y;
 
-        adj.y = (center.y - pc.y) * (1 - scale);
-        adj.x = (center.x - pc.x) * (1 - scale);
+            center.y = cx;
+            center.x = cy;
+            transform.y = tx;
+            transform.x = ty;
+        }
+        else {
+            center.y = top / scale;
+            center.x = left / scale;
 
-        transform.x -= adj.x;
-        transform.y -= adj.y;
+            adj.y = (center.y - pc.y) * (1 - scale);
+            adj.x = (center.x - pc.x) * (1 - scale);
+
+            transform.x -= adj.x;
+            transform.y -= adj.y;
+        }
 
         var newCss = {};
         newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
@@ -1416,6 +1429,7 @@
 
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
+        _updateCenterPoint.call(self, true);
         _updateZoomLimits.call(self);
         copy = null;
     }
