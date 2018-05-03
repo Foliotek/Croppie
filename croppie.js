@@ -631,7 +631,7 @@
             var delta, targetZoom;
 
             if(self.options.mouseWheelZoom === 'ctrl' && ev.ctrlKey !== true){
-              return 0; 
+              return 0;
             } else if (ev.wheelDelta) {
                 delta = ev.wheelDelta / 1200; //wheelDelta min: -120 max: 120 // max x 10 x 2
             } else if (ev.deltaY) {
@@ -1066,7 +1066,7 @@
 
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
-        
+
         if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
@@ -1167,7 +1167,7 @@
             width = Math.min(width, self._originalImageWidth);
             height = Math.min(height, self._originalImageHeight);
         }
-    
+
         // console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
         ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
         if (circle) {
@@ -1419,6 +1419,12 @@
         _updateZoomLimits.call(self);
         _onZoom.call(self);
         copy = null;
+
+        // Reverses image dimensions:
+        let oldHeight = self._originalImageHeight;
+        let oldWidth = self._originalImageWidth;
+        self._originalImageWidth = oldHeight;
+        self._originalImageHeight = oldWidth;
     }
 
     function _destroy() {
