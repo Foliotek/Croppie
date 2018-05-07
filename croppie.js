@@ -178,7 +178,7 @@
     function loadImage(src, doExif) {
         var img = new Image();
         img.style.opacity = 0;
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             function _resolve() {
                 img.style.opacity = 1;
                 setTimeout(function () {
@@ -201,6 +201,11 @@
                     _resolve();
                 }
             };
+
+            img.onerror = function () {
+                reject('Image url is not correct');
+            }
+
             img.src = src;
         });
     }
