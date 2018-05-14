@@ -178,7 +178,7 @@
     function loadImage(src, doExif) {
         var img = new Image();
         img.style.opacity = 0;
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             function _resolve() {
                 img.style.opacity = 1;
                 setTimeout(function () {
@@ -201,6 +201,9 @@
                     _resolve();
                 }
             };
+            img.onerror = function () {
+                reject('Unable to load image');
+            }
             img.src = src;
         });
     }
@@ -1295,9 +1298,9 @@
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
-            cb && cb();
+            cb && cb(true);
         }).catch(function (err) {
-            console.error("Croppie:" + err);
+            cb && cb(false, err);
         });
     }
 
