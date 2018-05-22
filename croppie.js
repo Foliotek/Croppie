@@ -13,7 +13,7 @@
         factory(exports);
     } else {
         // Browser globals
-        factory((root.Croppie = {}));
+        root.Croppie = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function (exports) {
 
@@ -1583,4 +1583,5 @@
     });
 
     exports = Croppie;
+    return Croppie;
 }));
