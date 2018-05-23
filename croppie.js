@@ -7,15 +7,15 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports'], factory);
+        define(factory);
     } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
         // CommonJS
-        factory(exports);
+        module.exports = factory();
     } else {
         // Browser globals
         root.Croppie = factory();
     }
-}(typeof self !== 'undefined' ? self : this, function (exports) {
+}(typeof self !== 'undefined' ? self : this, function () {
 
     /* Polyfills */
     if (typeof Promise !== 'function') {
@@ -1581,7 +1581,5 @@
             return _destroy.call(this);
         }
     });
-
-    exports = Croppie;
     return Croppie;
 }));
