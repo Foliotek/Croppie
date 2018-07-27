@@ -27,7 +27,7 @@ https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
 [Documentation](http://foliotek.github.io/Croppie#documentation)
 
 ## Related Libraries
-* https://github.com/wem/croppie-dart
+* https://gitlab.com/michel.werren/croppie-dart
 * https://github.com/allenRoyston/ngCroppie
 * https://github.com/lpsBetty/angular-croppie
 * https://github.com/dima-kov/django-croppie
