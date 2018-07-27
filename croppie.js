@@ -1033,8 +1033,8 @@
 
         imgData = self.elements.preview.getBoundingClientRect();
 
-        self._originalImageWidth = imgData.width;
-        self._originalImageHeight = imgData.height;
+        self._originalImageWidth = img.width;
+        self._originalImageHeight = img.height;
         self.data.orientation = getExifOrientation(self.elements.img);
 
         if (self.options.enableZoom) {
