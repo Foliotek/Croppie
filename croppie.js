@@ -1062,7 +1062,6 @@
     function _updateZoomLimits (initial) {
         var self = this,
             minZoom = 0,
-            maxZoom = self.options.maxZoom || 1.5,
             initialZoom,
             defaultInitialZoom,
             zoomer = self.elements.zoomer,
@@ -1070,6 +1069,7 @@
             boundaryData = self.elements.boundary.getBoundingClientRect(),
             imgData = naturalImageDimensions(self.elements.img, self.data.orientation),
             vpData = self.elements.viewport.getBoundingClientRect(),
+            maxZoom = self.options.maxZoom || imgData.width * vpData.width / imgData.width / self.options.maxZoomedCropWidth || 1.5,
             minW,
             minH;
         if (self.options.enforceBoundary) {
@@ -1084,7 +1084,7 @@
 
         zoomer.min = fix(minZoom, 4);
         zoomer.max = fix(maxZoom, 4);
-        
+
         if (!initial && (scale < zoomer.min || scale > zoomer.max)) {
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
