@@ -1326,8 +1326,8 @@
             y1 = vpData.top - imgData.top,
             widthDiff = (vpData.width - self.elements.viewport.offsetWidth) / 2, //border
             heightDiff = (vpData.height - self.elements.viewport.offsetHeight) / 2,
-            x2 = x1 + self.elements.viewport.offsetWidth + widthDiff,
-            y2 = y1 + self.elements.viewport.offsetHeight + heightDiff,
+            x2 = x1 + self.elements.viewport.getBoundingClientRect().width + widthDiff,
+            y2 = y1 + self.elements.viewport.getBoundingClientRect().height + heightDiff,
             scale = self._currentZoom;
 
         if (scale === Infinity || isNaN(scale)) {
