@@ -6,12 +6,19 @@
   "devDependencies": {
     "gh-pages": "^0.11.0",
     "mocha": "2.4.5",
+    "rollup": "^1.1.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-serve": "^1.0.0",
     "uglify-js": "3.3.15"
   },
   "scripts": {
     "test": "mocha test/unit",
     "deploy": "node deploy.js",
-    "uglify": "uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js"
+    "uglify": "uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js",
+    "build": "rollup -c",
+    "watch": "rollup -c -w --environment DEV",
+    "release": "rollup -c --environment PROD"
   },
   "repository": {
     "type": "git",
@@ -36,5 +43,8 @@
     "croppie.css",
     "croppie.js",
     "croppie.min.js"
-  ]
+  ],
+  "dependencies": {
+    "object-assign-deep": "^0.4.0"
+  }
 }

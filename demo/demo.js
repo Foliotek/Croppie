@@ -114,7 +114,8 @@ var Demo = (function() {
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableOrientation: true
-		});
+        });
+        window.vanilla = vanilla;
 		vanilla.bind({
             url: 'demo/demo-2.jpg',
             orientation: 4,
@@ -172,7 +173,7 @@ var Demo = (function() {
 		function readFile(input) {
  			if (input.files && input.files[0]) {
 	            var reader = new FileReader();
-	            
+
 	            reader.onload = function (e) {
 					$('.upload-demo').addClass('ready');
 	            	$uploadCrop.croppie('bind', {
@@ -180,9 +181,9 @@ var Demo = (function() {
 	            	}).then(function(){
 	            		console.log('jQuery bind complete');
 	            	});
-	            	
+
 	            }
-	            
+
 	            reader.readAsDataURL(input.files[0]);
 	        }
 	        else {
@@ -246,13 +247,13 @@ var Demo = (function() {
 	}
 
 	function init() {
-		bindNavigation();
-		demoMain();
-		demoBasic();	
-		demoVanilla();	
-		demoResizer();
-		demoUpload();
-		demoHidden();
+		// bindNavigation();
+		// demoMain();
+		// demoBasic();
+		demoVanilla();
+		// demoResizer();
+		// demoUpload();
+		// demoHidden();
 	}
 
 	return {
@@ -275,22 +276,22 @@ var Demo = (function() {
   ];
   var length = methods.length;
   var console = (window.console = window.console || {});
- 
+
   while (length--) {
     method = methods[length];
- 
+
     // Only stub undefined methods.
     if (!console[method]) {
         console[method] = noop;
     }
   }
- 
- 
+
+
   if (Function.prototype.bind) {
     window.log = Function.prototype.bind.call(console.log, console);
   }
   else {
-    window.log = function() { 
+    window.log = function() {
       Function.prototype.apply.call(console.log, console, arguments);
     };
   }

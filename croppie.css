@@ -3,7 +3,7 @@
     height: 100%;
 }
 
-.croppie-container .cr-image {
+.croppie-container .cr-preview {
     z-index: -1;
     position: absolute;
     top: 0;
@@ -113,7 +113,7 @@
     position: absolute;
 }
 
-.croppie-container .cr-image,
+.croppie-container .cr-preview,
 .croppie-container .cr-overlay,
 .croppie-container .cr-viewport {
     -webkit-transform: translateZ(0);
