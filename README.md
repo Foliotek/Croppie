@@ -45,7 +45,7 @@ If you're looking for a simple server to load the demo page, I use https://githu
 `uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js`
 
 #### Releasing a new version
-For the most part, you shouldn't worry about these steps unless you're the one handling the release.  Please don't bump the release and don't minify/uglify in a PR.  That just creates merge conflicts when merging.  Those steps will be peformed when the release is created.
+For the most part, you shouldn't worry about these steps unless you're the one handling the release.  Please don't bump the release and don't minify/uglify in a PR.  That just creates merge conflicts when merging.  Those steps will be performed when the release is created.
 1. Bump version in croppie.js
 2. Minify/Uglify
 3. Commit
