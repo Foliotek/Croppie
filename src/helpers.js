@@ -56,6 +56,16 @@ const getExifOrientation = (img) => {
     return img.exifdata && img.exifdata.Orientation ? num(img.exifdata.Orientation) : 1;
 }
 
+const EXIF_NORM = [1, 8, 3, 6];
+const EXIF_FLIP = [2, 7, 4, 5];
+const getExifOffset = (orientation, degrees) => {
+    var arr = EXIF_NORM.indexOf(orientation) > -1 ? EXIF_NORM : EXIF_FLIP,
+        index = arr.indexOf(orientation),
+        offset = (degrees / 90) % arr.length;// 180 = 2%4 = 2 shift exif by 2 indexes
+
+    return arr[(arr.length + index + (offset % arr.length)) % arr.length];
+}
+
 /**
  *
  * @param {(number|string)} v
@@ -121,6 +131,7 @@ export {
     naturalImageDimensions,
     loadImage,
     getExifOrientation,
+    getExifOffset,
     fix,
     num,
     dispatchChange

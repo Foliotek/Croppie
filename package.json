@@ -4,12 +4,14 @@
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "devDependencies": {
+    "exif-js": "^2.3.0",
     "gh-pages": "^0.11.0",
     "mocha": "2.4.5",
     "rollup": "^1.1.0",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-serve": "^1.0.0",
+    "sweetalert": "^2.1.2",
     "uglify-js": "3.3.15"
   },
   "scripts": {
@@ -45,6 +47,7 @@
     "croppie.min.js"
   ],
   "dependencies": {
+    "blueimp-canvas-to-blob": "^3.14.0",
     "object-assign-deep": "^0.4.0"
   }
 }

@@ -41,11 +41,11 @@ const zoomable = (croppie) => {
             delta = 0;
         }
 
-        targetZoom = self._currentZoom + (delta * self._currentZoom);
+        targetZoom = croppie._currentZoom + (delta * croppie._currentZoom);
 
         ev.preventDefault();
         croppie.setZoomerVal(targetZoom);
-        change.call(self);
+        change();
     }
 
     elements.zoomer.addEventListener('input', change);// this is being fired twice on keypress
@@ -67,6 +67,7 @@ const onZoom = (croppie, ui) => {
         vpRect = ui ? ui.viewportRect : elements.viewport.getBoundingClientRect(),
         origin = ui ? ui.origin : new TransformOrigin(elements.preview);
 
+
     function applyCss() {
         var transCss = {};
         transCss[TRANSFORM] = transform.toString();
@@ -74,9 +75,9 @@ const onZoom = (croppie, ui) => {
         css(elements.preview, transCss);
     }
 
-    croppie._currentZoom = ui ? ui.value : self._currentZoom;
-    transform.scale = self._currentZoom;
-    elements.zoomer.setAttribute('aria-valuenow', self._currentZoom);
+    croppie._currentZoom = ui ? ui.value : croppie._currentZoom;
+    transform.scale = croppie._currentZoom;
+    elements.zoomer.setAttribute('aria-valuenow', croppie._currentZoom);
     applyCss();
 
     if (options.enforceBoundary) {

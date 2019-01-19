@@ -11,17 +11,11 @@ var Demo = (function() {
 	}
 
 	function popupResult(result) {
-		var html;
-		if (result.html) {
-			html = result.html;
-		}
-		if (result.src) {
-			html = '<img src="' + result.src + '" />';
-		}
+        var img = new Image();
+        img.src = result.src;
 		swal({
 			title: '',
-			html: true,
-			text: html,
+			content: img,
 			allowOutsideClick: true
 		});
 		setTimeout(function(){
@@ -112,7 +106,7 @@ var Demo = (function() {
 			vanilla = new Croppie(vEl, {
 			viewport: { width: 200, height: 100 },
 			boundary: { width: 300, height: 300 },
-			showZoomer: false,
+			// showZoomer: false,
             enableOrientation: true
         });
         window.vanilla = vanilla;
@@ -128,10 +122,11 @@ var Demo = (function() {
 			vanilla.result({
 				type: 'blob'
 			}).then(function (blob) {
-				popupResult({
+                console.log(window.URL.createObjectURL(blob));
+                popupResult({
 					src: window.URL.createObjectURL(blob)
 				});
-			});
+			}).catch(console.error);
 		});
 
 		$('.vanilla-rotate').on('click', function(ev) {
@@ -251,7 +246,7 @@ var Demo = (function() {
 		// demoMain();
 		// demoBasic();
 		demoVanilla();
-		// demoResizer();
+		demoResizer();
 		// demoUpload();
 		// demoHidden();
 	}

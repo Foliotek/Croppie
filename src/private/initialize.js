@@ -35,9 +35,9 @@ const initialize = (croppie) => {
     //     _initRotationControls.call(self);
     // }
 
-    if (options.enableResize) {
-        _initializeResize.call(self);
-    }
+    // if (options.enableResize) {
+    //     _initializeResize.call(self);
+    // }
 }
 
 export default initialize;

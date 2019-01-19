@@ -1,12 +1,14 @@
-import DEFAULTS from './defaults';
 import objectAssignDeep from 'object-assign-deep';
-import { initialize, hasExif, zoomable, draggable } from './private/index';
-import { naturalImageDimensions, loadImage, fix, css, getExifOrientation, dispatchChange } from './helpers';
-import { transferImageToCanvas } from './private/canvas';
+import DEFAULTS from './defaults';
+import { initialize, hasExif, zoomable, draggable, resizable } from './private/index';
+import { naturalImageDimensions, loadImage, fix, css, getExifOrientation, getExifOffset, dispatchChange } from './helpers';
+import { transferImageToCanvas, drawCanvas } from './private/canvas';
 import { TRANSFORM, TRANSFORM_ORIGIN } from './constants';
 import Transform from './Transform';
 import TransformOrigin from './TransformOrigin';
 import { updateOverlay } from './private/overlay';
+import result from './private/result';
+
 class Croppie {
     /**
      *
@@ -35,10 +37,10 @@ class Croppie {
         }
 
         initialize(this);
+        draggable(this);
 
         this.options.enableZoom && zoomable(this);
-
-        draggable(this);
+        this.options.enableResize && resizable(this);
 
         if (this.options.url) {
             var bindOpts = {
@@ -137,7 +139,7 @@ class Croppie {
             return loadImage(url, exifEnabled).then((img) => {
                 console.log('in here', this.useCanvas);
                 if (this.elements.img.parentNode) {
-                    Array.prototype.forEach.call(this.elements.img.classList, function(c) { img.classList.add(c); });
+                    Array.prototype.forEach.call(this.elements.img.classList, function (c) { img.classList.add(c); });
                     this.elements.img.parentNode.replaceChild(img, this.elements.img);
                     this.elements.preview = img; // if the img is attached to the DOM, they're not using the canvas
                 }
@@ -186,7 +188,7 @@ class Croppie {
             }).catch(console.error);
         }).catch(console.error);
     }
-    updateZoomLimits (initial) {
+    updateZoomLimits(initial) {
         var self = this,
             minZoom = Math.max(self.options.minZoom, 0) || 0,
             maxZoom = self.options.maxZoom || 1.5,
@@ -356,6 +358,56 @@ class Croppie {
 
             z.value = Math.max(parseFloat(z.min), Math.min(parseFloat(z.max), val)).toString();
         }
+    }
+    result(resultOptions) {
+        const RESULT_DEFAULTS = {
+            type: 'canvas',
+            format: 'png',
+            quality: 1
+        },
+        RESULT_FORMATS = ['jpeg', 'webp', 'png'];
+
+        var self = this,
+            data = this.get(),
+            opts = objectAssignDeep({}, RESULT_DEFAULTS, resultOptions),
+            resultType = (typeof (resultOptions) === 'string' ? resultOptions : (opts.type || 'base64')),
+            size = opts.size || 'viewport',
+            format = opts.format,
+            quality = opts.quality,
+            backgroundColor = opts.backgroundColor,
+            circle = typeof opts.circle === 'boolean' ? opts.circle : (self.options.viewport.type === 'circle'),
+            vpRect = this.elements.viewport.getBoundingClientRect(),
+            ratio = vpRect.width / vpRect.height;
+
+        if (size === 'viewport') {
+            data.outputWidth = vpRect.width;
+            data.outputHeight = vpRect.height;
+        } else if (typeof size === 'object') {
+            data.outputWidth = size.width || size.height * ratio;
+            data.outputHeight = size.height || size.width / ratio;
+        }
+
+        if (RESULT_FORMATS.indexOf(format) > -1) {
+            data.format = 'image/' + format;
+            data.quality = quality;
+        }
+
+        data.circle = circle;
+        data.url = self.data.url;
+        data.backgroundColor = backgroundColor;
+
+        return result(this, resultType, data);
+    }
+    rotate(deg) {
+        if (!this.useCanvas || !this.options.enableOrientation) {
+            throw 'Croppie: Cannot rotate without enableOrientation && EXIF.js included';
+        }
+
+        const canvas = this.elements.canvas;
+        this.data.orientation = getExifOffset(this.data.orientation, deg);
+        drawCanvas(canvas, this.elements.img, this.data.orientation);
+        this.updateCenterPoint(true);
+        this.updateZoomLimits();
     }
 }
 

@@ -15,7 +15,7 @@
 
         <link href='//fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700' rel='stylesheet' type='text/css'>
         <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
-        <link rel="Stylesheet" type="text/css" href="bower_components/sweetalert/dist/sweetalert.css" />
+        <link rel="Stylesheet" type="text/css" href="node_modules/sweetalert/dist/sweetalert.css" />
         <link rel="Stylesheet" type="text/css" href="croppie.css" />
         <link rel="Stylesheet" type="text/css" href="demo/demo.css" />
         <link rel="icon" href="//foliotek.github.io/favico-64.png" />
@@ -360,8 +360,8 @@ vanilla.result('blob').then(function(blob) {
 });</code></pre>
                                 <div class="actions">
                                     <button class="vanilla-result">Result</button>
-                                    <button class="vanilla-rotate" data-deg="-90">Rotate Left</button>
-                                    <button class="vanilla-rotate" data-deg="90">Rotate Right</button>
+                                    <button class="vanilla-rotate" data-deg="-90">Clockwise</button>
+                                    <button class="vanilla-rotate" data-deg="90">Counter-Clockwise</button>
                                 </div>
                             </div>
                         </div>
@@ -523,11 +523,11 @@ $('#my-modal').on('shown.bs.modal', function(){
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
         <script src="demo/prism.js"></script>
-        <script src="bower_components/sweetalert/dist/sweetalert.min.js"></script>
+        <script src="node_modules/sweetalert/dist/sweetalert.min.js"></script>
 
         <script src="dist/croppie.js"></script>
         <script src="demo/demo.js"></script>
-        <script src="bower_components/exif-js/exif.js"></script>
+        <script src="node_modules/exif-js/exif.js"></script>
         <script>
             document.getElementById('year').innerHTML = (new Date).getFullYear();
             Demo.init();
