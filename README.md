@@ -27,11 +27,11 @@ https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
 [Documentation](http://foliotek.github.io/Croppie#documentation)
 
 ## Related Libraries
-* https://gitlab.com/michel.werren/croppie-dart
-* https://github.com/allenRoyston/ngCroppie
-* https://github.com/lpsBetty/angular-croppie
-* https://github.com/dima-kov/django-croppie
-* https://github.com/jofftiquez/vue-croppie
+* [croppie-dart](https://gitlab.com/michel.werren/croppie-dart)
+* [ngCroppie](https://github.com/allenRoyston/ngCroppie)
+* [angular-croppie](https://github.com/lpsBetty/angular-croppie)
+* [django-croppie](https://github.com/dima-kov/django-croppie)
+* [vue-croppie](https://github.com/jofftiquez/vue-croppie)
 
 ## Contributing
 First, thanks for contributing.  This project is difficult to maintain with one person.  Here's a "checklist" of things to remember when contributing to croppie.
