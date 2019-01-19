@@ -10,7 +10,7 @@ Download:
 [croppie.js](croppie.js) & [croppie.css](croppie.css)
 
 ## Adding croppie to your site
-```
+```html
 <link rel="stylesheet" href="croppie.css" />
 <script src="croppie.js"></script>
 ```
