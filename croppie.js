@@ -2,20 +2,20 @@
  * Croppie
  * Copyright 2018
  * Foliotek
- * Version: 2.6.2
+ * Version: 2.6.3
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports'], factory);
+        define(factory);
     } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
         // CommonJS
-        factory(exports);
+        module.exports = factory();
     } else {
         // Browser globals
-        factory((root.commonJsStrict = {}));
+        root.Croppie = factory();
     }
-}(this, function (exports) {
+}(typeof self !== 'undefined' ? self : this, function () {
 
     /* Polyfills */
     if (typeof Promise !== 'function') {
@@ -177,10 +177,10 @@
     /* Utilities */
     function loadImage(src, doExif) {
         var img = new Image();
-        img.style.opacity = 0;
-        return new Promise(function (resolve) {
+        img.style.opacity = '0';
+        return new Promise(function (resolve, reject) {
             function _resolve() {
-                img.style.opacity = 1;
+                img.style.opacity = '1';
                 setTimeout(function () {
                     resolve(img);
                 }, 1);
@@ -200,6 +200,12 @@
                 else {
                     _resolve();
                 }
+            };
+            img.onerror = function (ev) {
+                img.style.opacity = 1;
+                setTimeout(function () {
+                    reject(ev);
+                }, 1);
             };
             img.src = src;
         });
@@ -284,7 +290,7 @@
     };
 
     function getExifOrientation (img) {
-        return img.exifdata ? img.exifdata.Orientation : 1;
+        return img.exifdata && img.exifdata.Orientation ? num(img.exifdata.Orientation) : 1;
     }
 
     function drawCanvas(canvas, img, orientation) {
@@ -367,7 +373,7 @@
             self.elements.preview = self.elements.canvas;
         }
         else {
-            self.elements.preview = self.elements.img;
+            self.elements.preview = img;
         }
 
         addClass(boundary, 'cr-boundary');
@@ -596,7 +602,7 @@
             var z = this.elements.zoomer,
                 val = fix(v, 4);
 
-            z.value = Math.max(z.min, Math.min(z.max, val));
+            z.value = Math.max(parseFloat(z.min), Math.min(parseFloat(z.max), val)).toString();
         }
     }
 
@@ -609,7 +615,7 @@
         addClass(zoomer, 'cr-slider');
         zoomer.type = 'range';
         zoomer.step = '0.0001';
-        zoomer.value = 1;
+        zoomer.value = '1';
         zoomer.style.display = self.options.showZoomer ? '' : 'none';
         zoomer.setAttribute('aria-label', 'zoom');
 
@@ -747,7 +753,7 @@
         };
     }
 
-    function _updateCenterPoint() {
+    function _updateCenterPoint(rotate) {
         var self = this,
             scale = self._currentZoom,
             data = self.elements.preview.getBoundingClientRect(),
@@ -759,14 +765,27 @@
             center = {},
             adj = {};
 
-        center.y = top / scale;
-        center.x = left / scale;
+        if (rotate) {
+            var cx = pc.x;
+            var cy = pc.y;
+            var tx = transform.x;
+            var ty = transform.y;
 
-        adj.y = (center.y - pc.y) * (1 - scale);
-        adj.x = (center.x - pc.x) * (1 - scale);
+            center.y = cx;
+            center.x = cy;
+            transform.y = tx;
+            transform.x = ty;
+        }
+        else {
+            center.y = top / scale;
+            center.x = left / scale;
 
-        transform.x -= adj.x;
-        transform.y -= adj.y;
+            adj.y = (center.y - pc.y) * (1 - scale);
+            adj.x = (center.x - pc.x) * (1 - scale);
+
+            transform.x -= adj.x;
+            transform.y -= adj.y;
+        }
 
         var newCss = {};
         newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
@@ -815,12 +834,12 @@
                 DOWN_ARROW  = 40;
 
             if (ev.shiftKey && (ev.keyCode === UP_ARROW || ev.keyCode === DOWN_ARROW)) {
-                var zoom = 0.0;
+                var zoom;
                 if (ev.keyCode === UP_ARROW) {
-                    zoom = parseFloat(self.elements.zoomer.value, 10) + parseFloat(self.elements.zoomer.step, 10)
+                    zoom = parseFloat(self.elements.zoomer.value) + parseFloat(self.elements.zoomer.step)
                 }
                 else {
-                    zoom = parseFloat(self.elements.zoomer.value, 10) - parseFloat(self.elements.zoomer.step, 10)
+                    zoom = parseFloat(self.elements.zoomer.value) - parseFloat(self.elements.zoomer.step)
                 }
                 self.setZoom(zoom);
             }
@@ -965,8 +984,7 @@
 
     function _triggerUpdate() {
         var self = this,
-            data = self.get(),
-            ev;
+            data = self.get();
 
         if (!_isVisible.call(self)) {
             return;
@@ -998,7 +1016,7 @@
             initialZoom = 1,
             cssReset = {},
             img = self.elements.preview,
-            imgData = null,
+            imgData,
             transformReset = new Transform(0, 0, initialZoom),
             originReset = new TransformOrigin(),
             isVisible = _isVisible.call(self);
@@ -1043,7 +1061,7 @@
 
     function _updateZoomLimits (initial) {
         var self = this,
-            minZoom = 0,
+            minZoom = Math.max(self.options.minZoom, 0) || 0,
             maxZoom = self.options.maxZoom || 1.5,
             initialZoom,
             defaultInitialZoom,
@@ -1125,21 +1143,14 @@
         var self = this,
             canvas = self.elements.canvas,
             img = self.elements.img,
-            ctx = canvas.getContext('2d'),
-            exif = _hasExif.call(self),
-            customOrientation = self.options.enableOrientation && customOrientation;
+            ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = img.width;
         canvas.height = img.height;
 
-        if (exif && !customOrientation) {
-            var orientation = getExifOrientation(img);
-            drawCanvas(canvas, img, num(orientation || 0, 10));
-        }
-        else if (customOrientation) {
-            drawCanvas(canvas, img, customOrientation);
-        }
+        var orientation = self.options.enableOrientation && customOrientation || getExifOrientation(img);
+        drawCanvas(canvas, img, orientation);
     }
 
     function _getCanvas(data) {
@@ -1157,10 +1168,7 @@
             startX = 0,
             startY = 0,
             canvasWidth = data.outputWidth || width,
-            canvasHeight = data.outputHeight || height,
-            customDimensions = (data.outputWidth && data.outputHeight),
-            outputWidthRatio = 1,
-            outputHeightRatio = 1;
+            canvasHeight = data.outputHeight || height;
 
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
@@ -1170,13 +1178,53 @@
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
-        if (self.options.enforceBoundary !== false) {
-            width = Math.min(width, self._originalImageWidth);
-            height = Math.min(height, self._originalImageHeight);
+        // By default assume we're going to draw the entire
+        // source image onto the destination canvas.
+        sx = left;
+        sy = top;
+        sWidth = width;
+        sHeight = height;
+        dx = 0;
+        dy = 0;
+        dWidth = canvasWidth;
+        dHeight = canvasHeight;
+
+        //
+        // Do not go outside of the original image's bounds along the x-axis.
+        // Handle translations when projecting onto the destination canvas.
+        //
+
+        // The smallest possible source x-position is 0.
+        if (left < 0) {
+            sx = 0;
+            dx = (Math.abs(left) / width) * canvasWidth;
         }
-    
-        // console.table({ left, right, top, bottom, canvasWidth, canvasHeight });
-        ctx.drawImage(this.elements.preview, left, top, width, height, startX, startY, canvasWidth, canvasHeight);
+
+        // The largest possible source width is the original image's width.
+        if (sWidth + sx > self._originalImageWidth) {
+            sWidth = self._originalImageWidth - sx;
+            dWidth =  (sWidth / width) * canvasWidth;
+        }
+
+        //
+        // Do not go outside of the original image's bounds along the y-axis.
+        //
+
+        // The smallest possible source y-position is 0.
+        if (top < 0) {
+            sy = 0;
+            dy = (Math.abs(top) / height) * canvasHeight;
+        }
+
+        // The largest possible source height is the original image's height.
+        if (sHeight + sy > self._originalImageHeight) {
+            sHeight = self._originalImageHeight - sy;
+            dHeight = (sHeight / height) * canvasHeight;
+        }
+
+        // console.table({ left, right, top, bottom, canvasWidth, canvasHeight, width, height, startX, startY, circle, sx, sy, dx, dy, sWidth, sHeight, dWidth, dHeight });
+
+        ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         if (circle) {
             ctx.fillStyle = '#fff';
             ctx.globalCompositeOperation = 'destination-in';
@@ -1216,7 +1264,7 @@
 
     function _getBlobResult(data) {
         var self = this;
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
             _getCanvas.call(self, data).toBlob(function (blob) {
                 resolve(blob);
             }, data.format, data.quality);
@@ -1298,13 +1346,11 @@
                 return parseFloat(p);
             });
             if (self.options.useCanvas) {
-                _transferImageToCanvas.call(self, options.orientation || 1);
+                _transferImageToCanvas.call(self, options.orientation);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
             cb && cb();
-        }).catch(function (err) {
-            console.error("Croppie:" + err);
         });
     }
 
@@ -1387,7 +1433,7 @@
         data.url = self.data.url;
         data.backgroundColor = backgroundColor;
 
-        prom = new Promise(function (resolve, reject) {
+        prom = new Promise(function (resolve) {
             switch(resultType.toLowerCase())
             {
                 case 'rawcanvas':
@@ -1418,14 +1464,12 @@
         }
 
         var self = this,
-            canvas = self.elements.canvas,
-            ornt;
+            canvas = self.elements.canvas;
 
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
+        _updateCenterPoint.call(self, true);
         _updateZoomLimits.call(self);
-        _onZoom.call(self);
-        copy = null;
     }
 
     function _destroy() {
@@ -1577,6 +1621,5 @@
             return _destroy.call(this);
         }
     });
-
-    exports.Croppie = window.Croppie = Croppie;
+    return Croppie;
 }));

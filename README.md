@@ -10,7 +10,7 @@ Download:
 [croppie.js](croppie.js) & [croppie.css](croppie.css)
 
 ## Adding croppie to your site
-```
+```html
 <link rel="stylesheet" href="croppie.css" />
 <script src="croppie.js"></script>
 ```
@@ -27,11 +27,11 @@ https://cdnjs.cloudflare.com/ajax/libs/croppie/{version}/croppie.min.js
 [Documentation](http://foliotek.github.io/Croppie#documentation)
 
 ## Related Libraries
-* https://github.com/wem/croppie-dart
-* https://github.com/allenRoyston/ngCroppie
-* https://github.com/lpsBetty/angular-croppie
-* https://github.com/dima-kov/django-croppie
-* https://github.com/jofftiquez/vue-croppie
+* [croppie-dart](https://gitlab.com/michel.werren/croppie-dart)
+* [ngCroppie](https://github.com/allenRoyston/ngCroppie)
+* [angular-croppie](https://github.com/lpsBetty/angular-croppie)
+* [django-croppie](https://github.com/dima-kov/django-croppie)
+* [vue-croppie](https://github.com/jofftiquez/vue-croppie)
 
 ## Contributing
 First, thanks for contributing.  This project is difficult to maintain with one person.  Here's a "checklist" of things to remember when contributing to croppie.
@@ -45,7 +45,7 @@ If you're looking for a simple server to load the demo page, I use https://githu
 `uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js`
 
 #### Releasing a new version
-For the most part, you shouldn't worry about these steps unless you're the one handling the release.  Please don't bump the release and don't minify/uglify in a PR.  That just creates merge conflicts when merging.  Those steps will be peformed when the release is created.
+For the most part, you shouldn't worry about these steps unless you're the one handling the release.  Please don't bump the release and don't minify/uglify in a PR.  That just creates merge conflicts when merging.  Those steps will be performed when the release is created.
 1. Bump version in croppie.js
 2. Minify/Uglify
 3. Commit
