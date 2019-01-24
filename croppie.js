@@ -1180,14 +1180,14 @@
 
         // By default assume we're going to draw the entire
         // source image onto the destination canvas.
-        sx = left;
-        sy = top;
-        sWidth = width;
-        sHeight = height;
-        dx = 0;
-        dy = 0;
-        dWidth = canvasWidth;
-        dHeight = canvasHeight;
+        var sx = left,
+            sy = top,
+            sWidth = width,
+            sHeight = height,
+            dx = 0,
+            dy = 0,
+            dWidth = canvasWidth,
+            dHeight = canvasHeight;
 
         //
         // Do not go outside of the original image's bounds along the x-axis.
