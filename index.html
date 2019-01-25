@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang ="en">
     <head>
         <meta charset="UTF-8" >
@@ -15,7 +15,6 @@
 
         <link href='//fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,700' rel='stylesheet' type='text/css'>
         <link rel="Stylesheet" type="text/css" href="demo/prism.css" />
-        <link rel="Stylesheet" type="text/css" href="bower_components/sweetalert/dist/sweetalert.css" />
         <link rel="Stylesheet" type="text/css" href="croppie.css" />
         <link rel="Stylesheet" type="text/css" href="demo/demo.css" />
         <link rel="icon" href="//foliotek.github.io/favico-64.png" />
@@ -74,7 +73,7 @@ $('.my-image').croppie();
                 <pre class="language-javascript" style="width: 225px;"><code class="language-javascript">bower install croppie</code></pre>
                 <p><strong>Download:</strong></p>
                 <p><a href="https://github.com/Foliotek/Croppie/releases">Source</a></p>
-                
+
                 <hr />
                 <p><strong>Then add the following elements to your page:</strong></p>
                 <pre class="language-html"><code class="language-html">&lt;link rel="stylesheet" href="croppie.css" /&gt;
@@ -86,7 +85,7 @@ $('.my-image').croppie();
             <div class="section-header"><h2>Usage</h2></div>
             <div class="container">
                 <p>You can initialize Croppie with the following code:</p>
-                
+
               <pre class="language-javascript"><code class="language-javascript">var c = new Croppie(document.getElementById('item'), opts);
 // call a method
 c.method(args);</code></pre>
@@ -157,7 +156,7 @@ $('#item').croppie(method, args);</code></pre>
                             <strong class="focus">viewport</strong><em>object</em>
                             <p>The inner container of the coppie.  The visible part of the image</p>
                             <span class="default">Default</span>
-                            <code class="language-javascript">{ 
+                            <code class="language-javascript">{
                                 width: 100,
                                 height: 100,
                                 type: 'square'
@@ -183,7 +182,7 @@ $('#item').croppie(method, args);</code></pre>
                                 <li><code class="language-javascript">url</code> URL to image</li>
                                 <li><code class="language-javascript">points</code> Array of points that translate into <code class="language-javascript">[topLeftX, topLeftY, bottomRightX, bottomRightY]</code></li>
                                 <li><code class="language-javascript">zoom</code> Apply zoom after image has been bound </li>
-                                <li><code class="language-javascript">orientation</code> Custom orientation, applied after exif orientation (if enabled). Only works with 
+                                <li><code class="language-javascript">orientation</code> Custom orientation, applied after exif orientation (if enabled). Only works with
                                     <code class="language-javascript">enableOrientation</code> option enabled (see 'Options').
                                     <br />
                                     Valid options are:
@@ -226,7 +225,7 @@ $('#item').croppie(method, args);</code></pre>
                                     <code class="language-javascript">'rawcanvas'</code> returns the canvas element allowing you to manipulate prior to getting the resulted image
                                 </li>
                                 <li>
-                                    <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code> 
+                                    <code class="language-javascript">size</code> The size of the cropped image defaults to <code class="language-javascript">'viewport'</code>
                                 </li>
                                 <li class="values">
                                     <code class="language-javascript">'viewport'</code> the size of the resulting image will be the same width and height as the viewport
@@ -472,7 +471,7 @@ $('#hidden-demo').croppie('bind')</code></pre>
                     <p>Croppie is dependent on it's container being visible when the <a href="#bind">bind</a> method is called.  This can be an issue when your croppie component is inside a modal that isn't shown. Let's take the bootstrap modal for example..</p>
                     <pre class="language-javascript"><code class="language-javascript">
 var myCroppie = $('#my-croppie').croppie(opts);
-$('#my-modal').on('shown.bs.modal', function(){ 
+$('#my-modal').on('shown.bs.modal', function(){
     myCroppie.croppie('bind', bindOpts);
 });
                     </code></pre>
@@ -523,7 +522,7 @@ $('#my-modal').on('shown.bs.modal', function(){
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
         <script src="demo/prism.js"></script>
-        <script src="bower_components/sweetalert/dist/sweetalert.min.js"></script>
+        <script src="bower_components/sweetalert2/dist/sweetalert2.all.min.js"></script>
 
         <script src="croppie.js"></script>
         <script src="demo/demo.js"></script>

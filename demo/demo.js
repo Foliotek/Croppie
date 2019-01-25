@@ -19,10 +19,7 @@ var Demo = (function() {
 			html = '<img src="' + result.src + '" />';
 		}
 		swal({
-			title: '',
-			html: true,
-			text: html,
-			allowOutsideClick: true
+			html: html
 		});
 		setTimeout(function(){
 			$('.sweet-alert').css('margin', function() {
@@ -172,7 +169,7 @@ var Demo = (function() {
 		function readFile(input) {
  			if (input.files && input.files[0]) {
 	            var reader = new FileReader();
-	            
+
 	            reader.onload = function (e) {
 					$('.upload-demo').addClass('ready');
 	            	$uploadCrop.croppie('bind', {
@@ -180,9 +177,9 @@ var Demo = (function() {
 	            	}).then(function(){
 	            		console.log('jQuery bind complete');
 	            	});
-	            	
+
 	            }
-	            
+
 	            reader.readAsDataURL(input.files[0]);
 	        }
 	        else {
@@ -248,8 +245,8 @@ var Demo = (function() {
 	function init() {
 		bindNavigation();
 		demoMain();
-		demoBasic();	
-		demoVanilla();	
+		demoBasic();
+		demoVanilla();
 		demoResizer();
 		demoUpload();
 		demoHidden();
@@ -275,22 +272,22 @@ var Demo = (function() {
   ];
   var length = methods.length;
   var console = (window.console = window.console || {});
- 
+
   while (length--) {
     method = methods[length];
- 
+
     // Only stub undefined methods.
     if (!console[method]) {
         console[method] = noop;
     }
   }
- 
- 
+
+
   if (Function.prototype.bind) {
     window.log = Function.prototype.bind.call(console.log, console);
   }
   else {
-    window.log = function() { 
+    window.log = function() {
       Function.prototype.apply.call(console.log, console, arguments);
     };
   }
