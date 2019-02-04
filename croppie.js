@@ -176,6 +176,8 @@
 
     /* Utilities */
     function loadImage(src, doExif) {
+        if (!src) { throw 'Source image missing'; }
+        
         var img = new Image();
         img.style.opacity = '0';
         return new Promise(function (resolve, reject) {
