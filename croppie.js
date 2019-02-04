@@ -394,6 +394,20 @@
             height: self.options.viewport.height + 'px'
         });
         viewport.setAttribute('tabindex', 0);
+        
+        if (self.options.viewport.view2) {
+            viewport2 = self.elements.viewport2 = document.createElement('div');
+            addClass(viewport2, 'cr-viewport-2');
+
+            css(viewport2, {
+                // Remove 4px due to border
+                width: (self.options.viewport.width2 - 4) + 'px',
+                height: self.options.viewport.height2 + 'px'
+            });
+            viewport2.setAttribute('tabindex', 0);
+
+            viewport.appendChild(viewport2);
+        }
 
         addClass(self.elements.preview, 'cr-image');
         setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
