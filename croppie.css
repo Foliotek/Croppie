@@ -22,6 +22,18 @@
     height: 100%;
 }
 
+.croppie-container .cr-viewport-2 {
+    position: absolute;
+    border: dashed #fff;
+    border-width: 1px 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 0;
+}
+
 .croppie-container .cr-viewport,
 .croppie-container .cr-resizer {
     position: absolute;
