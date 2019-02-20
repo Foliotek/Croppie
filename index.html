@@ -160,6 +160,8 @@ $('#item').croppie(method, args);</code></pre>
                             <code class="language-javascript">{ 
                                 width: 100,
                                 height: 100,
+                                minWidth: 50,
+                                minHeight: 50,
                                 type: 'square'
                             }</code>
                             <br /><br />
@@ -375,7 +377,7 @@ vanilla.result('blob').then(function(blob) {
                                 <pre class="language-javascript"><code class="language-javascript">
 var el = document.getElementById('resizer-demo');
 var resize = new Croppie(el, {
-    viewport: { width: 100, height: 100 },
+    viewport: { width: 100, height: 100, minWidth: 25 },
     boundary: { width: 300, height: 300 },
     showZoomer: false,
     enableResize: true,

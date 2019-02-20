@@ -141,7 +141,7 @@ var Demo = (function() {
     function demoResizer() {
 		var vEl = document.getElementById('resizer-demo'),
 			resize = new Croppie(vEl, {
-			viewport: { width: 100, height: 100 },
+      viewport: { width: 100, height: 100, minWidth: 25 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableResize: true,
