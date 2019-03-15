@@ -1,8 +1,8 @@
 /*************************
  * Croppie
- * Copyright 2018
+ * Copyright 2019
  * Foliotek
- * Version: 2.6.3
+ * Version: 2.6.4
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
