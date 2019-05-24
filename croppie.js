@@ -1035,7 +1035,7 @@
 
         self._originalImageWidth = imgData.width;
         self._originalImageHeight = imgData.height;
-        self.data.orientation = getExifOrientation(self.elements.img);
+        self.data.orientation = _hasExif.call(self) ? getExifOrientation(self.elements.img) : self.data.orientation;
 
         if (self.options.enableZoom) {
             _updateZoomLimits.call(self, true);
@@ -1342,11 +1342,12 @@
                 ];
             }
 
+            self.data.orientation = options.orientation || 1;
             self.data.points = points.map(function (p) {
                 return parseFloat(p);
             });
             if (self.options.useCanvas) {
-                _transferImageToCanvas.call(self, options.orientation);
+                _transferImageToCanvas.call(self, self.data.orientation);
             }
             _updatePropertiesFromImage.call(self);
             _triggerUpdate.call(self);
