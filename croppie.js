@@ -1538,6 +1538,26 @@
         };
     }
 
+    /** Update viewport to new dimensions
+    * @param w int new width in px
+    * @param h int new height in px
+    */
+    function _setViewport(w, h) {
+        var self = this;
+
+        self.options.viewport.height = h;
+        self.options.viewport.width = w;
+        css(self.elements.viewport, {
+            height: self.options.viewport.height + 'px',
+            width: self.options.viewport.width + 'px'
+        });
+
+        _updateOverlay.call(self);
+        _updateZoomLimits.call(self);
+        _updateCenterPoint.call(self);
+        _triggerUpdate.call(self);
+    }
+
     function Croppie(element, opts) {
         if (element.className.indexOf('croppie-container') > -1) {
             throw new Error("Croppie: Can't initialize croppie more than once");
@@ -1630,6 +1650,10 @@
         },
         destroy: function () {
             return _destroy.call(this);
+        },
+        /** update viewport to new dimensions */
+        setViewport: function (widthVP, heightVP) {
+            _setViewport.call(this, widthVP, heightVP);
         }
     });
     return Croppie;
