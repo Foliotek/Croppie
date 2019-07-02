@@ -1553,8 +1553,8 @@
         });
 
         _updateOverlay.call(self);
-        _updateZoomLimits.call(self);
         _updateCenterPoint.call(self);
+        _updateZoomLimits.call(self);
         _triggerUpdate.call(self);
     }
 
