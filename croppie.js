@@ -1091,7 +1091,7 @@
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
         else if (initial) {
-            defaultInitialZoom = Math.min((boundaryData.width / imgData.width), (boundaryData.height / imgData.height)); //Math.max in Math.min ge\E4ndert
+            defaultInitialZoom = Math.min((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
             _setZoomerVal.call(self, initialZoom);
         }
@@ -1566,8 +1566,8 @@
         });
 
         _updateOverlay.call(self);
-        _updateZoomLimits.call(self);
         _updateCenterPoint.call(self);
+        _updateZoomLimits.call(self);
         _triggerUpdate.call(self);
     }
 
