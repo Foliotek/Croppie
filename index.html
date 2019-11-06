@@ -399,6 +399,38 @@ resize.result('blob').then(function(blob) {
                         </div>
                     </div>
                 </div>
+                <div class="demo-wrap demo-ratio-resize">
+                    <div class="container">
+                        <div class="grid">
+                            <div class="col-1-2">
+                                <strong>Resize With Preserving Ratio Example</strong>
+                                <pre class="language-javascript"><code class="language-javascript">
+var el = document.getElementById('resizer-ratio-demo');
+var resize = new Croppie(el, {
+    viewport: { width: 100, height: 100 },
+    boundary: { width: 300, height: 100 },
+    showZoomer: false,
+    enableResizeWithRatio: true,
+    enableOrientation: true,
+    mouseWheelZoom: 'ctrl'
+});
+resize.bind({
+    url: 'demo/demo-2.jpg',
+});
+//on button click
+resize.result('blob').then(function(blob) {
+    // do something with cropped blob
+});</code></pre>
+                                <div class="actions">
+                                    <button class="resizer-result">Result</button>
+                                </div>
+                            </div>
+                            <div class="col-1-2">
+                                <div id="resizer-ratio-demo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="demo-wrap upload-demo">
                     <div class="container">
                     <div class="grid">
