@@ -1225,6 +1225,14 @@
         }
 
         // console.table({ left, right, top, bottom, canvasWidth, canvasHeight, width, height, startX, startY, circle, sx, sy, dx, dy, sWidth, sHeight, dWidth, dHeight });
+		
+		// When the pixel from source position is directly transfered to the destination position, loosing all the neighbouring pixels information. The resulting image may often look very noisy.
+		// Set these properties is a simple area-average downsampling, producing preferable results with relatively small processing time.
+		ctx.mozImageSmoothingEnabled = true;
+		ctx.imageSmoothingQuality = "high";
+		ctx.webkitImageSmoothingEnabled = true;
+		ctx.msImageSmoothingEnabled = true;
+		ctx.imageSmoothingEnabled = true;
 
         ctx.drawImage(this.elements.preview, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         if (circle) {
