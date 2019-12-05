@@ -190,7 +190,7 @@
 
             img.removeAttribute('crossOrigin');
             if (src.match(/^https?:\/\/|^\/\//)) {
-                img.setAttribute('crossOrigin', 'anonymous');
+                img.setAttribute('crossOrigin', 'use-credentials');
             }
 
             img.onload = function () {
