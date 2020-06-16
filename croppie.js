@@ -2,7 +2,7 @@
  * Croppie
  * Copyright 2019
  * Foliotek
- * Version: 2.6.4
+ * Version: 2.6.5
  *************************/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -1476,8 +1476,8 @@
 
         // Reverses image dimensions if the degrees of rotation is not divisible by 180.
         if ((Math.abs(deg) / 90) % 2 === 1) {
-            let oldHeight = self._originalImageHeight;
-            let oldWidth = self._originalImageWidth;
+            var oldHeight = self._originalImageHeight;
+            var oldWidth = self._originalImageWidth;
             self._originalImageWidth = oldHeight;
             self._originalImageHeight = oldWidth;
         }
