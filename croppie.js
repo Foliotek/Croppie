@@ -1471,6 +1471,8 @@
 
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
+        self._originalImageWidth = canvas.width;
+        self._originalImageHeight = canvas.height;
         _updateCenterPoint.call(self, true);
         _updateZoomLimits.call(self);
 
