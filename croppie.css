@@ -41,6 +41,17 @@
   pointer-events: none;
 }
 
+.croppie-container .cr-resizer-info {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    padding: 2px;
+    background: #fff;
+    color: #000;
+    font-size: 12px;
+    font-family: Helvetica, sans-serif;
+}
+
 .croppie-container .cr-resizer-vertical,
 .croppie-container .cr-resizer-horisontal {
   position: absolute;
