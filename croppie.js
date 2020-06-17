@@ -467,7 +467,8 @@
         var direction;
         var originalX;
         var originalY;
-        var minSize = 50;
+        var minWidth = self.options.resizeControls.minWidth;
+        var minHeight = self.options.resizeControls.minHeight;
         var maxWidth;
         var maxHeight;
         var vr;
@@ -538,7 +539,7 @@
             var newHeight = self.options.viewport.height + deltaY;
             var newWidth = self.options.viewport.width + deltaX;
 
-            if (direction === 'v' && newHeight >= minSize && newHeight <= maxHeight) {
+            if (direction === 'v' && newHeight >= minHeight && newHeight <= maxHeight) {
                 css(wrap, {
                     height: newHeight + 'px'
                 });
@@ -553,7 +554,7 @@
                     height: self.options.viewport.height + 'px'
                 });
             }
-            else if (direction === 'h' && newWidth >= minSize && newWidth <= maxWidth) {
+            else if (direction === 'h' && newWidth >= minWidth && newWidth <= maxWidth) {
                 css(wrap, {
                     width: newWidth + 'px'
                 });
@@ -1582,7 +1583,9 @@
         },
         resizeControls: {
             width: true,
-            height: true
+            height: true,
+            minWidth: 50,
+            minHeight: 50
         },
         customClass: '',
         showZoomer: true,
