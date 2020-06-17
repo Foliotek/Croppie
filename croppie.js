@@ -391,6 +391,9 @@
         if (customViewportClass) {
             addClass(viewport, customViewportClass);
         }
+
+        self.vwMax = self.options.viewport.width;
+        self.vhMax = self.options.viewport.height;
         css(viewport, {
             width: self.options.viewport.width + 'px',
             height: self.options.viewport.height + 'px'
@@ -538,7 +541,7 @@
             var newHeight = self.options.viewport.height + deltaY;
             var newWidth = self.options.viewport.width + deltaX;
 
-            if (direction === 'v' && newHeight >= minSize && newHeight <= maxHeight) {
+            if (direction === 'v' && newHeight >= minSize && newHeight <= self.vhMax) {
                 css(wrap, {
                     height: newHeight + 'px'
                 });
@@ -553,7 +556,7 @@
                     height: self.options.viewport.height + 'px'
                 });
             }
-            else if (direction === 'h' && newWidth >= minSize && newWidth <= maxWidth) {
+            else if (direction === 'h' && newWidth >= minSize && newWidth <= self.vwMax) {
                 css(wrap, {
                     width: newWidth + 'px'
                 });
