@@ -755,7 +755,7 @@
         };
     }
 
-    function _updateCenterPoint(rotate) {
+    function _updateCenterPoint() {
         var self = this,
             scale = self._currentZoom,
             data = self.elements.preview.getBoundingClientRect(),
@@ -767,7 +767,7 @@
             center = {},
             adj = {};
 
-        if (rotate) {
+        /*if (rotate) { //this does not work as expected, use centerImage instead
             var cx = pc.x;
             var cy = pc.y;
             var tx = transform.x;
@@ -778,7 +778,7 @@
             transform.y = tx;
             transform.x = ty;
         }
-        else {
+        else {*/
             center.y = top / scale;
             center.x = left / scale;
 
@@ -787,7 +787,7 @@
 
             transform.x -= adj.x;
             transform.y -= adj.y;
-        }
+        //}
 
         var newCss = {};
         newCss[CSS_TRANS_ORG] = center.x + 'px ' + center.y + 'px';
@@ -1091,7 +1091,7 @@
             _setZoomerVal.call(self, scale < zoomer.min ? zoomer.min : zoomer.max);
         }
         else if (initial) {
-            defaultInitialZoom = Math.max((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
+            defaultInitialZoom = Math.min((boundaryData.width / imgData.width), (boundaryData.height / imgData.height));
             initialZoom = self.data.boundZoom !== null ? self.data.boundZoom : defaultInitialZoom;
             _setZoomerVal.call(self, initialZoom);
         }
@@ -1127,15 +1127,27 @@
         self._currentZoom = scale;
     }
 
-    function _centerImage() {
+    function _centerImage(rotate) {
         var self = this,
             imgDim = self.elements.preview.getBoundingClientRect(),
             vpDim = self.elements.viewport.getBoundingClientRect(),
             boundDim = self.elements.boundary.getBoundingClientRect(),
-            vpLeft = vpDim.left - boundDim.left,
-            vpTop = vpDim.top - boundDim.top,
-            w = vpLeft - ((imgDim.width - vpDim.width) / 2),
-            h = vpTop - ((imgDim.height - vpDim.height) / 2),
+            vpLeft,
+            vpTop,
+            w,
+            h,
+            transform;
+
+      if(rotate){//in case of rotation reset earlier transformations, so this calculation is not added on top
+        var newCss = {};
+        newCss[CSS_TRANS_ORG] = 0 + 'px ' + 0 + 'px';
+        css(self.elements.preview, newCss);
+      }
+
+      vpLeft = vpDim.left - boundDim.left;
+      vpTop = vpDim.top - boundDim.top;
+      w = vpLeft - ((imgDim.width - vpDim.width) / 2);
+      h = vpTop - ((imgDim.height - vpDim.height) / 2);
             transform = new Transform(w, h, self._currentZoom);
 
         css(self.elements.preview, CSS_TRANSFORM, transform.toString());
@@ -1471,8 +1483,9 @@
 
         self.data.orientation = getExifOffset(self.data.orientation, deg);
         drawCanvas(canvas, self.elements.img, self.data.orientation);
-        _updateCenterPoint.call(self, true);
+        _updateCenterPoint.call(self);
         _updateZoomLimits.call(self);
+        _centerImage.call(self, true);
 
         // Reverses image dimensions if the degrees of rotation is not divisible by 180.
         if ((Math.abs(deg) / 90) % 2 === 1) {
@@ -1536,6 +1549,26 @@
                 });
             }
         };
+    }
+
+    /** Update viewport to new dimensions
+    * @param w int new width in px
+    * @param h int new height in px
+    */
+    function _setViewport(w, h) {
+        var self = this;
+
+        self.options.viewport.height = h;
+        self.options.viewport.width = w;
+        css(self.elements.viewport, {
+            height: self.options.viewport.height + 'px',
+            width: self.options.viewport.width + 'px'
+        });
+
+        _updateOverlay.call(self);
+        _updateCenterPoint.call(self);
+        _updateZoomLimits.call(self);
+        _triggerUpdate.call(self);
     }
 
     function Croppie(element, opts) {
@@ -1630,6 +1663,10 @@
         },
         destroy: function () {
             return _destroy.call(this);
+        },
+        /** update viewport to new dimensions */
+        setViewport: function (widthVP, heightVP) {
+            _setViewport.call(this, widthVP, heightVP);
         }
     });
     return Croppie;
