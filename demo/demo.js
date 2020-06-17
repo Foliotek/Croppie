@@ -144,16 +144,40 @@ var Demo = (function() {
 			viewport: { width: 100, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
-            enableResize: true,
-            enableOrientation: true,
-            mouseWheelZoom: 'ctrl'
+			enableResize: true,
+			enableOrientation: true,
+			mouseWheelZoom: 'ctrl'
 		});
 		resize.bind({
             url: 'demo/demo-2.jpg',
             zoom: 0
         });
         vEl.addEventListener('update', function (ev) {
-        	console.log('resize update', ev);
+        });
+		document.querySelector('.resizer-result').addEventListener('click', function (ev) {
+			resize.result({
+				type: 'blob'
+			}).then(function (blob) {
+				popupResult({
+					src: window.URL.createObjectURL(blob)
+				});
+			});
+		});
+	}
+	function demoRatioResizer() {
+		var vEl = document.getElementById('resizer-ratio-demo'),
+			resize = new Croppie(vEl, {
+			viewport: { width: 250, height: 100 },
+			boundary: { width: 300, height: 300 },
+			showZoomer: false,
+			enableResizeWithRatio: true,
+			enableOrientation: true,
+		});
+		resize.bind({
+            url: 'demo/demo-2.jpg',
+            zoom: 0
+        });
+        vEl.addEventListener('update', function (ev) {
         });
 		document.querySelector('.resizer-result').addEventListener('click', function (ev) {
 			resize.result({
@@ -178,7 +202,6 @@ var Demo = (function() {
 	            	$uploadCrop.croppie('bind', {
 	            		url: e.target.result
 	            	}).then(function(){
-	            		console.log('jQuery bind complete');
 	            	});
 	            	
 	            }
@@ -251,6 +274,7 @@ var Demo = (function() {
 		demoBasic();	
 		demoVanilla();	
 		demoResizer();
+		demoRatioResizer();
 		demoUpload();
 		demoHidden();
 	}

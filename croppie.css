@@ -42,13 +42,17 @@
 }
 
 .croppie-container .cr-resizer-vertical,
-.croppie-container .cr-resizer-horisontal {
+.croppie-container .cr-resizer-horisontal,
+.croppie-container .cr-resizer-top-right,
+.croppie-container .cr-resizer-bottom-right {
   position: absolute;
   pointer-events: all;
 }
 
 .croppie-container .cr-resizer-vertical::after,
-.croppie-container .cr-resizer-horisontal::after {
+.croppie-container .cr-resizer-horisontal::after,
+.croppie-container .cr-resizer-top-right::after,
+.croppie-container .cr-resizer-bottom-right::after {
     display: block;
     position: absolute;
     box-sizing: border-box;
@@ -66,9 +70,27 @@
   height: 10px;
 }
 
-.croppie-container .cr-resizer-vertical::after {
+.croppie-container .cr-resizer-top-right,
+.croppie-container .cr-resizer-bottom-right {
+  width: 10px;
+  height: 10px;
+  right: -5px;
+}
+
+.croppie-container .cr-resizer-vertical {
+    cursor: row-resize;
     left: 50%;
     margin-left: -5px;
+}
+
+.croppie-container .cr-resizer-top-right {
+    cursor: nesw-resize;
+    top: -5px;
+}
+
+.croppie-container .cr-resizer-bottom-right {
+    cursor: nwse-resize;
+    bottom: -5px;
 }
 
 .croppie-container .cr-resizer-horisontal {
