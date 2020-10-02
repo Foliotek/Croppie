@@ -387,10 +387,6 @@
             height: (bh + (isNaN(bh) ? '' : 'px'))
         });
 
-        if (self.options.viewport.contrastBorder) {
-            addClass(viewport, 'cr-viewport-with-contrast-border');
-        }
-
         addClass(viewport, 'cr-viewport');
         if (customViewportClass) {
             addClass(viewport, customViewportClass);
@@ -1576,8 +1572,7 @@
         viewport: {
             width: 100,
             height: 100,
-            type: 'square',
-            contrastBorder: false
+            type: 'square'
         },
         boundary: { },
         orientationControls: {
