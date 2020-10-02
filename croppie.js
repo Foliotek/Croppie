@@ -397,6 +397,11 @@
         });
         viewport.setAttribute('tabindex', 0);
 
+
+        if (self.options.viewport.contrastBorder) {
+            addClass(viewport, 'cr-viewport-with-contrast-border');
+        }
+
         addClass(self.elements.preview, 'cr-image');
         setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
         addClass(overlay, 'cr-overlay');
@@ -1572,7 +1577,8 @@
         viewport: {
             width: 100,
             height: 100,
-            type: 'square'
+            type: 'square',
+            contrastBorder: false
         },
         boundary: { },
         orientationControls: {
