@@ -4,7 +4,7 @@
   "description": "A simple javascript image cropper",
   "main": "croppie.js",
   "devDependencies": {
-    "gh-pages": "^0.11.0",
+    "gh-pages": "^4.0.0",
     "mocha": "2.4.5",
     "uglify-js": "3.3.15"
   },
