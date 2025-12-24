@@ -1,0 +1,163 @@
+/**
+ * Croppie - Modern Image Cropper Styles
+ * @bayinformatics/croppie
+ */
+
+/* CSS Custom Properties for theming */
+:root {
+  --croppie-boundary-bg: #1a1a2e;
+  --croppie-slider-start: #4f46e5;
+  --croppie-slider-end: #818cf8;
+  --croppie-slider-thumb: #ffffff;
+  --croppie-slider-shadow: rgba(79, 70, 229, 0.3);
+  --croppie-slider-shadow-hover: rgba(79, 70, 229, 0.4);
+  --croppie-slider-shadow-focus: rgba(79, 70, 229, 0.5);
+}
+
+.croppie-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Boundary - the outer container */
+.cr-boundary {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  background-color: var(--croppie-boundary-bg);
+  border-radius: 0.5rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Image preview */
+.cr-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  max-width: none !important;
+  max-height: none !important;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Viewport - the visible crop area */
+.cr-viewport {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 2000px 2000px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cr-viewport.cr-vp-circle {
+  border-radius: 50%;
+}
+
+.cr-viewport.cr-vp-square {
+  border-radius: 0;
+}
+
+/* Overlay - darkened area outside viewport */
+.cr-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Zoom slider container */
+.cr-slider-wrap {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem 1rem;
+}
+
+/* Zoom slider - scoped to avoid framework conflicts */
+.croppie-container .cr-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--croppie-slider-start), var(--croppie-slider-end));
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.croppie-container .cr-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--croppie-slider-thumb);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--croppie-slider-shadow);
+  transition: box-shadow 0.15s ease;
+}
+
+.croppie-container .cr-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--croppie-slider-shadow-hover);
+}
+
+.croppie-container .cr-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--croppie-slider-thumb);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--croppie-slider-shadow);
+  transition: box-shadow 0.15s ease;
+}
+
+.croppie-container .cr-slider::-moz-range-thumb:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 4px var(--croppie-slider-shadow-hover);
+}
+
+.croppie-container .cr-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--croppie-slider-start), var(--croppie-slider-end));
+}
+
+/* Focus states for accessibility */
+.croppie-container .cr-slider:focus {
+  outline: none;
+}
+
+.croppie-container .cr-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 0 4px var(--croppie-slider-shadow-focus);
+}
+
+/* Dark mode support - media query for system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --croppie-boundary-bg: #0f0f1a;
+  }
+}
+
+/* Dark mode support - data-theme attribute for framework integration (DaisyUI, etc.) */
+[data-theme="dark"] {
+  --croppie-boundary-bg: #0f0f1a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .cr-slider-wrap {
+    padding: 0.5rem;
+  }
+}

@@ -1,40 +1,67 @@
 {
-  "name": "croppie",
-  "version": "2.6.5",
-  "description": "A simple javascript image cropper",
-  "main": "croppie.js",
-  "devDependencies": {
-    "gh-pages": "^0.11.0",
-    "mocha": "2.4.5",
-    "uglify-js": "3.3.15"
+  "name": "@bayinformatics/croppie",
+  "version": "3.0.0-alpha.1",
+  "description": "A modern, TypeScript-first image cropper. Fork of Foliotek/Croppie.",
+  "type": "module",
+  "main": "./dist/croppie.js",
+  "module": "./dist/croppie.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/croppie.js",
+      "require": "./dist/croppie.cjs"
+    },
+    "./style.css": "./dist/croppie.css",
+    "./croppie.css": "./dist/croppie.css"
   },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "mocha test/unit",
-    "deploy": "node deploy.js",
-    "uglify": "uglifyjs croppie.js -c -m -r '$,require,exports' -o croppie.min.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Foliotek/Croppie.git"
+    "dev": "bun build src/index.ts --outdir dist --watch",
+    "build": "bun run build:js && bun run build:css && bun run build:types",
+    "build:js": "bun build src/index.ts --outdir=dist --entry-naming=croppie.[ext] --minify --sourcemap",
+    "build:css": "cp src/croppie.css dist/croppie.css",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
+    "test": "bun test",
+    "test:unit": "bun test tests/unit",
+    "test:integration": "bun test tests/integration",
+    "test:visual": "bunx playwright test",
+    "test:all": "bun test && bunx playwright test",
+    "test:watch": "bun test --watch",
+    "lint": "bunx biome check src",
+    "lint:fix": "bunx biome check --write src",
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
+    "image",
     "crop",
     "cropper",
-    "image",
-    "cropping"
+    "avatar",
+    "resize",
+    "canvas",
+    "typescript"
   ],
-  "authors": [
-    "Dustin Smith <thedustinsmith@gmail.com>",
-    "Ethan Calvert <calvert1591@gmail.com>"
-  ],
+  "author": "Bay Informatics",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Foliotek/Croppie/issues"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bayinformatics/croppie.git"
   },
-  "homepage": "http://foliotek.github.io/Croppie",
-  "files": [
-    "croppie.css",
-    "croppie.js",
-    "croppie.min.js"
-  ]
+  "bugs": {
+    "url": "https://github.com/bayinformatics/croppie/issues"
+  },
+  "homepage": "https://github.com/bayinformatics/croppie#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@playwright/test": "^1.57.0",
+    "@types/bun": "^1.3.0",
+    "happy-dom": "^20.0.11",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
