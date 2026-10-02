@@ -141,12 +141,13 @@ var Demo = (function() {
     function demoResizer() {
 		var vEl = document.getElementById('resizer-demo'),
 			resize = new Croppie(vEl, {
-			viewport: { width: 100, height: 100 },
+			viewport: { width: 150, height: 100 },
 			boundary: { width: 300, height: 300 },
 			showZoomer: false,
             enableResize: true,
             enableOrientation: true,
-            mouseWheelZoom: 'ctrl'
+            mouseWheelZoom: 'ctrl',
+            grid: 'thirds'
 		});
 		resize.bind({
             url: 'demo/demo-2.jpg',
@@ -155,6 +156,9 @@ var Demo = (function() {
         vEl.addEventListener('update', function (ev) {
         	console.log('resize update', ev);
         });
+		document.querySelector('.resizer-grid').addEventListener('change', function (ev) {
+			resize.setGrid(ev.target.value || false);
+		});
 		document.querySelector('.resizer-result').addEventListener('click', function (ev) {
 			resize.result({
 				type: 'blob'

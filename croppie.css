@@ -91,6 +91,25 @@
     border-radius: 50%;
 }
 
+.croppie-container .cr-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    -webkit-filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+}
+
+.croppie-container .cr-grid line {
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
 .croppie-container .cr-overlay {
     z-index: 1;
     position: absolute;
