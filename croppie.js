@@ -397,6 +397,10 @@
         });
         viewport.setAttribute('tabindex', 0);
 
+        if (self.options.grid) {
+            _setGrid.call(self, self.options.grid);
+        }
+
         addClass(self.elements.preview, 'cr-image');
         setAttributes(self.elements.preview, { 'alt': 'preview', 'aria-grabbed': 'false' });
         addClass(overlay, 'cr-overlay');
@@ -458,6 +462,82 @@
 
     function _hasExif() {
         return this.options.enableExif && window.EXIF;
+    }
+
+    /* Framing grid */
+    var SVG_NS = 'http://www.w3.org/2000/svg',
+        PHI = (1 + Math.sqrt(5)) / 2;
+
+    function _gridAt(positions) {
+        var lines = [];
+        positions.forEach(function (p) {
+            p *= 100;
+            lines.push([p, 0, p, 100], [0, p, 100, p]);
+        });
+        return lines;
+    }
+
+    // Lines are in a 0-100 coordinate space that is stretched over the viewport.
+    function _getGridLines(type, width, height) {
+        // For the golden triangles: where the perpendiculars from the corners meet the diagonal.
+        // This depends on the viewport's aspect ratio (t1 + t2 is always 100).
+        var t1 = 100 * width * width / (width * width + height * height),
+            t2 = 100 - t1;
+
+        switch (type) {
+            case 'thirds':
+                return _gridAt([1 / 3, 2 / 3]);
+            case 'fifths':
+                return _gridAt([0.2, 0.4, 0.6, 0.8]);
+            case 'golden-wide': // 1 : 1.618 : 1
+                return _gridAt([1 / (2 + PHI), (1 + PHI) / (2 + PHI)]);
+            case 'golden-narrow': // 1.618 : 1 : 1.618
+                return _gridAt([PHI / (1 + 2 * PHI), (1 + PHI) / (1 + 2 * PHI)]);
+            case 'center':
+                return _gridAt([0.5]);
+            case 'diagonals':
+                return [[0, 0, 100, 100], [100, 0, 0, 100]];
+            case 'golden-triangles-falling':
+                // Diagonal from top-left to bottom-right, plus a perpendicular to it from each of the other two corners
+                return [[0, 0, 100, 100], [100, 0, t1, t1], [0, 100, t2, t2]];
+            case 'golden-triangles-rising':
+                // Diagonal from bottom-left to top-right, plus a perpendicular to it from each of the other two corners
+                return [[0, 100, 100, 0], [0, 0, t2, t1], [100, 100, t1, t2]];
+        }
+        return null;
+    }
+
+    function _setGrid(type) {
+        var self = this,
+            lines = type ? _getGridLines(type, self.options.viewport.width, self.options.viewport.height) : null,
+            svg = self.elements.grid;
+
+        if (type && !lines) {
+            throw 'Croppie: unknown grid type "' + type + '"';
+        }
+        if (svg) {
+            svg.parentNode.removeChild(svg);
+            self.elements.grid = null;
+        }
+        self.options.grid = type || false;
+        if (!lines) {
+            return;
+        }
+
+        svg = self.elements.grid = document.createElementNS(SVG_NS, 'svg');
+        setAttributes(svg, {
+            'class': 'cr-grid cr-grid-' + type,
+            'viewBox': '0 0 100 100',
+            'preserveAspectRatio': 'none',
+            'aria-hidden': 'true',
+            'focusable': 'false'
+        });
+        lines.forEach(function (l) {
+            var line = document.createElementNS(SVG_NS, 'line');
+            setAttributes(line, { x1: l[0], y1: l[1], x2: l[2], y2: l[3] });
+            svg.appendChild(line);
+        });
+        self.elements.viewport.appendChild(svg);
     }
 
     function _initializeResize () {
@@ -567,6 +647,10 @@
                 css(self.elements.viewport, {
                     width: self.options.viewport.width + 'px'
                 });
+            }
+
+            if (self.options.grid) {
+                _setGrid.call(self, self.options.grid);
             }
 
             _updateOverlay.call(self);
@@ -1593,6 +1677,7 @@
         enforceBoundary: true,
         enableOrientation: false,
         enableKeyMovement: true,
+        grid: false,
         update: function () { }
     };
 
@@ -1627,6 +1712,9 @@
         },
         rotate: function (deg) {
             _rotate.call(this, deg);
+        },
+        setGrid: function (type) {
+            _setGrid.call(this, type);
         },
         destroy: function () {
             return _destroy.call(this);
